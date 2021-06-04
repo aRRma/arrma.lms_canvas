@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace arrma.lms_canvas.api_test.api_models.Users
 {
-    // see https://canvas.instructure.com/doc/api/users.html
-
     /// <summary>
-    /// перечисление доп. параметров для запросов информации об пользователях
+    /// Доп. параметры для запросов информации об пользователях
     /// </summary>
     enum UserInclude
     {
@@ -25,7 +23,7 @@ namespace arrma.lms_canvas.api_test.api_models.Users
     }
 
     /// <summary>
-    /// перечисление ролей пользователей для запросов информации об пользователях
+    /// Тип зачисления пользователя
     /// </summary>
     enum UserEnrollmentType
     {
@@ -39,7 +37,7 @@ namespace arrma.lms_canvas.api_test.api_models.Users
     }
 
     /// <summary>
-    /// перечисление состояния пользователей для запросов информации об пользователях
+    /// Состояние зачисления пользователя
     /// </summary>
     enum UserEnrollmentState
     {

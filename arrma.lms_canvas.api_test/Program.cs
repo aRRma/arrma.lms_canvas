@@ -25,7 +25,7 @@ namespace arrma.lms_canvas.api_test
 
 
             Console.WriteLine("Запрашиваем информацию об конкретном пользователе");
-            UserModel user = await ShowUserDetails();
+            User user = await ShowUserDetails();
             Console.WriteLine($"user_id: {user.id}\nuser_name: {user.name}");
             Console.WriteLine("\n");
 
@@ -61,7 +61,7 @@ namespace arrma.lms_canvas.api_test
             //Console.WriteLine("\n");
 
             Console.WriteLine("Запрашиваем список пользователей на конкретном курсе");
-            List<UserModel> courseUsers = await ListUsersInCourse("5031",
+            List<User> courseUsers = await ListUsersInCourse("5031",
                 new List<UserEnrollmentType>()
             {
                 UserEnrollmentType.STUDENT
@@ -89,7 +89,7 @@ namespace arrma.lms_canvas.api_test
         }
 
         #region api/v1/courses
-        static async Task<List<CourseModel>> ListCoursesForAUser(
+        static async Task<List<Course>> ListCoursesForAUser(
             string userId = "23392",
             CourseState state = CourseState.AVAILABLE,
             CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE,
@@ -141,10 +141,10 @@ namespace arrma.lms_canvas.api_test
 
             string url = GetApiUrl("v1/users/" + userId + "/courses", addParams);
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<CourseModel>>(data.Result);
+            return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
         
-        static async Task<List<CourseModel>> ListYourCourses(
+        static async Task<List<Course>> ListYourCourses(
             CourseEnrollmentRole role = CourseEnrollmentRole.TEACHER,
             CourseState state = CourseState.AVAILABLE,
             CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE,
@@ -209,10 +209,10 @@ namespace arrma.lms_canvas.api_test
 
             string url = GetApiUrl("v1/courses/", addParams);
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<CourseModel>>(data.Result);
+            return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
         
-        static async Task<List<UserModel>> ListUsersInCourse(
+        static async Task<List<User>> ListUsersInCourse(
             string courseId,
             List<UserEnrollmentType> type = null,
             List<UserEnrollmentState> state = null,
@@ -258,18 +258,18 @@ namespace arrma.lms_canvas.api_test
 
             string url = GetApiUrl("v1/courses/" + courseId + "/users", addParams);
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<UserModel>>(data.Result);
+            return JsonConvert.DeserializeObject<List<User>>(data.Result);
         }
         #endregion
 
         #region api/v1/users
-        static async Task<UserModel> ShowUserDetails(string userId = "23392")
+        static async Task<User> ShowUserDetails(string userId = "23392")
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
 
             string url = GetApiUrl("v1/users/" + userId);
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<UserModel>(data.Result);
+            return JsonConvert.DeserializeObject<User>(data.Result);
         }
 
         //static async Task<CanvasProfileModel> GetUserProfile(string userId)

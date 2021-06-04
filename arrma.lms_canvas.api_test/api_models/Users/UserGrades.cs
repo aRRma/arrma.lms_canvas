@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace arrma.lms_canvas.api_test.api_models.Users
 {
-    class UserGradesModel
+    /// <summary>
+    /// Обьект оценок пользователя
+    /// </summary>
+    class UserGrades
     {
         public string html_url;
         public double? current_score;

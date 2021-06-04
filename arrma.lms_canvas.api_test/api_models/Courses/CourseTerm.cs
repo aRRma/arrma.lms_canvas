@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace arrma.lms_canvas.api_test.api_models
+namespace arrma.lms_canvas.api_test.api_models.Courses
 {
-    class CourseTermModel
+    /// <summary>
+    /// Обьект срока обучения
+    /// </summary>
+    class CourseTerm
     {
         public int? id;
         public string? name;

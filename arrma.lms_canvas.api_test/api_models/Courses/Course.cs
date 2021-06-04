@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using arrma.lms_canvas.api_test.api_models.Users;
 
-namespace arrma.lms_canvas.api_test.api_models
+namespace arrma.lms_canvas.api_test.api_models.Courses
 {
     // see https://canvas.instructure.com/doc/api/courses
 
-    class CourseModel
+    /// <summary>
+    /// Обьект описывающий курс в LMS Canvas
+    /// </summary>
+    class Course
     {
         public int id;
         public string sis_course_id;
@@ -23,16 +26,16 @@ namespace arrma.lms_canvas.api_test.api_models
         public DateTime? start_at;
         public DateTime? end_at;
         public string locale;
-        public CourseEnrollmentModel[] enrollments;
+        public CourseEnrollment[] enrollments;
         public int? total_students;
         public CalendarLinkModel calendar;
         public string default_view;
         public string syllabus_body;
         public int? needs_grading_count;
-        public CourseTermModel term;
-        public CourseProgresModel course_progress;
+        public CourseTerm term;
+        public CourseProgress course_progress;
         public bool apply_assignment_group_weights;
-        public UserDisplayModel[] teachers;
+        public UserDisplay[] teachers;
         public Dictionary<string, bool> permissions;
         public bool is_public;
         public bool is_public_to_auth_users;

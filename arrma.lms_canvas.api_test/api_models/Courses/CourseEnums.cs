@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace arrma.lms_canvas.api_test.api_models.Courses
 {
-    // see https://canvas.instructure.com/doc/api/courses.html
-
     /// <summary>
-    /// перечисление для запроса по состоянию курса
+    /// Состояние курса
     /// </summary>
     enum CourseState
     {
@@ -21,7 +19,7 @@ namespace arrma.lms_canvas.api_test.api_models.Courses
     }
 
     /// <summary>
-    /// перечисление для запроса по типу регистрации на курсе
+    /// Тип зачисления (регистрации) на курсе
     /// </summary>
     enum CourseEnrollmentState
     {
@@ -32,7 +30,7 @@ namespace arrma.lms_canvas.api_test.api_models.Courses
     }
 
     /// <summary>
-    /// перечисление доп. параметров для запросов информации по курсу
+    /// Доп. параметры информации по курсу
     /// </summary>
     enum CourseInclude
     {
@@ -57,7 +55,7 @@ namespace arrma.lms_canvas.api_test.api_models.Courses
     }
 
     /// <summary>
-    /// перечисление ролей пользователей для запросов информации по курсу
+    /// Тип ролей зачисления (регистрации) на курсе
     /// </summary>
     enum CourseEnrollmentRole
     {

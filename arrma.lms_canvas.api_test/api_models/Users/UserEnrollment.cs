@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace arrma.lms_canvas.api_test.api_models.Users
 {
-    class UserEnrollmentModel
+    class UserEnrollment
     {
         public int id;
         public int? user_id;
@@ -15,8 +15,8 @@ namespace arrma.lms_canvas.api_test.api_models.Users
         public DateTime? create_at;
         public DateTime? update_at;
         public int? associated_user_id;
-        public string start_at;
-        public string end_at;
+        public DateTime? start_at;
+        public DateTime? end_at;
         public int? course_section_id;
         public int? root_account_id;
         public bool limit_privileges_to_course_section;
@@ -25,7 +25,7 @@ namespace arrma.lms_canvas.api_test.api_models.Users
         public int? role_id;
         public DateTime? last_activity_at;
         public int? total_activity_time;
-        public UserGradesModel grades;
+        public UserGrades grades;
         public string sis_account_id;           //подразделение (институт?)
         public string sis_course_id;
         public string course_integration_id;

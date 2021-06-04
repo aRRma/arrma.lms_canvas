@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace arrma.lms_canvas.api_test.api_models
+namespace arrma.lms_canvas.api_test.api_models.Courses
 {
-    class CourseProgresModel
+    /// <summary>
+    /// Обьект прогресс курса
+    /// </summary>
+    class CourseProgress
     {
         public int? requirement_count;
         public int? requirement_completed_count;

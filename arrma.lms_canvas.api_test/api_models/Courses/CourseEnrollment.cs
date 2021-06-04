@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace arrma.lms_canvas.api_test.api_models
+namespace arrma.lms_canvas.api_test.api_models.Courses
 {
-    class CourseEnrollmentModel
+    /// <summary>
+    /// Список зачислений, связывающих текущего пользователя с курсом
+    /// </summary>
+    class CourseEnrollment
     {
         public string type;
         public string role;

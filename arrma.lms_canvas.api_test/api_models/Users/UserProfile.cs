@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace arrma.lms_canvas.api_test.api_models.Users
 {
-    class UserProfileModel
+    /// <summary>
+    /// обьект профиля пользователя
+    /// </summary>
+    class UserProfile
     {
         public int id;
         public string name;

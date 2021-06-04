@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 namespace arrma.lms_canvas.api_test.api_models.Users
 {
     // see https://canvas.instructure.com/doc/api/users.html
-    class UserDisplayModel
+
+    /// <summary>
+    /// Обьект отображения пользователя LMS Canvas
+    /// </summary>
+    class UserDisplay
     {
         public int id;
         public string display_name;
