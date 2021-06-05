@@ -11,10 +11,8 @@ namespace arrma.lms_canvas.api_test.api_models.Users
     /// <summary>
     /// Обьект пользователя LMS Canvas
     /// </summary>
-    class User
+    class User : CanvasEntity
     {
-        public int id;
-        public string name;
         public string sortable_name;
         public string short_name;
         public string sis_user_id;

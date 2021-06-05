@@ -9,10 +9,8 @@ namespace arrma.lms_canvas.api_test.api_models.Courses
     /// <summary>
     /// Обьект срока обучения
     /// </summary>
-    class CourseTerm
+    class CourseTerm : CanvasEntity
     {
-        public int? id;
-        public string? name;
         public DateTime? start_at;
         public DateTime? end_at;
     }

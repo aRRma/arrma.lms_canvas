@@ -9,14 +9,12 @@ namespace arrma.lms_canvas.api_test.api_models.Courses
     /// <summary>
     /// Обьект описывающий курс в LMS Canvas
     /// </summary>
-    class Course
+    class Course : CanvasEntity
     {
-        public int id;
         public string sis_course_id;
         public string uuid;
         public string integration_id;
         public int? sis_import_id;
-        public string name;
         public string course_code;
         public string workflow_state;
         public int? account_id;

@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 namespace arrma.lms_canvas.api_test.api_models.Users
 {
     /// <summary>
-    /// обьект профиля пользователя
+    /// Обьект профиля пользователя
     /// </summary>
-    class UserProfile
+    class UserProfile : CanvasEntity
     {
-        public int id;
-        public string name;
         public string short_name;
         public string sortable_name;
         public string title;
