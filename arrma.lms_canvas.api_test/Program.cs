@@ -5,9 +5,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using arrma.lms_canvas.api_test.api_models;
+using arrma.lms_canvas.api_test.api_models.Assignment_Group;
 using arrma.lms_canvas.api_test.api_models.Assignments;
 using arrma.lms_canvas.api_test.api_models.Courses;
+using arrma.lms_canvas.api_test.api_models.Submissions;
 using arrma.lms_canvas.api_test.api_models.Users;
 
 namespace arrma.lms_canvas.api_test
@@ -84,86 +85,128 @@ namespace arrma.lms_canvas.api_test
             //}
             //Console.WriteLine();
 
-            Console.WriteLine("Запрашиваем задания для курса");
-            List<Assignment> assignments = await ListAssignments(courseId: "11527",
-                bucket: AssignmentBucket.PAST,
-                orderBy: AssignmentOrderBy.NAME,
-                include: new List<AssignmentInclude>()
-                {
-                    AssignmentInclude.ALL_DATES
-                });
-            foreach (var item in assignments)
+            //Console.WriteLine("Запрашиваем задания для курса");
+            //List<Assignment> assignments = await ListAssignments(courseId: "11527",
+            //    bucket: AssignmentBucket.PAST,
+            //    orderBy: AssignmentOrderBy.NAME,
+            //    include: new List<AssignmentInclude>()
+            //    {
+            //        AssignmentInclude.ALL_DATES
+            //    });
+            //foreach (var item in assignments)
+            //{
+            //    Console.WriteLine($"{item.id}\t{item.name}\t");
+            //}
+            //Console.WriteLine();
+
+            //Console.WriteLine("Запрашиваем группы заданий с массивом самих заданий");
+            //List<AssignmentGroup> listGroup = await ListAssignmentGroups("11527", AssignmentGroupInclude.ASSIGNMENTS);
+            //foreach (var item in listGroup)
+            //{
+            //    Console.WriteLine($"Id группы: {item.id}\tНазвание группы: {item.name}");
+            //    if (item.assignments != null)
+            //        foreach (var assignment in item.assignments)
+            //            Console.WriteLine($"\t\tId задания: {assignment.id}\tНазвание задания: {assignment.name}");
+
+            //}
+
+            Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
+            List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignments("11527", new[] { 30160, 31578 }, new List<SubmissionInclude> { SubmissionInclude.ASSIGNMENTS });
+            foreach (var item in studentSubmissions)
             {
-                Console.WriteLine($"{item.id}\t{item.name}\t");
+                Console.WriteLine($"Студент Id: {item.user_id}\tSis: {item.sis_user_id}");
+                foreach (var submissions in item.submissions)
+                {
+                    Console.WriteLine($"\t\tId задания: {submissions.assignment_id}\tСтатус: {submissions.workflow_state}\tОценка: {(submissions.grade == null ? "не известно" : submissions.grade)}\tВовремя: {!submissions.late}");
+                }
             }
-            Console.WriteLine();
+
 
             Console.WriteLine("\n");
             Console.WriteLine("End");
             Console.ReadKey();
         }
 
-        #region api/v1/courses
-        static async Task<List<Course>> ListCoursesForAUser(
-            string userId = "23392",
-            CourseState state = CourseState.AVAILABLE,
-            CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE,
-            List<CourseInclude> include = null)
-        {
-            // see https://canvas.instructure.com/doc/api/courses.html#method.courses.user_index
+        #region api/v1/assignment_groups
 
-            string _state;
-            string _enrollment;
-            string _include = null;
+        static async Task<List<AssignmentGroup>> ListAssignmentGroups(string courseId, AssignmentGroupInclude include = AssignmentGroupInclude.NONE)
+        {
+            string _include;
             string addParams = null;
-            
-            _state = state switch
+
+            _include = include switch
             {
-                CourseState.NONE => string.Empty,
-                CourseState.UNPUBLISHED => "state[]=" + CourseState.UNPUBLISHED.ToString().ToLower(),
-                CourseState.AVAILABLE => "state[]=" + CourseState.AVAILABLE.ToString().ToLower(),
-                CourseState.COMPLETED => "state[]=" + CourseState.COMPLETED.ToString().ToLower(),
-                CourseState.DELETED => "state[]=" + CourseState.DELETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown state enum type")
+                AssignmentGroupInclude.NONE => string.Empty,
+                AssignmentGroupInclude.ASSIGNMENTS => "include=" + AssignmentGroupInclude.ASSIGNMENTS.ToString().ToLower(),
+                _ => throw new ArgumentOutOfRangeException(nameof(include), include, "Unknown AssignmentGroupInclude enum type")
             };
 
-            _enrollment = enrollment switch
+            if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
+
+            string url = GetApiUrl("v1/courses/" + courseId + "/assignment_groups", addParams);
+            using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<AssignmentGroup>>(data.Result);
+        }
+
+        #endregion
+
+        #region api/v1/assignments
+
+        static async Task<List<Assignment>> ListAssignments(string courseId, string searchTerm = null, AssignmentBucket bucket = AssignmentBucket.UPCOMING, AssignmentOrderBy orderBy = AssignmentOrderBy.NAME, List<AssignmentInclude> include = null)
+        {
+            // see https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.index
+
+            string _term = null;
+            string _bucket = null;
+            string _orderBy = null;
+            string _include = null;
+            string addParams = null;
+
+            if (!string.IsNullOrEmpty(searchTerm)) _term = "search_term=" + Uri.EscapeDataString(searchTerm);
+
+            _bucket = bucket switch
             {
-                CourseEnrollmentState.NONE => string.Empty,
-                CourseEnrollmentState.ACTIVE => "enrollment_state=" + CourseEnrollmentState.ACTIVE.ToString().ToLower(),
-                CourseEnrollmentState.INVITED_OR_PENDING => "enrollment_state=" + CourseEnrollmentState.INVITED_OR_PENDING.ToString().ToLower(),
-                CourseEnrollmentState.COMPLETED => "enrollment_state=" + CourseEnrollmentState.COMPLETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown enrollment state enum type")
+                AssignmentBucket.NONE => string.Empty,
+                AssignmentBucket.PAST => "bucket=" + AssignmentBucket.PAST.ToString().ToLower(),
+                AssignmentBucket.OVERDUE => "bucket=" + AssignmentBucket.OVERDUE.ToString().ToLower(),
+                AssignmentBucket.UNDATED => "bucket=" + AssignmentBucket.UNDATED.ToString().ToLower(),
+                AssignmentBucket.UNGRADED => "bucket=" + AssignmentBucket.UNGRADED.ToString().ToLower(),
+                AssignmentBucket.UNSUBMITTED => "bucket=" + AssignmentBucket.UNSUBMITTED.ToString().ToLower(),
+                AssignmentBucket.UPCOMING => "bucket=" + AssignmentBucket.UPCOMING.ToString().ToLower(),
+                AssignmentBucket.FUTURE => "bucket=" + AssignmentBucket.FUTURE.ToString().ToLower(),
+                _ => throw new ArgumentOutOfRangeException(nameof(bucket), bucket, "Unknown AssignmentBucket enum type")
+            };
+
+            _orderBy = orderBy switch
+            {
+                AssignmentOrderBy.NONE => String.Empty,
+                AssignmentOrderBy.NAME => "order_by=" + AssignmentOrderBy.NAME.ToString().ToLower(),
+                AssignmentOrderBy.POSITIONS => "order_by=" + AssignmentOrderBy.POSITIONS.ToString().ToLower(),
+                _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, "Unknown AssignmentOrderBy enum type")
             };
 
             if (include != null)
             {
                 foreach (var item in include)
-                {
-                    if (item != CourseInclude.NONE &&
-                        item != CourseInclude.ALL_COURSES &&
-                        item != CourseInclude.PERMISSIONS)
-                    {
-                        _include += $"include[]=" + item.ToString().ToLower() + "&";
-                    }
-                }
+                    _include += "include[]=" + item.ToString().ToLower() + "&";
                 _include = _include.Remove(_include.LastIndexOf("&"));
             }
 
-            if (!string.IsNullOrEmpty(_state)) addParams += _state + "&";
-            if (!string.IsNullOrEmpty(_enrollment)) addParams += _enrollment + "&";
+            if (!string.IsNullOrEmpty(_term)) addParams += _term + "&";
+            if (!string.IsNullOrEmpty(_bucket)) addParams += _bucket + "&";
+            if (!string.IsNullOrEmpty(_orderBy)) addParams += _orderBy + "&";
             if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
 
-            string url = GetApiUrl("v1/users/" + userId + "/courses", addParams);
+            string url = GetApiUrl("v1/courses/" + courseId + "/assignments", addParams);
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Course>>(data.Result);
+            return JsonConvert.DeserializeObject<List<Assignment>>(data.Result);
         }
 
-        static async Task<List<Course>> ListYourCourses(
-            CourseEnrollmentRole role = CourseEnrollmentRole.TEACHER,
-            CourseState state = CourseState.AVAILABLE,
-            CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE,
-            List<CourseInclude> include = null)
+        #endregion
+
+        #region api/v1/courses
+
+        static async Task<List<Course>> ListYourCourses(CourseEnrollmentRole role = CourseEnrollmentRole.TEACHER, CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 
@@ -181,9 +224,9 @@ namespace arrma.lms_canvas.api_test
                 CourseEnrollmentRole.TA => "enrollment_type=" + CourseEnrollmentRole.TA.ToString().ToLower(),
                 CourseEnrollmentRole.OBSERVER => "enrollment_type=" + CourseEnrollmentRole.OBSERVER.ToString().ToLower(),
                 CourseEnrollmentRole.DESIGNER => "enrollment_type=" + CourseEnrollmentRole.DESIGNER.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown role enum type")
+                _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown CourseEnrollmentRole enum type")
             };
-            
+
             _state = state switch
             {
                 CourseState.NONE => string.Empty,
@@ -191,7 +234,7 @@ namespace arrma.lms_canvas.api_test
                 CourseState.AVAILABLE => "state[]=" + CourseState.AVAILABLE.ToString().ToLower(),
                 CourseState.COMPLETED => "state[]=" + CourseState.COMPLETED.ToString().ToLower(),
                 CourseState.DELETED => "state[]=" + CourseState.DELETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown state enum type")
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseState enum type")
             };
 
             _enrollment = enrollment switch
@@ -200,7 +243,7 @@ namespace arrma.lms_canvas.api_test
                 CourseEnrollmentState.ACTIVE => "enrollment_state=" + CourseEnrollmentState.ACTIVE.ToString().ToLower(),
                 CourseEnrollmentState.INVITED_OR_PENDING => "enrollment_state=" + CourseEnrollmentState.INVITED_OR_PENDING.ToString().ToLower(),
                 CourseEnrollmentState.COMPLETED => "enrollment_state=" + CourseEnrollmentState.COMPLETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown enrollment state enum type")
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseEnrollmentState enum type")
             };
 
             if (include != null)
@@ -226,12 +269,57 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
+        static async Task<List<Course>> ListCoursesForAUser(string userId = "23392", CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
+        {
+            // see https://canvas.instructure.com/doc/api/courses.html#method.courses.user_index
 
-        static async Task<List<User>> ListUsersInCourse(
-            string courseId,
-            List<UserEnrollmentType> type = null,
-            List<UserEnrollmentState> state = null,
-            List<UserInclude> include = null)
+            string _state;
+            string _enrollment;
+            string _include = null;
+            string addParams = null;
+
+            _state = state switch
+            {
+                CourseState.NONE => string.Empty,
+                CourseState.UNPUBLISHED => "state[]=" + CourseState.UNPUBLISHED.ToString().ToLower(),
+                CourseState.AVAILABLE => "state[]=" + CourseState.AVAILABLE.ToString().ToLower(),
+                CourseState.COMPLETED => "state[]=" + CourseState.COMPLETED.ToString().ToLower(),
+                CourseState.DELETED => "state[]=" + CourseState.DELETED.ToString().ToLower(),
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseState enum type")
+            };
+
+            _enrollment = enrollment switch
+            {
+                CourseEnrollmentState.NONE => string.Empty,
+                CourseEnrollmentState.ACTIVE => "enrollment_state=" + CourseEnrollmentState.ACTIVE.ToString().ToLower(),
+                CourseEnrollmentState.INVITED_OR_PENDING => "enrollment_state=" + CourseEnrollmentState.INVITED_OR_PENDING.ToString().ToLower(),
+                CourseEnrollmentState.COMPLETED => "enrollment_state=" + CourseEnrollmentState.COMPLETED.ToString().ToLower(),
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseEnrollmentState enum type")
+            };
+
+            if (include != null)
+            {
+                foreach (var item in include)
+                {
+                    if (item != CourseInclude.NONE &&
+                        item != CourseInclude.ALL_COURSES &&
+                        item != CourseInclude.PERMISSIONS)
+                    {
+                        _include += $"include[]=" + item.ToString().ToLower() + "&";
+                    }
+                }
+                _include = _include.Remove(_include.LastIndexOf("&"));
+            }
+
+            if (!string.IsNullOrEmpty(_state)) addParams += _state + "&";
+            if (!string.IsNullOrEmpty(_enrollment)) addParams += _enrollment + "&";
+            if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
+
+            string url = GetApiUrl("v1/users/" + userId + "/courses", addParams);
+            using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<Course>>(data.Result);
+        }
+        static async Task<List<User>> ListUsersInCourse(string courseId, List<UserEnrollmentType> type = null, List<UserEnrollmentState> state = null, List<UserInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.users
 
@@ -275,9 +363,11 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<User>>(data.Result);
         }
+
         #endregion
 
         #region api/v1/users
+
         static async Task<User> ShowUserDetails(string userId = "23392")
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
@@ -291,69 +381,33 @@ namespace arrma.lms_canvas.api_test
         //{
 
         //}
-        #endregion
-
-        #region api/v1/assignments
-
-        static async Task<List<Assignment>> ListAssignments(string courseId,
-            string searchTerm = null,
-            AssignmentBucket bucket = AssignmentBucket.UPCOMING,
-            AssignmentOrderBy orderBy = AssignmentOrderBy.NAME,
-            List<AssignmentInclude> include = null)
-        {
-            // see https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.index
-
-            string _term = null;
-            string _bucket = null;
-            string _orderBy = null;
-            string _include = null;
-            string addParams = null;
-
-            if (!string.IsNullOrEmpty(searchTerm)) _term = "search_term=" + Uri.EscapeDataString(searchTerm);
-
-            _bucket = bucket switch
-            {
-                AssignmentBucket.NONE => string.Empty,
-                AssignmentBucket.PAST => "bucket=" + AssignmentBucket.PAST.ToString().ToLower(),
-                AssignmentBucket.OVERDUE => "bucket=" + AssignmentBucket.OVERDUE.ToString().ToLower(),
-                AssignmentBucket.UNDATED => "bucket=" + AssignmentBucket.UNDATED.ToString().ToLower(),
-                AssignmentBucket.UNGRADED => "bucket=" + AssignmentBucket.UNGRADED.ToString().ToLower(),
-                AssignmentBucket.UNSUBMITTED => "bucket=" + AssignmentBucket.UNSUBMITTED.ToString().ToLower(),
-                AssignmentBucket.UPCOMING => "bucket=" + AssignmentBucket.UPCOMING.ToString().ToLower(),
-                AssignmentBucket.FUTURE => "bucket=" + AssignmentBucket.FUTURE.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(bucket), bucket, "Unknown bucket enum type")
-            };
-
-            _orderBy = orderBy switch
-            {
-                AssignmentOrderBy.NONE => String.Empty,
-                AssignmentOrderBy.NAME => "order_by=" + AssignmentOrderBy.NAME.ToString().ToLower(),
-                AssignmentOrderBy.POSITIONS => "order_by=" + AssignmentOrderBy.POSITIONS.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, "Unknown orderBy enum type")
-            };
-
-            if (include != null)
-            {
-                foreach (var item in include)
-                    _include += "include[]=" + item.ToString().ToLower() + "&";
-                _include = _include.Remove(_include.LastIndexOf("&"));
-            }
-
-            if (!string.IsNullOrEmpty(_term)) addParams += _term + "&";
-            if (!string.IsNullOrEmpty(_bucket)) addParams += _bucket + "&";
-            if (!string.IsNullOrEmpty(_orderBy)) addParams += _orderBy + "&";
-            if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
-
-            string url = GetApiUrl("v1/courses/" + courseId + "/assignments", addParams);
-            using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Assignment>>(data.Result);
-        }
 
         #endregion
 
         #region api/v1/submissions
 
+        static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignments(string courseId, int[] studentsIds, List<SubmissionInclude> include = null)
+        {
+            string _studensIds = null;
+            string _grouped = "grouped=true";
+            string _include = null;
+            string addParams = null;
 
+            for (int i = 0; i < studentsIds.Length; i++)
+                _studensIds += "student_ids[]=" + studentsIds[i] + "&";
+            if (!string.IsNullOrEmpty(_studensIds)) addParams += _studensIds;
+
+            if (include != null)
+                foreach (var item in include)
+                    _include = "include[]=" + item.ToString().ToLower() + "&";
+            if (!string.IsNullOrEmpty(_include)) addParams += _include;
+
+            addParams += _grouped + "&";
+
+            string url = GetApiUrl("v1/courses/" + courseId + "/students/submissions", addParams);
+            using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<StudentSubmissions>>(data.Result);
+        }
 
         #endregion
 

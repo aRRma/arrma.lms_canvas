@@ -2,7 +2,7 @@
 {
     class CanvasEntity
     {
-        public int id;
+        public int? id;
         public string name;
     }
 }

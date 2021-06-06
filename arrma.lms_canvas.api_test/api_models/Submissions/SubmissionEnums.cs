@@ -18,4 +18,26 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
         ONLINE_URL,
         STUDENT_ANNOTATION
     }
+
+    enum SubmissionInclude
+    {
+        NONE,
+        SUBMISSION_HISTORY,
+        SUBMISSION_COMMENTS,
+        RUBRIC_ASSESSMENT,
+        ASSIGNMENTS,
+        TOTAL_SCORES,
+        VISIBILITY,
+        COURSE,
+        USER
+    }
+
+    enum SubmissionWorkflowState
+    {
+        NONE,
+        SUBMITTED,
+        UNSUBMITTED,
+        GRADED,
+        PENDING_REVIEW
+    }
 }
