@@ -25,39 +25,42 @@ namespace arrma.lms_canvas.api_test
             Console.WriteLine("user_id: " + user_id);
             Console.WriteLine("\n");
 
-
-            Console.WriteLine("Запрашиваем информацию об конкретном пользователе");
-            User user = await ShowUserDetails();
-            Console.WriteLine($"user_id: {user.id}\nuser_name: {user.name}");
-            Console.WriteLine("\n");
+            #region test_methods
+            //Console.WriteLine("Запрашиваем информацию об конкретном пользователе");
+            //User user = await ShowUserDetails();
+            //Console.WriteLine($"user_id: {user.id}\nuser_name: {user.name}");
+            //Console.WriteLine("\n");
 
 
             //Console.WriteLine("Запрашиваем список курсов для конкретного пользователя");
-            //List<CanvasCourseModel> courses = await ListCoursesForAUser(include: new List<CourseInclude>()
+            //List<Course> courses_0 = await ListCoursesForAUser(include: new List<CourseInclude>()
             //    {
             //        CourseInclude.TEACHERS,
             //        CourseInclude.TOTAL_STUDENTS
             //    });
-            //foreach (var item in courses)
+            //foreach (var item in courses_0)
             //{
             //    Console.WriteLine($"{item.id}\t{item.name}");
             //    Console.WriteLine($"\tВсего студентов: {item.total_students}");
-            //    foreach (var teacher in item.teachers) Console.WriteLine($"\tid: {teacher.id}\n\tФИО: {teacher.display_name}");
+            //    Console.WriteLine($"\tПреподаватели на курсе:");
+            //    foreach (var teacher in item.teachers) Console.WriteLine($"\tid: {teacher.id}\tФИО: {teacher.display_name}");
             //    Console.WriteLine();
             //}
             //Console.WriteLine("\n");
 
 
             //Console.WriteLine("Запрашиваем список курсов для текущего пользователя");
-            //List<CanvasCourseModel> courses = await ListYourCourses(state: CourseState.AVAILABLE, enrollment: CourseEnrollmentState.NONE, include: new List<CourseInclude>()
+            //List<Course> courses_1 = await ListYourCourses(state: CourseState.AVAILABLE, enrollment: CourseEnrollmentState.NONE, include: new List<CourseInclude>()
             //{
-            //    CourseInclude.TEACHERS
+            //    CourseInclude.TEACHERS,
+            //    CourseInclude.TOTAL_STUDENTS
             //});
-            //foreach (var item in courses)
+            //foreach (var item in courses_1)
             //{
             //    Console.WriteLine($"{item.id}\t{item.name}");
             //    Console.WriteLine($"\tВсего студентов: {item.total_students}");
-            //    if (item.teachers != null) foreach (var teacher in item.teachers) Console.WriteLine($"\tid: {teacher.id}\n\tФИО: {teacher.display_name}");
+            //    Console.WriteLine($"\tПреподаватели на курсе:");
+            //    if (item.teachers != null) foreach (var teacher in item.teachers) Console.WriteLine($"\tid: {teacher.id}\tФИО: {teacher.display_name}");
             //    Console.WriteLine();
             //}
             //Console.WriteLine("\n");
@@ -107,8 +110,8 @@ namespace arrma.lms_canvas.api_test
             //    if (item.assignments != null)
             //        foreach (var assignment in item.assignments)
             //            Console.WriteLine($"\t\tId задания: {assignment.id}\tНазвание задания: {assignment.name}");
-
             //}
+            //Console.WriteLine();
 
             //Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
             //List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignments("11527", new[] { 30160, 31578 }, new List<SubmissionInclude> { SubmissionInclude.ASSIGNMENTS });
@@ -116,27 +119,70 @@ namespace arrma.lms_canvas.api_test
             //{
             //    Console.WriteLine($"Студент Id: {item.user_id}\tSis: {item.sis_user_id}");
             //    foreach (var submissions in item.submissions)
-            //    {
             //        Console.WriteLine($"\t\tId задания: {submissions.assignment_id}\tСтатус: {submissions.workflow_state}\tОценка: {(submissions.grade == null ? "не известно" : submissions.grade)}\tВовремя: {!submissions.late}");
-            //    }
             //}
+            //Console.WriteLine();
 
-            Console.WriteLine("Запрашиваем представление задания для конкретного пользователя");
-            Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
-            {
-                SubmissionInclude.SUBMISSION_HISTORY,
-                SubmissionInclude.SUBMISSION_COMMENTS,
-                SubmissionInclude.USER
+            //Console.WriteLine("Запрашиваем представление задания для конкретного пользователя");
+            //Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
+            //{
+            //    SubmissionInclude.SUBMISSION_HISTORY,
+            //    SubmissionInclude.SUBMISSION_COMMENTS,
+            //    SubmissionInclude.USER
 
-            });
-            Console.WriteLine($"User Id: {(await GetUserProfile(submission.user_id.ToString())).sortable_name}\tAssignment Id: {submission.assignment_id}\tGrader Id: {(await ShowUserDetails(submission.grader_id.ToString())).short_name}");
-            Console.WriteLine($"\tWorkflow: {submission.workflow_state}\tGrade: {submission.grade}\tGrade at: {submission.graded_at.Value.ToString("F")}\tAttempt: {submission.attempt}");
+            //});
+            //Console.WriteLine($"User Id: {(await GetUserProfile(submission.user_id.ToString())).sortable_name}\tAssignment Id: {submission.assignment_id}\tGrader Id: {(await ShowUserDetails(submission.grader_id.ToString())).short_name}");
+            //Console.WriteLine($"\tWorkflow: {submission.workflow_state}\tGrade: {submission.grade}\tGrade at: {submission.graded_at.Value.ToString("F")}\tAttempt: {submission.attempt}");
+            //Console.WriteLine();
+            #endregion
 
+            #region List assignments for all students at course and show who graded submission
+
+            await ListAllMyCoursesAndSubmissions("23392");
+
+            #endregion
 
             Console.WriteLine("\n");
             Console.WriteLine("End");
             Console.ReadKey();
         }
+
+        #region Some scripts
+
+        static async Task ListAllMyCoursesAndSubmissions(string userId)
+        {
+            List<Course> course = await ListYourCourses(CourseEnrollmentRole.TEACHER, CourseState.AVAILABLE,
+                CourseEnrollmentState.ACTIVE, new List<CourseInclude>
+                {
+                    CourseInclude.TOTAL_STUDENTS,
+                    CourseInclude.NEEDS_GRADING_COUNT,
+                    CourseInclude.TEACHERS,
+
+                });
+            Console.WriteLine($"Запросили курсы...");
+            Console.WriteLine($"Запросили задания для курса...");
+            Console.WriteLine($"Запросили студентов на кусе...");
+            Console.WriteLine($"Запросили представления заданий...");
+
+
+            foreach (var item in course)
+            {
+                Console.Write($"Название курса: ");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine($"{item.name}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write($"Всего студентов на курсе: ");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine($"{item.total_students}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write($"Нужно проверить заданий: ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"{item.needs_grading_count}\n");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+        }
+
+        #endregion
 
         #region api/v1/assignment_groups
         static async Task<List<AssignmentGroup>> ListAssignmentGroups(string courseId, AssignmentGroupInclude include = AssignmentGroupInclude.NONE)

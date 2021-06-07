@@ -72,6 +72,8 @@ namespace arrma.lms_canvas.api_test.api_models.Courses
     {
         public DateTime? start_at;
         public DateTime? end_at;
+        public string workflow_state;
+        public int? grading_period_group_id;
     }
 
     /// <summary>
