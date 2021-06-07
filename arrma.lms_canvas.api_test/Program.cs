@@ -121,7 +121,7 @@ namespace arrma.lms_canvas.api_test
             //    }
             //}
 
-            Console.WriteLine("запрашиваем представление задания для конкретного пользователя");
+            Console.WriteLine("Запрашиваем представление задания для конкретного пользователя");
             Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
             {
                 SubmissionInclude.SUBMISSION_HISTORY,
@@ -130,16 +130,15 @@ namespace arrma.lms_canvas.api_test
 
             });
             Console.WriteLine($"User Id: {(await GetUserProfile(submission.user_id.ToString())).sortable_name}\tAssignment Id: {submission.assignment_id}\tGrader Id: {(await ShowUserDetails(submission.grader_id.ToString())).short_name}");
-            Console.WriteLine($"\t\t");
+            Console.WriteLine($"\tWorkflow: {submission.workflow_state}\tGrade: {submission.grade}\tGrade at: {submission.graded_at.Value.ToString("F")}\tAttempt: {submission.attempt}");
 
 
-                Console.WriteLine("\n");
+            Console.WriteLine("\n");
             Console.WriteLine("End");
             Console.ReadKey();
         }
 
         #region api/v1/assignment_groups
-
         static async Task<List<AssignmentGroup>> ListAssignmentGroups(string courseId, AssignmentGroupInclude include = AssignmentGroupInclude.NONE)
         {
             string _include;
@@ -158,11 +157,9 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<AssignmentGroup>>(data.Result);
         }
-
         #endregion
 
         #region api/v1/assignments
-
         static async Task<List<Assignment>> ListAssignments(string courseId, string searchTerm = null, AssignmentBucket bucket = AssignmentBucket.UPCOMING, AssignmentOrderBy orderBy = AssignmentOrderBy.NAME, List<AssignmentInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.index
@@ -212,11 +209,9 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Assignment>>(data.Result);
         }
-
         #endregion
 
         #region api/v1/courses
-
         static async Task<List<Course>> ListYourCourses(CourseEnrollmentRole role = CourseEnrollmentRole.TEACHER, CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.index
@@ -374,11 +369,9 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<User>>(data.Result);
         }
-
         #endregion
 
         #region api/v1/users
-
         static async Task<User> ShowUserDetails(string userId = "23392")
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
@@ -387,18 +380,15 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<User>(data.Result);
         }
-
         static async Task<UserProfile> GetUserProfile(string userId = "23392")
         {
             string url = GetApiUrl("v1/users/" + userId + "/profile");
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<UserProfile>(data.Result);
         }
-
         #endregion
 
         #region api/v1/submissions
-
         static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignments(string courseId, int[] studentsIds, List<SubmissionInclude> include = null)
         {
             string _studensIds = null;
@@ -428,7 +418,7 @@ namespace arrma.lms_canvas.api_test
             if (include != null)
                 foreach (var item in include)
                     _include += "include[]=" + item.ToString().ToLower() + "&";
-            
+
             string url = GetApiUrl("v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/" + userId, _include);
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<Submission>(data.Result);

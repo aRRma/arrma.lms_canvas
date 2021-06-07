@@ -34,7 +34,7 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
         public string url;
         public int? user_id;
         public int? grader_id;
-        public DateTime? grader_at;
+        public DateTime? graded_at;
         public Users.User user;
         public bool? late;
         public bool? assignment_visible;
