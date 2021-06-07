@@ -1,25 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace arrma.lms_canvas.api_test.api_models.Users
+﻿namespace arrma.lms_canvas.api_test.api_models.Users
 {
     /// <summary>
-    /// Доп. параметры для запросов информации об пользователях
+    /// Доп. параметры для включения в запрос User
     /// </summary>
     enum UserInclude
     {
+        /// <summary>
+        /// Не известно
+        /// </summary>
         NONE,
+        /// <summary>
+        /// Email
+        /// </summary>
         EMAIL,
+        /// <summary>
+        /// Зачисления (в разделы на курсе)
+        /// </summary>
         ENROLLMENTS,
+        /// <summary>
+        /// Заблокирован?
+        /// </summary>
         LOCKED,
+        /// <summary>
+        /// Url аватарки
+        /// </summary>
         AVATAR_URL,
+        /// <summary>
+        /// Тестовый студент
+        /// </summary>
         TEST_STUDENT,
+        /// <summary>
+        /// О себе
+        /// </summary>
         BIO,
+        /// <summary>
+        /// Кастомные ссылки
+        /// </summary>
         CUSTOM_LINKS,
-        CURRENT_GRADING_PERIOD_SCORES,  // запросить ???что-то с периодами заданий???
+        /// <summary>
+        /// Текущие показатели оценок
+        /// </summary>
+        CURRENT_GRADING_PERIOD_SCORES,
     }
 
     /// <summary>
@@ -27,25 +48,64 @@ namespace arrma.lms_canvas.api_test.api_models.Users
     /// </summary>
     enum UserEnrollmentType
     {
+        /// <summary>
+        /// Не известно
+        /// </summary>
         NONE,
-        STUDENT_VIEW,   //тестовый студент?
+        /// <summary>
+        /// Вид с позиции студента
+        /// </summary>
+        STUDENT_VIEW,
+        /// <summary>
+        /// Студент
+        /// </summary>
         STUDENT = 3,
+        /// <summary>
+        /// Преподаватель
+        /// </summary>
         TEACHER = 4,
-        TA = 5,         //ассистент
+        /// <summary>
+        /// Ассистент
+        /// </summary>
+        TA = 5,
+        /// <summary>
+        /// Наблюдатель
+        /// </summary>
         OBSERVER,
+        /// <summary>
+        /// Дизайнер курса
+        /// </summary>
         DESIGNER
     }
 
     /// <summary>
-    /// Состояние зачисления пользователя
+    /// Статус зачисления пользователя
     /// </summary>
     enum UserEnrollmentState
     {
+        /// <summary>
+        /// Не известно
+        /// </summary>
         NONE,
+        /// <summary>
+        /// Активен
+        /// </summary>
         ACTIVE,
+        /// <summary>
+        /// Приглашен
+        /// </summary>
         INVITED,
+        /// <summary>
+        /// Отклонено
+        /// </summary>
         REJECTED,
+        /// <summary>
+        /// Завершено
+        /// </summary>
         COMPLETED,
+        /// <summary>
+        /// Не активен
+        /// </summary>
         INACTIVE
     }
 }

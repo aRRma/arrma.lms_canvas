@@ -21,15 +21,15 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
         public Attachment.Attachment[] attachments;
         public DateTime? cached_due_date;
         public bool? excused;
-        public string grade;   //оценка
+        public string grade;                            //оценка
         public bool? grade_matches_current_submission;
         public bool? late;
         public double? score;
         public SubmissionType? submission_type;
-        public DateTime? submitted_at;
+        public DateTime? submitted_at;                  //отправлено
         public string url;
         public int? user_id;
-        public string workflow_state;   //состояние оценки
+        public string workflow_state;                   //состояние оценки (оценено или нет)
     }
 
     class SubmissionComment : CanvasEntity

@@ -1,35 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace arrma.lms_canvas.api_test.api_models.Assignments
+﻿namespace arrma.lms_canvas.api_test.api_models.Assignments
 {
+    /// <summary>
+    /// Доп. параметры для включения в запрос Assignment
+    /// </summary>
     enum AssignmentInclude
     {
+        /// <summary>
+        /// Не известно
+        /// </summary>
         NONE,
-        ASSIGNMENT_VISIBILITY,  //кто из пользователей может видеть задание
-        ALL_DATES,              //сроки задания для всех разделов
-        OVERRIDES               //переопределения заданий
+        /// <summary>
+        /// Видимость задания
+        /// </summary>
+        ASSIGNMENT_VISIBILITY,
+        /// <summary>
+        /// Cроки задания для всех разделов
+        /// </summary>
+        ALL_DATES,
+        /// <summary>
+        /// Переопределения заданий
+        /// </summary>
+        OVERRIDES
     }
 
+    /// <summary>
+    /// Доп. параметр для включения в запрос Assignment определенных заданий в зависимости от срока и статуса отправки
+    /// </summary>
     enum AssignmentBucket
     {
+        /// <summary>
+        /// Не известно
+        /// </summary>
         NONE,
-        PAST,           //прошедшее
-        OVERDUE,        //просроченное
-        UNDATED,        //вне даты
-        UNGRADED,       //не оценено
-        UNSUBMITTED,    //не отправлено
-        UPCOMING,       //предстоящее
-        FUTURE          //будущее
+        /// <summary>
+        /// Прошедшее
+        /// </summary>
+        PAST,
+        /// <summary>
+        /// Просроченное
+        /// </summary>
+        OVERDUE,
+        /// <summary>
+        /// Вне даты
+        /// </summary>
+        UNDATED,
+        /// <summary>
+        /// Не проверено
+        /// </summary>
+        UNGRADED,
+        /// <summary>
+        /// Не отправлено
+        /// </summary>
+        UNSUBMITTED,
+        /// <summary>
+        /// Предстоящее
+        /// </summary>
+        UPCOMING,
+        /// <summary>
+        /// Будущее
+        /// </summary>
+        FUTURE
     }
 
+    /// <summary>
+    /// Доп. параметр для включения в запрос Assignment типа сортировки заданий
+    /// </summary>
     enum AssignmentOrderBy
     {
+        /// <summary>
+        /// Не известно
+        /// </summary>
         NONE,
+        /// <summary>
+        /// По имени
+        /// </summary>
         NAME,
+        /// <summary>
+        /// По позиции
+        /// </summary>
         POSITIONS
     }
 }
