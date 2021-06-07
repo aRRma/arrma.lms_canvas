@@ -9,7 +9,7 @@ namespace arrma.lms_canvas.api_test.api_models.Users
     // see https://canvas.instructure.com/doc/api/users.html
 
     /// <summary>
-    /// Обьект пользователя LMS Canvas
+    /// Пользователя LMS Canvas
     /// </summary>
     class User : CanvasEntity
     {
@@ -20,7 +20,7 @@ namespace arrma.lms_canvas.api_test.api_models.Users
         public string integration_id;
         public string login_id;
         public string avatar_url;
-        public UserEnrollment[] enrollments;
+        public Enrollments.Enrollment[] enrollments;
         public string email;
         public string locale;
         public string last_login;

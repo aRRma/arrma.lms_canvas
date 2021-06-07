@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace arrma.lms_canvas.api_test.api_models.Users
+namespace arrma.lms_canvas.api_test.api_models.Enrollments
 {
-    class UserEnrollment
+    class Enrollment
     {
-        public int id;
+        public int? id;
         public int? user_id;
         public int? course_id;
         public string type;
@@ -19,13 +19,13 @@ namespace arrma.lms_canvas.api_test.api_models.Users
         public DateTime? end_at;
         public int? course_section_id;
         public int? root_account_id;
-        public bool limit_privileges_to_course_section;
+        public bool? limit_privileges_to_course_section;
         public string enrollment_state;
         public string role;
         public int? role_id;
         public DateTime? last_activity_at;
         public int? total_activity_time;
-        public UserGrades grades;
+        public Grade grades;
         public string sis_account_id;           //подразделение (институт?)
         public string sis_course_id;
         public string course_integration_id;

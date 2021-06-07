@@ -17,18 +17,32 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
     }
     class Submission : CanvasEntity
     {
-        public int? assignment_id;
-        public Attachment.Attachment[] attachments;
-        public DateTime? cached_due_date;
-        public bool? excused;
-        public string grade;                            //оценка
+        public int? assignment_id;                      //id задания
+        public Attachment.Attachment[] attachments;     //прикрепленные файлы
+        public DateTime? cached_due_date;               //дата кеширования?! (хз в описании API нету)
+        public Courses.Course course;
+        public int? attempt;                            //количество попыток
+        public string body;                             //было только в тест "user: 32081, quiz: 33811, score: 5.0, time: 2021-03-23 16:58:06 +0300"
+        public string grade;                            //статус проверки задания
         public bool? grade_matches_current_submission;
-        public bool? late;
-        public double? score;
-        public SubmissionType? submission_type;
+        public string html_url;
+        public string preview_url;
+        public double? score;                           //оценка
+        public SubmissionComment[] submission_comments;
+        public string submission_type;
         public DateTime? submitted_at;                  //отправлено
         public string url;
         public int? user_id;
+        public int? grader_id;
+        public DateTime? grader_at;
+        public Users.User user;
+        public bool? late;
+        public bool? assignment_visible;
+        public bool? excused;
+        public bool? missing;
+        public string late_policy_status;
+        public long? points_deducted;
+        public long? seconds_late;
         public string workflow_state;                   //состояние оценки (оценено или нет)
     }
 

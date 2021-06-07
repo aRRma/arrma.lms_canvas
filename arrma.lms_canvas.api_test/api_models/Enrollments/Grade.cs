@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace arrma.lms_canvas.api_test.api_models.Users
+namespace arrma.lms_canvas.api_test.api_models.Enrollments
 {
-    /// <summary>
-    /// Обьект оценок пользователя
-    /// </summary>
-    class UserGrades
+    class Grade
     {
         public string html_url;
         public double? current_score;
@@ -20,6 +17,5 @@ namespace arrma.lms_canvas.api_test.api_models.Users
         public double? unposted_current_grade;
         public double? unposted_final_score;
         public double? unposted_final_grade;
-
     }
 }

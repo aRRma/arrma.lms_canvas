@@ -9,11 +9,10 @@ namespace arrma.lms_canvas.api_test.api_models.Users
     // see https://canvas.instructure.com/doc/api/users.html
 
     /// <summary>
-    /// Обьект отображения пользователя LMS Canvas
+    /// Отображения пользователя LMS Canvas
     /// </summary>
-    class UserDisplay
+    class UserDisplay : CanvasEntity
     {
-        public int id;
         public string display_name;
         public string avatar_image_url;
         public string html_url;

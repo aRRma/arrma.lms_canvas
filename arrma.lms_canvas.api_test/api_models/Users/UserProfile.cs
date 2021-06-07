@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace arrma.lms_canvas.api_test.api_models.Users
 {
     /// <summary>
-    /// Обьект профиля пользователя
+    /// Профиля пользователя
     /// </summary>
     class UserProfile : CanvasEntity
     {
@@ -20,7 +20,7 @@ namespace arrma.lms_canvas.api_test.api_models.Users
         public string sis_user_id;
         public string lti_user_id;
         public string avatar_url;
-        public CalendarLinkModel calendar;
+        public Courses.CourseCalendarLinkModel calendar;
         public string time_zone;
         public string locale;
     }
