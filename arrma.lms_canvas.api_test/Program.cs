@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -159,18 +160,16 @@ namespace arrma.lms_canvas.api_test
                     CourseInclude.TEACHERS,
 
                 });
-            Console.WriteLine($"Запросили курсы...");
-            Console.WriteLine($"Запросили задания для курса...");
-            Console.WriteLine($"Запросили студентов на кусе...");
-            Console.WriteLine($"Запросили представления заданий...");
+            course.Remove(course.Find(x => x.id == 7540));
 
-
-            foreach (var item in course)
+            foreach (var item in course.OrderBy(x => x.total_students))
             {
+                if (item.id == 7540) continue;
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"{item.name}");
+                Console.WriteLine($"{item.course_code} {item.name}");
                 Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($"ID курса: {item.id}\tКурс публичный: {(item.is_public == true ? "да" : "нет")}");
                 Console.Write($"Всего студентов на курсе: ");
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine($"{item.total_students}");
@@ -179,7 +178,103 @@ namespace arrma.lms_canvas.api_test
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"{item.needs_grading_count}\n");
                 Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($"Преподаватели на курсе:");
+                foreach (var teacher in item.teachers.OrderBy(x => x.id))
+                {
+                    Console.Write($"\tID: ");
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.Write($"{teacher.id}\t");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"ФИО: ");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"{teacher.display_name.ToUpper()}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
             }
+            Console.WriteLine($"Запросили курсы...\n\n");
+
+            List<AssignmentGroup> assignmentsGroup = new List<AssignmentGroup>();
+
+            for (int i = 0; i < course.Count; i++)
+            {
+                var data = await ListAssignmentGroups(course[i].id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
+                Console.Write($"Название курса: ");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine($"{course[i].course_code} {course[i].name}");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                foreach (var item in data.OrderBy(x => x.position))
+                {
+                    assignmentsGroup.Add(item);
+                    Console.Write($"ID группы зад.: ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"{item.id}\t");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"Название группы зад.: ");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"{item.name}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine($"Задания:");
+                    foreach (var assignment in item.assignments.OrderBy(x => x.position))
+                    {
+                        Console.Write($"\tID: {assignment.id}\tНазвание: ");
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write($"{assignment.name}\t\t");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write($"Нужно оценит: ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"{assignment.needs_grading_count}\t\t");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine($"Опубликовано: {(assignment.published == true ? "Да" : "Нет")}\tДата создания: {assignment.created_at.Value.ToString("g")}");
+                    }
+                    Console.WriteLine();
+                }
+            }
+            Console.WriteLine($"Запросили задания для курса...\n\n");
+
+            List<User> courseSrudens = new List<User>();
+
+            for (int i = 0; i < course.Count; i++)
+            {
+                var data = await ListUsersInCourse(course[i].id.ToString(),
+                    course[i].total_students?.ToString(),
+                    new List<UserEnrollmentType> { UserEnrollmentType.STUDENT },
+                    new List<UserEnrollmentState> { UserEnrollmentState.ACTIVE },
+                    new List<UserInclude> { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL });
+                Console.Write($"Название курса: ");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine($"{course[i].course_code} {course[i].name}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write($"Активных студентов на курсе ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($"{course[i].total_students}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($":");
+                foreach (var user in data.OrderBy(x => x.id))
+                {
+                    Console.Write($"\tID: ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"{user.id}\t");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"ФИО: ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"{user.short_name.ToUpper()}\t\t");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($"Email: ");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write($"{user.email}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine($"Запросили студентов на курсе...\n\n");
+            
+            ////////////////////////////////////////////////////////////
+
+            Console.WriteLine($"Запросили представления заданий...\n\n");
         }
 
         #endregion
@@ -371,49 +466,61 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
-        static async Task<List<User>> ListUsersInCourse(string courseId, List<UserEnrollmentType> type = null, List<UserEnrollmentState> state = null, List<UserInclude> include = null)
+        static async Task<List<User>> ListUsersInCourse(string courseId, string numUsers = null, List<UserEnrollmentType> type = null, List<UserEnrollmentState> state = null, List<UserInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.users
 
             string _type = null;
             string _state = null;
             string _include = null;
+            string _numUsers = null;
             string addParams = null;
+            int pages = 1;
+
+            if (!string.IsNullOrEmpty(numUsers) && (int.Parse(numUsers) > 0))
+            {
+                _numUsers += "per_page=" + numUsers + "&";
+                pages = int.Parse(numUsers) / 50 + 1;
+            }
 
             if (type != null)
             {
                 foreach (var item in type)
-                {
                     _type += "enrollment_type[]=" + item.ToString().ToLower() + "&";
-                }
                 _type = _type.Remove(_type.LastIndexOf("&"));
             }
 
             if (state != null)
             {
                 foreach (var item in state)
-                {
                     _state += "enrollment_state[]=" + item.ToString().ToLower() + "&";
-                }
                 _state = _state.Remove(_state.LastIndexOf("&"));
             }
 
             if (include != null)
             {
                 foreach (var item in include)
-                {
                     _include += "include[]=" + item.ToString().ToLower() + "&";
-                }
                 _include = _include.Remove(_include.LastIndexOf("&"));
             }
 
+            if (!string.IsNullOrEmpty(_numUsers)) addParams += _numUsers + "&";
             if (!string.IsNullOrEmpty(_type)) addParams += _type + "&";
             if (!string.IsNullOrEmpty(_state)) addParams += _state + "&";
             if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
 
-            string url = GetApiUrl("v1/courses/" + courseId + "/users", addParams);
-            using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<User>>(data.Result);
+            List<User> users = new List<User>();
+
+            for (int i = 1; i <= pages; i++)
+            {
+                string url = GetApiUrl("v1/courses/" + courseId + "/users", addParams + $"page={i}&");
+                using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
+                var json = JsonConvert.DeserializeObject<List<User>>(data.Result);
+                if (json == null) continue;
+                foreach (var item in json)
+                    users.Add(item);
+            }
+            return users;
         }
         #endregion
 
