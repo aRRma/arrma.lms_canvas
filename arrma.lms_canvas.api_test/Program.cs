@@ -110,19 +110,30 @@ namespace arrma.lms_canvas.api_test
 
             //}
 
-            Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
-            List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignments("11527", new[] { 30160, 31578 }, new List<SubmissionInclude> { SubmissionInclude.ASSIGNMENTS });
-            foreach (var item in studentSubmissions)
+            //Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
+            //List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignments("11527", new[] { 30160, 31578 }, new List<SubmissionInclude> { SubmissionInclude.ASSIGNMENTS });
+            //foreach (var item in studentSubmissions)
+            //{
+            //    Console.WriteLine($"Студент Id: {item.user_id}\tSis: {item.sis_user_id}");
+            //    foreach (var submissions in item.submissions)
+            //    {
+            //        Console.WriteLine($"\t\tId задания: {submissions.assignment_id}\tСтатус: {submissions.workflow_state}\tОценка: {(submissions.grade == null ? "не известно" : submissions.grade)}\tВовремя: {!submissions.late}");
+            //    }
+            //}
+
+            Console.WriteLine("запрашиваем представление задания для конкретного пользователя");
+            Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
             {
-                Console.WriteLine($"Студент Id: {item.user_id}\tSis: {item.sis_user_id}");
-                foreach (var submissions in item.submissions)
-                {
-                    Console.WriteLine($"\t\tId задания: {submissions.assignment_id}\tСтатус: {submissions.workflow_state}\tОценка: {(submissions.grade == null ? "не известно" : submissions.grade)}\tВовремя: {!submissions.late}");
-                }
-            }
+                SubmissionInclude.SUBMISSION_HISTORY,
+                SubmissionInclude.SUBMISSION_COMMENTS,
+                SubmissionInclude.USER
+
+            });
+            Console.WriteLine($"User Id: {(await GetUserProfile(submission.user_id.ToString())).sortable_name}\tAssignment Id: {submission.assignment_id}\tGrader Id: {(await ShowUserDetails(submission.grader_id.ToString())).short_name}");
+            Console.WriteLine($"\t\t");
 
 
-            Console.WriteLine("\n");
+                Console.WriteLine("\n");
             Console.WriteLine("End");
             Console.ReadKey();
         }
@@ -377,10 +388,12 @@ namespace arrma.lms_canvas.api_test
             return JsonConvert.DeserializeObject<User>(data.Result);
         }
 
-        //static async Task<CanvasProfileModel> GetUserProfile(string userId)
-        //{
-
-        //}
+        static async Task<UserProfile> GetUserProfile(string userId = "23392")
+        {
+            string url = GetApiUrl("v1/users/" + userId + "/profile");
+            using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<UserProfile>(data.Result);
+        }
 
         #endregion
 
@@ -408,7 +421,18 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<StudentSubmissions>>(data.Result);
         }
+        static async Task<Submission> GetSingleSubmission(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null)
+        {
+            string _include = null;
 
+            if (include != null)
+                foreach (var item in include)
+                    _include += "include[]=" + item.ToString().ToLower() + "&";
+            
+            string url = GetApiUrl("v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/" + userId, _include);
+            using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Submission>(data.Result);
+        }
         #endregion
 
         static string GetApiUrl(string api_url) => server_url + api_url + "?access_token=" + token;

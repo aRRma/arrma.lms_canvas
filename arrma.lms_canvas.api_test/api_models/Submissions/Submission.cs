@@ -48,9 +48,10 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
 
     class SubmissionComment : CanvasEntity
     {
+        public Users.UserDisplay author;
         public int? author_id;
         public string author_name;
-        public string author;
+        public string avatar_path;
         public string comment;
         public DateTime? created_at;
         public DateTime? edited_at;
