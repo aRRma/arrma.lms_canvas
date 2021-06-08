@@ -19,7 +19,7 @@ namespace arrma.lms_canvas.api_test
         static readonly HttpClient httpClient = new HttpClient();
         static readonly string server_url = "https://lms.misis.ru:443/api/";
         static readonly string token = "ViNkcfTAwujXMDGHKu3N6Ag0TxYgdi6tQBdezEVBM6WReA7HECDP9h04IIjmGc9o";
-        private static readonly string user_id = "23392";           //данильченко
+        private static readonly string user_id = "23392";           //Данильченко
         private static readonly string course_id = "11527";         //ООП Бивт-20
         private static readonly string assignment_id = "115645";    //ЛР№1_Отч
         private static readonly string student_id = "31411";        //Дмитрий Генкель
@@ -119,7 +119,7 @@ namespace arrma.lms_canvas.api_test
             //Console.WriteLine();
 
             Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
-            List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmQueryAddParams()
+            List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmParams()
             {
                 student_ids = new[] { student_id },
                 grouped = true,
@@ -431,7 +431,7 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
-        static async Task<List<Course>> ListCoursesForAUserAsync(string userId = "23392", CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
+        static async Task<List<Course>> ListCoursesForUserAsync(string userId = "23392", CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.user_index
 
@@ -563,7 +563,7 @@ namespace arrma.lms_canvas.api_test
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Обьект дополнительных параметров для запроса</param>
         /// <returns></returns>
-        static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmQueryAddParams addParams)
+        static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmParams addParams)
         {
             string _queryParams = null;
 

@@ -9,7 +9,7 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
     /// <summary>
     /// Дополнительные параметры для запроса "List submissions for multiple assignments"
     /// </summary>
-    class ListMultiSubmQueryAddParams
+    class ListMultiSubmParams
     {
         /// <summary>
         /// ID студентов (если ничего не указанно, то венутся представления для текущего пользователя, если "all", то вернутся для всех студентов на курсе)
@@ -60,7 +60,7 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
         /// </summary>
         public List<SubmissionInclude> include;
 
-        public ListMultiSubmQueryAddParams()
+        public ListMultiSubmParams()
         {
             //все поля установлены либо в null, NONE или значение по умолчанию согласно API
             
