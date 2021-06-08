@@ -10,7 +10,6 @@ using arrma.lms_canvas.api_test.api_models.Assignment_Group;
 using arrma.lms_canvas.api_test.api_models.Assignments;
 using arrma.lms_canvas.api_test.api_models.Courses;
 using arrma.lms_canvas.api_test.api_models.Submissions;
-using arrma.lms_canvas.api_test.api_models.Submissions.Query_params_ojb;
 using arrma.lms_canvas.api_test.api_models.Users;
 
 namespace arrma.lms_canvas.api_test
@@ -24,8 +23,7 @@ namespace arrma.lms_canvas.api_test
         private static readonly string course_id = "11527";         //ООП Бивт-20
         private static readonly string assignment_id = "115645";    //ЛР№1_Отч
         private static readonly string student_id = "31411";        //Дмитрий Генкель
-
-
+        
         static async Task Main(string[] args)
         {
             Console.WriteLine("user token: " + token);
@@ -121,7 +119,7 @@ namespace arrma.lms_canvas.api_test
             //Console.WriteLine();
 
             Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
-            List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignments(course_id, new ListMultiSubmQueryAddParams()
+            List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmQueryAddParams()
             {
                 student_ids = new[] { student_id },
                 grouped = true,
@@ -164,7 +162,7 @@ namespace arrma.lms_canvas.api_test
 
         static async Task ListAllMyCoursesAndSubmissions(string userId)
         {
-            List<Course> course = await ListYourCourses(CourseEnrollmentRole.TEACHER, CourseState.AVAILABLE,
+            List<Course> course = await ListYourCoursesAsync(CourseEnrollmentRole.TEACHER, CourseState.AVAILABLE,
                 CourseEnrollmentState.ACTIVE, new List<CourseInclude>
                 {
                     CourseInclude.TOTAL_STUDENTS,
@@ -211,7 +209,7 @@ namespace arrma.lms_canvas.api_test
 
             for (int i = 0; i < course.Count; i++)
             {
-                var data = await ListAssignmentGroups(course[i].id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
+                var data = await ListAssignmentGroupsAsync(course[i].id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{course[i].course_code} {course[i].name}");
@@ -250,7 +248,7 @@ namespace arrma.lms_canvas.api_test
 
             for (int i = 0; i < course.Count; i++)
             {
-                var data = await ListUsersInCourse(course[i].id.ToString(),
+                var data = await ListUsersInCourseAsync(course[i].id.ToString(),
                     course[i].total_students?.ToString(),
                     new List<UserEnrollmentType> { UserEnrollmentType.STUDENT },
                     new List<UserEnrollmentState> { UserEnrollmentState.ACTIVE },
@@ -297,7 +295,7 @@ namespace arrma.lms_canvas.api_test
         #endregion
 
         #region api/v1/assignment_groups
-        static async Task<List<AssignmentGroup>> ListAssignmentGroups(string courseId, AssignmentGroupInclude include = AssignmentGroupInclude.NONE)
+        static async Task<List<AssignmentGroup>> ListAssignmentGroupsAsync(string courseId, AssignmentGroupInclude include = AssignmentGroupInclude.NONE)
         {
             string _include;
             string addParams = null;
@@ -318,7 +316,7 @@ namespace arrma.lms_canvas.api_test
         #endregion
 
         #region api/v1/assignments
-        static async Task<List<Assignment>> ListAssignments(string courseId, string searchTerm = null, AssignmentBucket bucket = AssignmentBucket.UPCOMING, AssignmentOrderBy orderBy = AssignmentOrderBy.NAME, List<AssignmentInclude> include = null)
+        static async Task<List<Assignment>> ListAssignmentsAsync(string courseId, string searchTerm = null, AssignmentBucket bucket = AssignmentBucket.UPCOMING, AssignmentOrderBy orderBy = AssignmentOrderBy.NAME, List<AssignmentInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.index
 
@@ -370,7 +368,7 @@ namespace arrma.lms_canvas.api_test
         #endregion
 
         #region api/v1/courses
-        static async Task<List<Course>> ListYourCourses(CourseEnrollmentRole role = CourseEnrollmentRole.TEACHER, CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
+        static async Task<List<Course>> ListYourCoursesAsync(CourseEnrollmentRole role = CourseEnrollmentRole.TEACHER, CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 
@@ -433,7 +431,7 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
-        static async Task<List<Course>> ListCoursesForAUser(string userId = "23392", CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
+        static async Task<List<Course>> ListCoursesForAUserAsync(string userId = "23392", CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.user_index
 
@@ -483,7 +481,7 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
-        static async Task<List<User>> ListUsersInCourse(string courseId, string numUsers = null, List<UserEnrollmentType> type = null, List<UserEnrollmentState> state = null, List<UserInclude> include = null)
+        static async Task<List<User>> ListUsersInCourseAsync(string courseId, string numUsers = null, List<UserEnrollmentType> type = null, List<UserEnrollmentState> state = null, List<UserInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.users
 
@@ -542,7 +540,7 @@ namespace arrma.lms_canvas.api_test
         #endregion
 
         #region api/v1/users
-        static async Task<User> ShowUserDetails(string userId = "23392")
+        static async Task<User> ShowUserDetailsAsync(string userId = "23392")
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
 
@@ -550,7 +548,7 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<User>(data.Result);
         }
-        static async Task<UserProfile> GetUserProfile(string userId = "23392")
+        static async Task<UserProfile> GetUserProfileAsync(string userId = "23392")
         {
             string url = GetApiUrl("v1/users/" + userId + "/profile");
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
@@ -565,7 +563,7 @@ namespace arrma.lms_canvas.api_test
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Обьект дополнительных параметров для запроса</param>
         /// <returns></returns>
-        static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignments(string courseId, ListMultiSubmQueryAddParams addParams)
+        static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmQueryAddParams addParams)
         {
             string _queryParams = null;
 
@@ -599,7 +597,7 @@ namespace arrma.lms_canvas.api_test
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<StudentSubmissions>>(data.Result);
         }
-        static async Task<Submission> GetSingleSubmission(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null)
+        static async Task<Submission> GetSingleSubmissionAsync(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null)
         {
             string _include = null;
 

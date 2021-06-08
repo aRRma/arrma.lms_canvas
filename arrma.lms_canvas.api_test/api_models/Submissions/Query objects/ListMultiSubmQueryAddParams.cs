@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace arrma.lms_canvas.api_test.api_models.Submissions.Query_params_ojb
+namespace arrma.lms_canvas.api_test.api_models.Submissions
 {
     /// <summary>
     /// Дополнительные параметры для запроса "List submissions for multiple assignments"

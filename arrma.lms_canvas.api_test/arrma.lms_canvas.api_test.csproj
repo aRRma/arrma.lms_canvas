@@ -9,4 +9,13 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="api_models\Assignment Group\Query objects\" />
+    <Folder Include="api_models\Assignments\Query objects\" />
+    <Folder Include="api_models\Attachment\Query objects\" />
+    <Folder Include="api_models\Courses\Query objects\" />
+    <Folder Include="api_models\Enrollments\Query objects\" />
+    <Folder Include="api_models\Users\Query objects\" />
+  </ItemGroup>
+
 </Project>
