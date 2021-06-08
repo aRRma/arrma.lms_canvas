@@ -12,6 +12,9 @@ namespace test_app
             Console.WriteLine("%D0%9B%D0%A0%E2%84%96");
             Console.WriteLine(Uri.EscapeDataString("ЛР№"));
             Console.WriteLine(System.Web.HttpUtility.UrlEncode("ЛР№"));
+
+            Console.WriteLine(true);
+            Console.WriteLine(false);
             Console.ReadKey();
             ;
         }

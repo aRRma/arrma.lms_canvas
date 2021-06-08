@@ -18,6 +18,7 @@ namespace arrma.lms_canvas.api_test.api_models.Submissions
     class Submission : CanvasEntity
     {
         public int? assignment_id;                      //id задания
+        public Assignments.Assignment assignment;
         public Attachment.Attachment[] attachments;     //прикрепленные файлы
         public DateTime? cached_due_date;               //дата кеширования?! (хз в описании API нету)
         public Courses.Course course;

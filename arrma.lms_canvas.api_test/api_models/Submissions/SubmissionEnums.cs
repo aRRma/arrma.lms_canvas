@@ -24,7 +24,7 @@
         /// <summary>
         /// Задания
         /// </summary>
-        ASSIGNMENTS,
+        ASSIGNMENT,
         /// <summary>
         /// Общая оценка
         /// </summary>
@@ -130,5 +130,62 @@
         /// Не  завешено
         /// </summary>
         INCOMPLETE
+    }
+
+    /// <summary>
+    /// Состояние заключения представления
+    /// </summary>
+    enum SubmissionEnrollmentState
+    {
+        /// <summary>
+        /// Не известно
+        /// </summary>
+        NONE,
+        /// <summary>
+        /// Активно
+        /// </summary>
+        ACTIVE,
+        /// <summary>
+        /// Заключено
+        /// </summary>
+        CONCLUDED
+    }
+
+    /// <summary>
+    /// Типы сортировки
+    /// </summary>
+    enum SubmissionOrder
+    {
+        /// <summary>
+        /// Не известно
+        /// </summary>
+        NONE,
+        /// <summary>
+        /// По ID
+        /// </summary>
+        ID,
+        /// <summary>
+        /// По дате проверки
+        /// </summary>
+        GRADED_AT
+    }
+
+    /// <summary>
+    /// Направление сортировки
+    /// </summary>
+    enum SubmissionOrderDir
+    {
+        /// <summary>
+        /// Не известно
+        /// </summary>
+        NONE, 
+        /// <summary>
+        /// По возрастанию
+        /// </summary>
+        ASCENDING,
+        /// <summary>
+        /// По убыванию
+        /// </summary>
+        DESCENDING
     }
 }

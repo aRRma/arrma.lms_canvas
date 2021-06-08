@@ -10,6 +10,7 @@ using arrma.lms_canvas.api_test.api_models.Assignment_Group;
 using arrma.lms_canvas.api_test.api_models.Assignments;
 using arrma.lms_canvas.api_test.api_models.Courses;
 using arrma.lms_canvas.api_test.api_models.Submissions;
+using arrma.lms_canvas.api_test.api_models.Submissions.Query_params_ojb;
 using arrma.lms_canvas.api_test.api_models.Users;
 
 namespace arrma.lms_canvas.api_test
@@ -19,7 +20,12 @@ namespace arrma.lms_canvas.api_test
         static readonly HttpClient httpClient = new HttpClient();
         static readonly string server_url = "https://lms.misis.ru:443/api/";
         static readonly string token = "ViNkcfTAwujXMDGHKu3N6Ag0TxYgdi6tQBdezEVBM6WReA7HECDP9h04IIjmGc9o";
-        private static readonly string user_id = "23392";
+        private static readonly string user_id = "23392";           //данильченко
+        private static readonly string course_id = "11527";         //ООП Бивт-20
+        private static readonly string assignment_id = "115645";    //ЛР№1_Отч
+        private static readonly string student_id = "31411";        //Дмитрий Генкель
+
+
         static async Task Main(string[] args)
         {
             Console.WriteLine("user token: " + token);
@@ -114,15 +120,21 @@ namespace arrma.lms_canvas.api_test
             //}
             //Console.WriteLine();
 
-            //Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
-            //List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignments("11527", new[] { 30160, 31578 }, new List<SubmissionInclude> { SubmissionInclude.ASSIGNMENTS });
-            //foreach (var item in studentSubmissions)
-            //{
-            //    Console.WriteLine($"Студент Id: {item.user_id}\tSis: {item.sis_user_id}");
-            //    foreach (var submissions in item.submissions)
-            //        Console.WriteLine($"\t\tId задания: {submissions.assignment_id}\tСтатус: {submissions.workflow_state}\tОценка: {(submissions.grade == null ? "не известно" : submissions.grade)}\tВовремя: {!submissions.late}");
-            //}
-            //Console.WriteLine();
+            Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
+            List<StudentSubmissions> studentSubmissions = await ListSubmissionsForMultiAssignments(course_id, new ListMultiSubmQueryAddParams()
+            {
+                student_ids = new[] { student_id },
+                grouped = true,
+                workflow_state = SubmissionWorkflowState.GRADED,
+                include = new List<SubmissionInclude>() { SubmissionInclude.ASSIGNMENT, SubmissionInclude.USER }
+            });
+            foreach (var item in studentSubmissions)
+            {
+                Console.WriteLine($"Студент Id: {item.user_id}\nФИО: {item.submissions[0].user.short_name}\nSis: {item.sis_user_id}");
+                foreach (var submissions in item.submissions)
+                    Console.WriteLine($"\t\tId задания: {submissions?.assignment_id}\tНазвание: {submissions.assignment?.name}\tСтатус: {submissions?.workflow_state}\tОценка: {(submissions?.grade == null ? "не известно" : submissions?.grade)}\tВовремя: {!submissions?.late}\tПроверил: {submissions?.grader_id}");
+            }
+            Console.WriteLine();
 
             //Console.WriteLine("Запрашиваем представление задания для конкретного пользователя");
             //Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
@@ -139,7 +151,7 @@ namespace arrma.lms_canvas.api_test
 
             #region List assignments for all students at course and show who graded submission
 
-            await ListAllMyCoursesAndSubmissions("23392");
+            //await ListAllMyCoursesAndSubmissions("23392");
 
             #endregion
 
@@ -247,9 +259,14 @@ namespace arrma.lms_canvas.api_test
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{course[i].course_code} {course[i].name}");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write($"Активных студентов на курсе ");
+                Console.Write($"Студентов на курсе ");
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"{course[i].total_students}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($":");
+                Console.Write($"Активных студентов на курсе ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write($"{data.Count}");
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine($":");
                 foreach (var user in data.OrderBy(x => x.id))
@@ -271,7 +288,7 @@ namespace arrma.lms_canvas.api_test
                 Console.WriteLine();
             }
             Console.WriteLine($"Запросили студентов на курсе...\n\n");
-            
+
             ////////////////////////////////////////////////////////////
 
             Console.WriteLine($"Запросили представления заданий...\n\n");
@@ -542,25 +559,43 @@ namespace arrma.lms_canvas.api_test
         #endregion
 
         #region api/v1/submissions
-        static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignments(string courseId, int[] studentsIds, List<SubmissionInclude> include = null)
+        /// <summary>
+        /// Запросить представления для списка заданий и для n-го числа студентов
+        /// </summary>
+        /// <param name="courseId">ID курса</param>
+        /// <param name="addParams">Обьект дополнительных параметров для запроса</param>
+        /// <returns></returns>
+        static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignments(string courseId, ListMultiSubmQueryAddParams addParams)
         {
-            string _studensIds = null;
-            string _grouped = "grouped=true";
-            string _include = null;
-            string addParams = null;
+            string _queryParams = null;
 
-            for (int i = 0; i < studentsIds.Length; i++)
-                _studensIds += "student_ids[]=" + studentsIds[i] + "&";
-            if (!string.IsNullOrEmpty(_studensIds)) addParams += _studensIds;
+            if (addParams.student_ids != null)
+                for (int i = 0; i < addParams.student_ids.Length; i++)
+                    _queryParams += "student_ids[]=" + addParams.student_ids[i] + "&";
 
-            if (include != null)
-                foreach (var item in include)
-                    _include = "include[]=" + item.ToString().ToLower() + "&";
-            if (!string.IsNullOrEmpty(_include)) addParams += _include;
+            if (addParams.assignment_ids != null)
+                for (int i = 0; i < addParams.assignment_ids.Length; i++)
+                    _queryParams += "assignment_ids[]=" + addParams.assignment_ids[i] + "&";
 
-            addParams += _grouped + "&";
+            if (addParams.grouped != null) _queryParams += "grouped=" + addParams.grouped.ToString().ToLower() + "&";
+            if (addParams.post_to_sis != null) _queryParams += "post_to_sis=" + addParams.post_to_sis.ToString().ToLower() + "&";
+            if (addParams.submitted_since != null) _queryParams += "submitted_since=" + addParams.submitted_since.Value.ToString("u") + "&";
+            if (addParams.grading_period_id != null) _queryParams += "grading_period_id=" + addParams.grading_period_id + "&";
+            if (addParams.workflow_state != SubmissionWorkflowState.NONE)
+                _queryParams += "workflow_state=" + addParams.workflow_state.ToString().ToLower() + "&";
+            if (addParams.enrollment_state != SubmissionEnrollmentState.NONE)
+                _queryParams += "enrollment_state=" + addParams.enrollment_state.ToString().ToLower() + "&";
+            if (addParams.state_based_on_date != null)
+                _queryParams += "state_based_on_date=" + addParams.state_based_on_date.ToString().ToLower() + "&";
+            if (addParams.order != SubmissionOrder.NONE)
+                _queryParams += "order=" + addParams.order.ToString().ToLower() + "&";
+            if (addParams.order_direction != SubmissionOrderDir.NONE)
+                _queryParams += "order_direction" + addParams.order_direction.ToString().ToLower() + "&";
+            if (!addParams.include.Contains(SubmissionInclude.NONE))
+                foreach (var item in addParams.include)
+                    _queryParams += "include[]=" + item.ToString().ToLower() + "&";
 
-            string url = GetApiUrl("v1/courses/" + courseId + "/students/submissions", addParams);
+            string url = GetApiUrl("v1/courses/" + courseId + "/students/submissions", _queryParams);
             using var data = (await httpClient.GetAsync(url)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<StudentSubmissions>>(data.Result);
         }
