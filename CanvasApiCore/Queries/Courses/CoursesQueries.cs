@@ -10,12 +10,12 @@ using Newtonsoft.Json;
 namespace CanvasApiCore.Queries
 {
     /// <summary>
-    /// 
+    /// Запросы к API courses
     /// </summary>
     public class CoursesQueries
     {
         /// <summary>
-        /// 
+        /// Запросить курсы текущего пользователя
         /// </summary>
         /// <param name="role"></param>
         /// <param name="state"></param>

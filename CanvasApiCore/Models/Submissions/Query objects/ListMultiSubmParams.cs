@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CanvasApiCore.Models.Submissions
 {
     /// <summary>
-    /// Дополнительные параметры для запроса "List submissions for multiple assignments"
+    /// Дополнительные параметры для запроса "ListSubmissionsForMultiAssignmentsAsync"
     /// </summary>
     public class ListMultiSubmParams
     {

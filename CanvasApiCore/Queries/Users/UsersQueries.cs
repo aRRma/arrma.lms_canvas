@@ -9,16 +9,16 @@ using Newtonsoft.Json;
 namespace CanvasApiCore.Queries
 {
     /// <summary>
-    /// 
+    /// Запросы к API users
     /// </summary>
     public class UsersQueries
     {
         /// <summary>
-        /// 
+        /// Запросить описание пользователя (если не админ, то только самого себя)
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="userId">ID пользователя</param>
         /// <returns></returns>
-        public static async Task<User> ShowUserDetailsAsync(string userId = "23392")
+        public static async Task<User> ShowUserDetailsAsync(string userId)
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
 
@@ -27,11 +27,11 @@ namespace CanvasApiCore.Queries
             return JsonConvert.DeserializeObject<User>(data.Result);
         }
         /// <summary>
-        /// 
+        /// Запросить профиль пользователя
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="userId">ID пользователя</param>
         /// <returns></returns>
-        public static async Task<UserProfile> GetUserProfileAsync(string userId = "23392")
+        public static async Task<UserProfile> GetUserProfileAsync(string userId)
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.profile.settings
 

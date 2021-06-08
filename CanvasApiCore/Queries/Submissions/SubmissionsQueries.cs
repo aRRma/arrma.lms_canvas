@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 
 namespace CanvasApiCore.Queries
 {
+    /// <summary>
+    /// Запросы к API submissions
+    /// </summary>
     public class SubmissionsQueries
     {
         /// <summary>
