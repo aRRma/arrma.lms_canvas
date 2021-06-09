@@ -34,7 +34,7 @@
         /// </summary>
         TERM,
         /// <summary>
-        /// Прогресс курса
+        /// Прогресс курса (только для модульных курсов)
         /// </summary>
         COURSE_PROGRESS,
         /// <summary>
@@ -107,7 +107,7 @@
     }
 
     /// <summary>
-    /// Тип зачисления (регистрации) на курсе
+    /// Тип регистрации (регистрации) на курсе
     /// </summary>
     public enum CourseEnrollmentState
     {
@@ -130,9 +130,9 @@
     }
 
     /// <summary>
-    /// Тип ролей зачисления (регистрации) на курсе
+    /// Тип ролей регистрации (регистрации) на курсе
     /// </summary>
-    public enum CourseEnrollmentRole
+    public enum CourseEnrollmentType
     {
         /// <summary>
         /// Не известно
@@ -162,5 +162,36 @@
         /// Вид с позиции студента 
         /// </summary>
         STUDENT_VIEW
+    }
+
+    /// <summary>
+    /// Страница по умолчанию для курс
+    /// </summary>
+    public enum CourseDefaultView
+    {
+        /// <summary>
+        /// Не известно
+        /// </summary>
+        NONE,
+        /// <summary>
+        /// Панель недавних действий
+        /// </summary>
+        FEED,
+        /// <summary>
+        /// Вики
+        /// </summary>
+        WIKI,
+        /// <summary>
+        /// Модули
+        /// </summary>
+        MODULES,
+        /// <summary>
+        /// Учебный план
+        /// </summary>
+        SYLLABUS,
+        /// <summary>
+        /// Задания
+        /// </summary>
+        ASSIGNMENTS
     }
 }

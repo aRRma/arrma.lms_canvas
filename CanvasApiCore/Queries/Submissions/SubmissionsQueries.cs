@@ -15,11 +15,12 @@ namespace CanvasApiCore.Queries
     {
         /// <summary>
         /// Запросить представления для списка заданий и для n-го числа студентов
+        /// <remarks>Есть различия в возвращаемом объекте запросом. Если grouped=true, то StudentSubmissions. А если grouped=true, то Submission</remarks>
         /// </summary>
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Обьект дополнительных параметров для запроса</param>
         /// <returns></returns>
-        public static async Task<List<StudentSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmParams addParams)
+        public static async Task<List<GroupedSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.for_students
 
@@ -32,7 +33,8 @@ namespace CanvasApiCore.Queries
             if (addParams.assignment_ids != null)
                 for (int i = 0; i < addParams.assignment_ids.Length; i++)
                     _queryParams += "assignment_ids[]=" + addParams.assignment_ids[i] + "&";
-
+            //если флаг TRUE, то возвращается обьект StudentSubmissions и в нем сразу все сгруппированные представления
+            //если флаг FALSE, то возвращаются обьекты Submission разделенные на страницы
             if (addParams.grouped != null) _queryParams += "grouped=" + addParams.grouped.ToString().ToLower() + "&";
             if (addParams.post_to_sis != null) _queryParams += "post_to_sis=" + addParams.post_to_sis.ToString().ToLower() + "&";
             if (addParams.submitted_since != null) _queryParams += "submitted_since=" + addParams.submitted_since.Value.ToString("u") + "&";
@@ -53,7 +55,7 @@ namespace CanvasApiCore.Queries
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/students/submissions", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<StudentSubmissions>>(data.Result);
+            return JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
         }
         /// <summary>
         /// 

@@ -80,4 +80,39 @@
         /// </summary>
         POSITIONS
     }
+
+    /// <summary>
+    /// Тип оценки задания
+    /// </summary>
+    public enum AssignmentGradingType
+    {
+        /// <summary>
+        /// Не известно
+        /// </summary>
+        NONE,
+        /// <summary>
+        /// Ошибка проверки
+        /// </summary>
+        PASS_FAIL,
+        /// <summary>
+        /// Проценты
+        /// </summary>
+        PERCENT,
+        /// <summary>
+        /// Письменное
+        /// </summary>
+        LETTER_GRADE,
+        /// <summary>
+        /// Шкала оценки
+        /// </summary>
+        GPA_SCALE,
+        /// <summary>
+        /// Баллы
+        /// </summary>
+        POINTS,
+        /// <summary>
+        /// Не классифицировано
+        /// </summary>
+        NOT_GRADED
+    }
 }

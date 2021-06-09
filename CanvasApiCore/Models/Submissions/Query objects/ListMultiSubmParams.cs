@@ -40,11 +40,11 @@ namespace CanvasApiCore.Models.Submissions
         /// </summary>
         public SubmissionWorkflowState workflow_state;
         /// <summary>
-        /// Статус зачисления (если не казан, то вернутся все кроме удаленных)
+        /// Статус регистрации (если не казан, то вернутся все кроме удаленных)
         /// </summary>
         public SubmissionEnrollmentState enrollment_state;
         /// <summary>
-        /// Состояние на основе даты (если false, то будет игнорировать фактическое сост. зачисления)
+        /// Состояние на основе даты (если false, то будет игнорировать фактическое сост. регистрации)
         /// </summary>
         public bool? state_based_on_date;
         /// <summary>

@@ -17,9 +17,9 @@ namespace CanvasApiCore.Models.Query_objects
         /// </summary>
         public string search_term;
         /// <summary>
-        /// Тип зачисления пользователя на курс (игнорируется если задан enrollment_role)
+        /// Тип регистрации пользователя на курс (игнорируется если задан enrollment_role)
         /// </summary>
-        public CourseEnrollmentRole enrollment_type;
+        public CourseEnrollmentType enrollment_type;
         /// <summary>
         /// УСТАРЕЛО. Роль пользователя на курсе
         /// </summary>
@@ -48,7 +48,7 @@ namespace CanvasApiCore.Models.Query_objects
         public ListUsersInCourseParams()
         {
             search_term = null;
-            enrollment_type = CourseEnrollmentRole.NONE;
+            enrollment_type = CourseEnrollmentType.NONE;
             enrollment_role = null;
             enrollment_role_id = null;
             include = new List<CourseInclude>() { CourseInclude.NONE };

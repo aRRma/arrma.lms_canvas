@@ -22,7 +22,7 @@ namespace CanvasApiCore.Queries
         /// <param name="enrollment"></param>
         /// <param name="include"></param>
         /// <returns></returns>
-        public static async Task<List<Course>> ListYourCoursesAsync(CourseEnrollmentRole role = CourseEnrollmentRole.TEACHER, CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
+        public static async Task<List<Course>> ListYourCoursesAsync(CourseEnrollmentType role = CourseEnrollmentType.TEACHER, CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 
@@ -34,12 +34,12 @@ namespace CanvasApiCore.Queries
 
             _role = role switch
             {
-                CourseEnrollmentRole.NONE => string.Empty,
-                CourseEnrollmentRole.STUDENT => "enrollment_type=" + CourseEnrollmentRole.STUDENT.ToString().ToLower(),
-                CourseEnrollmentRole.TEACHER => "enrollment_type=" + CourseEnrollmentRole.TEACHER.ToString().ToLower(),
-                CourseEnrollmentRole.TA => "enrollment_type=" + CourseEnrollmentRole.TA.ToString().ToLower(),
-                CourseEnrollmentRole.OBSERVER => "enrollment_type=" + CourseEnrollmentRole.OBSERVER.ToString().ToLower(),
-                CourseEnrollmentRole.DESIGNER => "enrollment_type=" + CourseEnrollmentRole.DESIGNER.ToString().ToLower(),
+                CourseEnrollmentType.NONE => string.Empty,
+                CourseEnrollmentType.STUDENT => "enrollment_type=" + CourseEnrollmentType.STUDENT.ToString().ToLower(),
+                CourseEnrollmentType.TEACHER => "enrollment_type=" + CourseEnrollmentType.TEACHER.ToString().ToLower(),
+                CourseEnrollmentType.TA => "enrollment_type=" + CourseEnrollmentType.TA.ToString().ToLower(),
+                CourseEnrollmentType.OBSERVER => "enrollment_type=" + CourseEnrollmentType.OBSERVER.ToString().ToLower(),
+                CourseEnrollmentType.DESIGNER => "enrollment_type=" + CourseEnrollmentType.DESIGNER.ToString().ToLower(),
                 _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown CourseEnrollmentRole enum type")
             };
 

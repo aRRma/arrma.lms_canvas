@@ -14,7 +14,7 @@
         /// </summary>
         EMAIL,
         /// <summary>
-        /// Зачисления (в разделы на курсе)
+        /// регистрации (в разделы на курсе)
         /// </summary>
         ENROLLMENTS,
         /// <summary>
@@ -44,7 +44,7 @@
     }
 
     /// <summary>
-    /// Тип зачисления пользователя
+    /// Тип регистрации пользователя
     /// </summary>
     public enum UserEnrollmentType
     {
@@ -79,7 +79,7 @@
     }
 
     /// <summary>
-    /// Статус зачисления пользователя
+    /// Статус регистрации пользователя
     /// </summary>
     public enum UserEnrollmentState
     {

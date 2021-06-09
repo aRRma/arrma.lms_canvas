@@ -188,4 +188,23 @@
         /// </summary>
         DESCENDING
     }
+
+    /// <summary>
+    /// Политика поздней сдачи задания
+    /// </summary>
+    public enum SubmissionLatePolicyStatus
+    {
+        /// <summary>
+        /// Не известно
+        /// </summary>
+        NONE,
+        /// <summary>
+        /// Поздно
+        /// </summary>
+        LATE,
+        /// <summary>
+        /// Отсутствует
+        /// </summary>
+        MISSING
+    }
 }

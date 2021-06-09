@@ -11,8 +11,17 @@ namespace CanvasApiCore.Models.Users
     /// </summary>
     public class UserDisplay : CanvasEntity
     {
+        /// <summary>
+        /// отображаемое имя пользователя
+        /// </summary>
         public string display_name;
+        /// <summary>
+        /// URL аватарки
+        /// </summary>
         public string avatar_image_url;
+        /// <summary>
+        /// URL на страницу пользователя
+        /// </summary>
         public string html_url;
     }
 }

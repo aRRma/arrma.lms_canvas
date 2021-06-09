@@ -11,10 +11,25 @@ namespace CanvasApiCore.Models.Courses
     /// </summary>
     public class CourseEnrollment
     {
+        /// <summary>
+        /// Тип регистрации пользователя на курс
+        /// </summary>
         public string type;
+        /// <summary>
+        /// Роль пользователя на курсе
+        /// </summary>
         public string role;
+        /// <summary>
+        /// ID роли пользователя
+        /// </summary>
         public int? role_id;
+        /// <summary>
+        /// ID пользователя
+        /// </summary>
         public int? user_id;
+        /// <summary>
+        /// Состояние регистрации на курс пользователя
+        /// </summary>
         public string enrollment_state;
     }
 }
