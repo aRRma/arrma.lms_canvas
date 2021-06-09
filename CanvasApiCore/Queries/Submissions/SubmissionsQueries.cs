@@ -4,22 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CanvasApiCore.Models.Submissions;
+using CanvasApiCore.Models.Query_objects;
 using Newtonsoft.Json;
 
 namespace CanvasApiCore.Queries
 {
     /// <summary>
-    /// Запросы к API submissions
+    /// Запросы к API Submissions
     /// </summary>
     public class SubmissionsQueries
     {
         /// <summary>
-        /// Запросить представления для списка заданий и для n-го числа студентов
-        /// <remarks>Есть различия в возвращаемом объекте запросом. Если grouped=true, то StudentSubmissions. А если grouped=true, то Submission</remarks>
+        /// Запросить список представлений для заданий и для n-го числа студентов
         /// </summary>
+        /// <remarks>Есть различия в возвращаемом объекте запросом</remarks>
         /// <param name="courseId">ID курса</param>
-        /// <param name="addParams">Обьект дополнительных параметров для запроса</param>
-        /// <returns></returns>
+        /// <param name="addParams">Объект дополнительных параметров для запроса</param>
+        /// <returns>Если grouped=true, то список "StudentSubmissions". А если grouped=false, то список "Submission"</returns>
         public static async Task<List<GroupedSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.for_students
@@ -29,12 +30,9 @@ namespace CanvasApiCore.Queries
             if (addParams.student_ids != null)
                 for (int i = 0; i < addParams.student_ids.Length; i++)
                     _queryParams += "student_ids[]=" + addParams.student_ids[i] + "&";
-
             if (addParams.assignment_ids != null)
                 for (int i = 0; i < addParams.assignment_ids.Length; i++)
                     _queryParams += "assignment_ids[]=" + addParams.assignment_ids[i] + "&";
-            //если флаг TRUE, то возвращается обьект StudentSubmissions и в нем сразу все сгруппированные представления
-            //если флаг FALSE, то возвращаются обьекты Submission разделенные на страницы
             if (addParams.grouped != null) _queryParams += "grouped=" + addParams.grouped.ToString().ToLower() + "&";
             if (addParams.post_to_sis != null) _queryParams += "post_to_sis=" + addParams.post_to_sis.ToString().ToLower() + "&";
             if (addParams.submitted_since != null) _queryParams += "submitted_since=" + addParams.submitted_since.Value.ToString("u") + "&";
@@ -58,24 +56,24 @@ namespace CanvasApiCore.Queries
             return JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
         }
         /// <summary>
-        /// 
+        /// Запросить представление одного задания для конкретного пользователя
         /// </summary>
-        /// <param name="courseId"></param>
-        /// <param name="assignmentId"></param>
-        /// <param name="userId"></param>
-        /// <param name="include"></param>
-        /// <returns></returns>
+        /// <param name="courseId">ID курса</param>
+        /// <param name="assignmentId">ID задания из курса</param>
+        /// <param name="userId">ID пользователя на курсе</param>
+        /// <param name="include">Дополнительные параметры запроса</param>
+        /// <returns>Объект представления "Submission"</returns>
         public static async Task<Submission> GetSingleSubmissionAsync(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.show
 
-            string _include = null;
+            string _queryParams = null;
 
             if (include != null)
                 foreach (var item in include)
-                    _include += "include[]=" + item.ToString().ToLower() + "&";
+                    _queryParams += "include[]=" + item.ToString().ToLower() + "&";
 
-            string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/" + userId, _include);
+            string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/" + userId, _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<Submission>(data.Result);
         }

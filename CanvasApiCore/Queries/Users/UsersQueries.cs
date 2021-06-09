@@ -14,10 +14,10 @@ namespace CanvasApiCore.Queries
     public class UsersQueries
     {
         /// <summary>
-        /// Запросить описание пользователя (если не админ, то только самого себя)
+        /// Запросить описание пользователя (если не админ, то только самого себя).
         /// </summary>
         /// <param name="userId">ID пользователя</param>
-        /// <returns></returns>
+        /// <returns>Объект пользователя "User".</returns>
         public static async Task<User> ShowUserDetailsAsync(string userId)
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
@@ -30,7 +30,7 @@ namespace CanvasApiCore.Queries
         /// Запросить профиль пользователя
         /// </summary>
         /// <param name="userId">ID пользователя</param>
-        /// <returns></returns>
+        /// <returns>Объект профиля пользователя "UserProfile".</returns>
         public static async Task<UserProfile> GetUserProfileAsync(string userId)
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.profile.settings

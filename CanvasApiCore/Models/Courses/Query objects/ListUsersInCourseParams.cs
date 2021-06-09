@@ -44,6 +44,10 @@ namespace CanvasApiCore.Models.Query_objects
         /// Статус регистрации пользователя на курс
         /// </summary>
         public List<CourseEnrollmentState> enrollment_state;
+        /// <summary>
+        /// Запросить для количества студентов (запросить это число, нужно для разбивки запроса на страницы)
+        /// </summary>
+        public int? number_students;
 
         public ListUsersInCourseParams()
         {
@@ -55,6 +59,7 @@ namespace CanvasApiCore.Models.Query_objects
             user_id = null;
             user_ids = null;
             enrollment_state = new List<CourseEnrollmentState>() { CourseEnrollmentState.NONE };
+            number_students = null;
         }
     }
 }

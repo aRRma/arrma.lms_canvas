@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CanvasApiCore.Models.Courses;
 using CanvasApiCore.Models.Users;
+using CanvasApiCore.Models.Query_objects;
 using Newtonsoft.Json;
 
 namespace CanvasApiCore.Queries
@@ -15,191 +16,104 @@ namespace CanvasApiCore.Queries
     public class CoursesQueries
     {
         /// <summary>
-        /// Запросить курсы текущего пользователя
+        /// Запросить список курсов текущего пользователя.
         /// </summary>
-        /// <param name="role"></param>
-        /// <param name="state"></param>
-        /// <param name="enrollment"></param>
-        /// <param name="include"></param>
-        /// <returns></returns>
-        public static async Task<List<Course>> ListYourCoursesAsync(CourseEnrollmentType role = CourseEnrollmentType.TEACHER, CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
+        /// <param name="addParams">Объект дополнительных параметров для запроса</param>
+        /// <returns>Список объектов курс "Course".</returns>
+        public static async Task<List<Course>> ListYourCoursesAsync(ListYourCoursesParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 
-            string _role;
-            string _state;
-            string _enrollment;
-            string _include = null;
-            string addParams = null;
+            string _queryParams = null;
 
-            _role = role switch
-            {
-                CourseEnrollmentType.NONE => string.Empty,
-                CourseEnrollmentType.STUDENT => "enrollment_type=" + CourseEnrollmentType.STUDENT.ToString().ToLower(),
-                CourseEnrollmentType.TEACHER => "enrollment_type=" + CourseEnrollmentType.TEACHER.ToString().ToLower(),
-                CourseEnrollmentType.TA => "enrollment_type=" + CourseEnrollmentType.TA.ToString().ToLower(),
-                CourseEnrollmentType.OBSERVER => "enrollment_type=" + CourseEnrollmentType.OBSERVER.ToString().ToLower(),
-                CourseEnrollmentType.DESIGNER => "enrollment_type=" + CourseEnrollmentType.DESIGNER.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Unknown CourseEnrollmentRole enum type")
-            };
+            if (addParams.enrollment_type != CourseEnrollmentType.NONE)
+                _queryParams += "enrollment_type=" + addParams.enrollment_type.ToString().ToLower() + "&";
+            if (addParams.enrollment_role_id != null)
+                _queryParams += "enrollment_role_id=" + addParams.enrollment_role_id + "&";
+            if (addParams.enrollment_state != CourseEnrollmentState.NONE)
+                _queryParams += "enrollment_state=" + addParams.enrollment_state.ToString().ToLower() + "&";
+            if (addParams.exclude_blueprint_courses != null)
+                _queryParams += "exclude_blueprint_courses=" + addParams.exclude_blueprint_courses.ToString().ToLower() + "&";
+            if (!addParams.include.Contains(CourseInclude.NONE))
+                foreach (var item in addParams.include)
+                    _queryParams += "include[]=" + item.ToString().ToLower() + "&";
+            if (!addParams.state.Contains(CourseState.NONE))
+                foreach (var item in addParams.state)
+                    _queryParams += "state[]=" + item.ToString().ToLower() + "&";
 
-            _state = state switch
-            {
-                CourseState.NONE => string.Empty,
-                CourseState.UNPUBLISHED => "state[]=" + CourseState.UNPUBLISHED.ToString().ToLower(),
-                CourseState.AVAILABLE => "state[]=" + CourseState.AVAILABLE.ToString().ToLower(),
-                CourseState.COMPLETED => "state[]=" + CourseState.COMPLETED.ToString().ToLower(),
-                CourseState.DELETED => "state[]=" + CourseState.DELETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseState enum type")
-            };
-
-            _enrollment = enrollment switch
-            {
-                CourseEnrollmentState.NONE => string.Empty,
-                CourseEnrollmentState.ACTIVE => "enrollment_state=" + CourseEnrollmentState.ACTIVE.ToString().ToLower(),
-                CourseEnrollmentState.INVITED_OR_PENDING => "enrollment_state=" + CourseEnrollmentState.INVITED_OR_PENDING.ToString().ToLower(),
-                CourseEnrollmentState.COMPLETED => "enrollment_state=" + CourseEnrollmentState.COMPLETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseEnrollmentState enum type")
-            };
-
-            if (include != null)
-            {
-                foreach (var item in include)
-                {
-                    if (item != CourseInclude.NONE &&
-                        item != CourseInclude.ALL_COURSES &&
-                        item != CourseInclude.PERMISSIONS)
-                    {
-                        _include += $"include[]=" + item.ToString().ToLower() + "&";
-                    }
-                }
-                _include = _include.Remove(_include.LastIndexOf("&"));
-            }
-
-            if (!string.IsNullOrEmpty(_role)) addParams += _role + "&";
-            if (!string.IsNullOrEmpty(_state)) addParams += _state + "&";
-            if (!string.IsNullOrEmpty(_enrollment)) addParams += _enrollment + "&";
-            if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
-
-            string url = ApiController.GetV1Url("v1/courses/", addParams);
+            string url = ApiController.GetV1Url("v1/courses/", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
         /// <summary>
-        /// 
+        /// Запросить список курсов для конкретного пользователя.
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="state"></param>
-        /// <param name="enrollment"></param>
-        /// <param name="include"></param>
-        /// <returns></returns>
-        public static async Task<List<Course>> ListCoursesForUserAsync(string userId = "23392", CourseState state = CourseState.AVAILABLE, CourseEnrollmentState enrollment = CourseEnrollmentState.ACTIVE, List<CourseInclude> include = null)
+        /// <param name="userId">ID пользователя на курсе</param>
+        /// <param name="addParams">Объект дополнительных параметров для запроса</param>
+        /// <returns>Список объектов курс "Course".</returns>
+        public static async Task<List<Course>> ListCoursesForUserAsync(string userId, ListCoursesForUserParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.user_index
 
-            string _state;
-            string _enrollment;
-            string _include = null;
-            string addParams = null;
+            string _queryParams = null;
 
-            _state = state switch
-            {
-                CourseState.NONE => string.Empty,
-                CourseState.UNPUBLISHED => "state[]=" + CourseState.UNPUBLISHED.ToString().ToLower(),
-                CourseState.AVAILABLE => "state[]=" + CourseState.AVAILABLE.ToString().ToLower(),
-                CourseState.COMPLETED => "state[]=" + CourseState.COMPLETED.ToString().ToLower(),
-                CourseState.DELETED => "state[]=" + CourseState.DELETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseState enum type")
-            };
+            if (!addParams.include.Contains(CourseInclude.NONE))
+                foreach (var item in addParams.include)
+                    _queryParams += "include[]=" + item.ToString().ToLower() + "&";
+            if (!addParams.state.Contains(CourseState.NONE))
+                foreach (var item in addParams.state)
+                    _queryParams += "state[]=" + item.ToString().ToLower() + "&";
+            if (addParams.enrollment_state != CourseEnrollmentState.NONE)
+                _queryParams += "enrollment_state=" + addParams.enrollment_state + "&";
 
-            _enrollment = enrollment switch
-            {
-                CourseEnrollmentState.NONE => string.Empty,
-                CourseEnrollmentState.ACTIVE => "enrollment_state=" + CourseEnrollmentState.ACTIVE.ToString().ToLower(),
-                CourseEnrollmentState.INVITED_OR_PENDING => "enrollment_state=" + CourseEnrollmentState.INVITED_OR_PENDING.ToString().ToLower(),
-                CourseEnrollmentState.COMPLETED => "enrollment_state=" + CourseEnrollmentState.COMPLETED.ToString().ToLower(),
-                _ => throw new ArgumentOutOfRangeException(nameof(state), state, "Unknown CourseEnrollmentState enum type")
-            };
-
-            if (include != null)
-            {
-                foreach (var item in include)
-                {
-                    if (item != CourseInclude.NONE &&
-                        item != CourseInclude.ALL_COURSES &&
-                        item != CourseInclude.PERMISSIONS)
-                    {
-                        _include += $"include[]=" + item.ToString().ToLower() + "&";
-                    }
-                }
-                _include = _include.Remove(_include.LastIndexOf("&"));
-            }
-
-            if (!string.IsNullOrEmpty(_state)) addParams += _state + "&";
-            if (!string.IsNullOrEmpty(_enrollment)) addParams += _enrollment + "&";
-            if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
-
-            string url = ApiController.GetV1Url("v1/users/" + userId + "/courses", addParams);
+            string url = ApiController.GetV1Url("v1/users/" + userId + "/courses", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Course>>(data.Result);
         }
         /// <summary>
-        /// 
+        /// Запросить список пользователей на курсе.
         /// </summary>
-        /// <param name="courseId"></param>
-        /// <param name="numUsers"></param>
-        /// <param name="type"></param>
-        /// <param name="state"></param>
-        /// <param name="include"></param>
-        /// <returns></returns>
-        public static async Task<List<User>> ListUsersInCourseAsync(string courseId, string numUsers = null, List<UserEnrollmentType> type = null, List<UserEnrollmentState> state = null, List<UserInclude> include = null)
+        /// <param name="courseId">ID курса</param>
+        /// <param name="addParams">Объект дополнительных параметров для запроса.</param>
+        /// <returns>Список объектов пользователь "User".</returns>
+        public static async Task<List<User>> ListUsersInCourseAsync(string courseId, ListUsersInCourseParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.users
 
-            string _type = null;
-            string _state = null;
-            string _include = null;
-            string _numUsers = null;
-            string addParams = null;
+            string _queryParams = null;
+
+            if (addParams.search_term != null)
+                _queryParams += "search_term=" + Uri.EscapeDataString(addParams.search_term) + "&";
+            if (!addParams.enrollment_state.Contains(CourseEnrollmentState.NONE))
+                foreach (var item in addParams.enrollment_state)
+                    _queryParams += "enrollment_state[]=" + item.ToString().ToLower() + "&";
+            if (addParams.enrollment_role_id != null)
+                _queryParams += "enrollment_role_id=" + addParams.enrollment_role_id + "&";
+            if (!addParams.include.Contains(CourseInclude.NONE))
+                foreach (var item in addParams.include)
+                    _queryParams += "include[]=" + item.ToString().ToLower() + "&";
+            if (addParams.user_id != null)
+                _queryParams += "user_id=" + addParams.user_id + "&";
+            if (addParams.user_ids != null)
+                for (int i = 0; i < addParams.user_ids.Length; i++)
+                    _queryParams += "user_ids[]=" + addParams.user_ids[i] + "&";
+            if (!addParams.enrollment_state.Contains(CourseEnrollmentState.NONE))
+                foreach (var item in addParams.enrollment_state)
+                    _queryParams += "enrollment_state[]=" + item.ToString().ToLower() + "&";
+            
             int pages = 1;
 
-            if (!string.IsNullOrEmpty(numUsers) && (int.Parse(numUsers) > 0))
+            if (addParams.number_students is > 0)
             {
-                _numUsers += "per_page=" + numUsers + "&";
-                pages = int.Parse(numUsers) / 50 + 1;
+                _queryParams += "per_page=" + addParams.number_students + "&";
+                pages = (int)addParams.number_students / 50 + 1;
             }
-
-            if (type != null)
-            {
-                foreach (var item in type)
-                    _type += "enrollment_type[]=" + item.ToString().ToLower() + "&";
-                _type = _type.Remove(_type.LastIndexOf("&"));
-            }
-
-            if (state != null)
-            {
-                foreach (var item in state)
-                    _state += "enrollment_state[]=" + item.ToString().ToLower() + "&";
-                _state = _state.Remove(_state.LastIndexOf("&"));
-            }
-
-            if (include != null)
-            {
-                foreach (var item in include)
-                    _include += "include[]=" + item.ToString().ToLower() + "&";
-                _include = _include.Remove(_include.LastIndexOf("&"));
-            }
-
-            if (!string.IsNullOrEmpty(_numUsers)) addParams += _numUsers + "&";
-            if (!string.IsNullOrEmpty(_type)) addParams += _type + "&";
-            if (!string.IsNullOrEmpty(_state)) addParams += _state + "&";
-            if (!string.IsNullOrEmpty(_include)) addParams += _include + "&";
-
+            
             List<User> users = new List<User>();
 
             for (int i = 1; i <= pages; i++)
             {
-                string url = ApiController.GetV1Url("v1/courses/" + courseId + "/users", addParams + $"page={i}&");
+                string url = ApiController.GetV1Url("v1/courses/" + courseId + "/users", _queryParams + $"page={i}&");
                 using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<List<User>>(data.Result);
                 if (json == null) continue;
