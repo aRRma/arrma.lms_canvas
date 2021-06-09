@@ -66,15 +66,15 @@ namespace CanvasApiCore.Models.Submissions
             
             student_ids = null;
             assignment_ids = null;
-            grouped = false;
-            post_to_sis = false;
+            grouped = null;
+            post_to_sis = null;
             submitted_since = null;
             grading_period_id = null;
             workflow_state = SubmissionWorkflowState.NONE;
             enrollment_state = SubmissionEnrollmentState.NONE;
-            state_based_on_date = true;
+            state_based_on_date = null;
             order = SubmissionOrder.NONE;
-            order_direction = SubmissionOrderDir.ASCENDING;
+            order_direction = SubmissionOrderDir.NONE;
             include = new List<SubmissionInclude>() {SubmissionInclude.NONE};
         }
     }

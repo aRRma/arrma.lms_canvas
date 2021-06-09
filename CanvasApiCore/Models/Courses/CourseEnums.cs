@@ -157,6 +157,10 @@
         /// <summary>
         /// Дизайнер курса
         /// </summary>
-        DESIGNER
+        DESIGNER,
+        /// <summary>
+        /// Вид с позиции студента 
+        /// </summary>
+        STUDENT_VIEW
     }
 }

@@ -36,8 +36,7 @@ namespace arrma.lms_canvas.api_test
             //User user = await ShowUserDetails();
             //Console.WriteLine($"user_id: {user.id}\nuser_name: {user.name}");
             //Console.WriteLine("\n");
-
-
+            
             //Console.WriteLine("Запрашиваем список курсов для конкретного пользователя");
             //List<Course> courses_0 = await ListCoursesForAUser(include: new List<CourseInclude>()
             //    {
@@ -53,7 +52,6 @@ namespace arrma.lms_canvas.api_test
             //    Console.WriteLine();
             //}
             //Console.WriteLine("\n");
-
 
             //Console.WriteLine("Запрашиваем список курсов для текущего пользователя");
             //List<Course> courses_1 = await ListYourCourses(state: CourseState.AVAILABLE, enrollment: CourseEnrollmentState.NONE, include: new List<CourseInclude>()
@@ -119,21 +117,21 @@ namespace arrma.lms_canvas.api_test
             //}
             //Console.WriteLine();
 
-            Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
-            List<StudentSubmissions> studentSubmissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmParams()
-            {
-                student_ids = new[] { student_id },
-                grouped = true,
-                workflow_state = SubmissionWorkflowState.GRADED,
-                include = new List<SubmissionInclude>() { SubmissionInclude.ASSIGNMENT, SubmissionInclude.USER }
-            });
-            foreach (var item in studentSubmissions)
-            {
-                Console.WriteLine($"Студент Id: {item.user_id}\nФИО: {item.submissions[0].user.short_name}\nSis: {item.sis_user_id}");
-                foreach (var submissions in item.submissions)
-                    Console.WriteLine($"\t\tId задания: {submissions?.assignment_id}\tНазвание: {submissions.assignment?.name}\tСтатус: {submissions?.workflow_state}\tОценка: {(submissions?.grade == null ? "не известно" : submissions?.grade)}\tВовремя: {!submissions?.late}\tПроверил: {submissions?.grader_id}");
-            }
-            Console.WriteLine();
+            //Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
+            //List<StudentSubmissions> studentSubmissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmParams()
+            //{
+            //    student_ids = new[] { student_id },
+            //    grouped = true,
+            //    workflow_state = SubmissionWorkflowState.GRADED,
+            //    include = new List<SubmissionInclude>() { SubmissionInclude.ASSIGNMENT, SubmissionInclude.USER }
+            //});
+            //foreach (var item in studentSubmissions)
+            //{
+            //    Console.WriteLine($"Студент Id: {item.user_id}\nФИО: {item.submissions[0].user.short_name}\nSis: {item.sis_user_id}");
+            //    foreach (var submissions in item.submissions)
+            //        Console.WriteLine($"\t\tId задания: {submissions?.assignment_id}\tНазвание: {submissions.assignment?.name}\tСтатус: {submissions?.workflow_state}\tОценка: {(submissions?.grade == null ? "не известно" : submissions?.grade)}\tВовремя: {!submissions?.late}\tПроверил: {submissions?.grader_id}");
+            //}
+            //Console.WriteLine();
 
             //Console.WriteLine("Запрашиваем представление задания для конкретного пользователя");
             //Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
@@ -150,7 +148,7 @@ namespace arrma.lms_canvas.api_test
 
             #region List assignments for all students at course and show who graded submission
 
-            //await ListAllMyCoursesAndSubmissions("23392");
+            await ListAllMyCoursesAndSubmissions("23392");
 
             #endregion
 
