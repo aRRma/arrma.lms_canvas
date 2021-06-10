@@ -40,6 +40,7 @@ namespace CanvasApiCore.Queries
             if (!addParams.state.Contains(CourseState.NONE))
                 foreach (var item in addParams.state)
                     _queryParams += "state[]=" + item.ToString().ToLower() + "&";
+            _queryParams += "per_page=" + 50 + "&";
 
             string url = ApiController.GetV1Url("v1/courses/", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
@@ -84,12 +85,11 @@ namespace CanvasApiCore.Queries
 
             if (addParams.search_term != null)
                 _queryParams += "search_term=" + Uri.EscapeDataString(addParams.search_term) + "&";
-            if (!addParams.enrollment_state.Contains(CourseEnrollmentState.NONE))
-                foreach (var item in addParams.enrollment_state)
-                    _queryParams += "enrollment_state[]=" + item.ToString().ToLower() + "&";
+            if (addParams.enrollment_type != UserEnrollmentType.NONE)
+                _queryParams += "enrollment_type[]=" + addParams.enrollment_type.ToString().ToLower() + "&";
             if (addParams.enrollment_role_id != null)
                 _queryParams += "enrollment_role_id=" + addParams.enrollment_role_id + "&";
-            if (!addParams.include.Contains(CourseInclude.NONE))
+            if (!addParams.include.Contains(UserInclude.NONE))
                 foreach (var item in addParams.include)
                     _queryParams += "include[]=" + item.ToString().ToLower() + "&";
             if (addParams.user_id != null)
@@ -97,10 +97,10 @@ namespace CanvasApiCore.Queries
             if (addParams.user_ids != null)
                 for (int i = 0; i < addParams.user_ids.Length; i++)
                     _queryParams += "user_ids[]=" + addParams.user_ids[i] + "&";
-            if (!addParams.enrollment_state.Contains(CourseEnrollmentState.NONE))
+            if (!addParams.enrollment_state.Contains(UserEnrollmentState.NONE))
                 foreach (var item in addParams.enrollment_state)
                     _queryParams += "enrollment_state[]=" + item.ToString().ToLower() + "&";
-            
+
             int pages = 1;
 
             if (addParams.number_students is > 0)
@@ -108,7 +108,7 @@ namespace CanvasApiCore.Queries
                 _queryParams += "per_page=" + addParams.number_students + "&";
                 pages = (int)addParams.number_students / 50 + 1;
             }
-            
+
             List<User> users = new List<User>();
 
             for (int i = 1; i <= pages; i++)

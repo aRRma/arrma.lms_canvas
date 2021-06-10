@@ -27,7 +27,7 @@ namespace CanvasApiCore.Queries
             string _queryParams = null;
 
             if (include != AssignmentGroupInclude.NONE)
-                _queryParams += "include=" + include + "&";
+                _queryParams += "include=" + include.ToString().ToLower() + "&";
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignment_groups", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();

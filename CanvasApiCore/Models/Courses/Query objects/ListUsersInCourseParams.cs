@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CanvasApiCore.Models.Courses;
+using CanvasApiCore.Models.Users;
 
 namespace CanvasApiCore.Models.Query_objects
 {
@@ -19,7 +20,8 @@ namespace CanvasApiCore.Models.Query_objects
         /// <summary>
         /// Тип регистрации пользователя на курс (игнорируется если задан enrollment_role)
         /// </summary>
-        public CourseEnrollmentType enrollment_type;
+        /// <remarks>Используем данным так-как запрос все-таки относится к пользователям</remarks>
+        public UserEnrollmentType enrollment_type;
         /// <summary>
         /// УСТАРЕЛО. Роль пользователя на курсе
         /// </summary>
@@ -31,7 +33,8 @@ namespace CanvasApiCore.Models.Query_objects
         /// <summary>
         /// Список дополнительных параметров для запроса
         /// </summary>
-        public List<CourseInclude> include;
+        /// <remarks>Используем данным так-как запрос все-таки относится к пользователям</remarks>
+        public List<UserInclude> include;
         /// <summary>
         /// ID пользователя (запросится только он)
         /// </summary>
@@ -43,7 +46,8 @@ namespace CanvasApiCore.Models.Query_objects
         /// <summary>
         /// Статус регистрации пользователя на курс
         /// </summary>
-        public List<CourseEnrollmentState> enrollment_state;
+        /// <remarks>Используем данным так-как запрос все-таки относится к пользователям</remarks>
+        public List<UserEnrollmentState> enrollment_state;
         /// <summary>
         /// Запросить для количества студентов (запросить это число, нужно для разбивки запроса на страницы)
         /// </summary>
@@ -52,13 +56,13 @@ namespace CanvasApiCore.Models.Query_objects
         public ListUsersInCourseParams()
         {
             search_term = null;
-            enrollment_type = CourseEnrollmentType.NONE;
+            enrollment_type = UserEnrollmentType.NONE;
             enrollment_role = null;
             enrollment_role_id = null;
-            include = new List<CourseInclude>() { CourseInclude.NONE };
+            include = new List<UserInclude>() { UserInclude.NONE };
             user_id = null;
             user_ids = null;
-            enrollment_state = new List<CourseEnrollmentState>() { CourseEnrollmentState.NONE };
+            enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.NONE };
             number_students = null;
         }
     }

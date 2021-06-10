@@ -154,6 +154,105 @@ namespace CanvasApiCore.Models.Submissions
         /// Состояние оценки представления (оценено или нет)
         /// </summary>
         public string workflow_state;
+        /// <summary>
+        /// Список истории представлений
+        /// </summary>
+        public SubmissionHistory[] submission_history;
+    }
+
+    /// <summary>
+    /// Представление из истории
+    /// </summary>
+    public class SubmissionHistory : CanvasEntity
+    {
+        /// <summary>
+        /// Тело представления (было только в задании типа "тест" "user: 32081, quiz: 33811, score: 5.0, time: 2021-03-23 16:58:06 +0300")
+        /// </summary>
+        public string body;
+        /// <summary>
+        /// URL отправки материалов
+        /// </summary>
+        public string url;
+        /// <summary>
+        /// Оценка за отправку представления
+        /// </summary>
+        public string grade;
+        /// <summary>
+        /// Предварительная оценка
+        /// </summary>
+        public double? score;
+        /// <summary>
+        /// Дата отправки задания
+        /// </summary>
+        public DateTime? submitted_at;
+        /// <summary>
+        /// ID задания
+        /// </summary>
+        public int? assignment_id;
+        /// <summary>
+        /// ID пользователя создавшего представление (студента)
+        /// </summary>
+        public int? user_id;
+        /// <summary>
+        /// Тип представления задания
+        /// </summary>
+        public string submission_type;
+        /// <summary>
+        /// Состояние оценки представления (оценено или нет)
+        /// </summary>
+        public string workflow_state;
+        /// <summary>
+        /// False если студент отправил задание после последне проверки
+        /// </summary>
+        public bool? grade_matches_current_submission;
+        /// <summary>
+        /// Дата проверки задания
+        /// </summary>
+        public DateTime? graded_at;
+        /// <summary>
+        /// ID пользователя который проверил представление задания
+        /// </summary>
+        public int? grader_id;
+        /// <summary>
+        /// Количество попыток
+        /// </summary>
+        public int? attempt;
+        /// <summary>
+        /// Дата кеширования
+        /// </summary>
+        public DateTime? cached_due_date;
+        /// <summary>
+        /// Задание не учитывается в оценке пользователя
+        /// </summary>
+        public bool? excused;
+        /// <summary>
+        /// Политика поздней сдачи задания
+        /// </summary>
+        public string late_policy_status;
+        /// <summary>
+        /// Сумма балов вычитаемая если представление было загружено поздно
+        /// </summary>
+        public long? points_deducted;
+        /// <summary>
+        /// Отправили представление поздно
+        /// </summary>
+        public bool? late;
+        /// <summary>
+        /// Задание отсутствует
+        /// </summary>
+        public bool? missing;
+        /// <summary>
+        /// Время в секундах на которое просрочили
+        /// </summary>
+        public long? seconds_late;
+        /// <summary>
+        /// Сссылка на превью представления
+        /// </summary>
+        public string preview_url;
+        /// <summary>
+        /// Прикрепленные файлы
+        /// </summary>
+        public Attachment.Attachment[] attachments;
     }
 
     /// <summary>

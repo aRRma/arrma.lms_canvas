@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using CanvasApiCore.Models.Assignment_Group;
 using CanvasApiCore.Models.Assignments;
 using CanvasApiCore.Models.Courses;
+using CanvasApiCore.Models.Query_objects;
 using CanvasApiCore.Models.Submissions;
 using CanvasApiCore.Models.Users;
 using CanvasApiCore.Queries;
@@ -24,7 +25,7 @@ namespace arrma.lms_canvas.api_test
         private static readonly string course_id = "11527";         //ООП Бивт-20
         private static readonly string assignment_id = "115645";    //ЛР№1_Отч
         private static readonly string student_id = "31411";        //Дмитрий Генкель
-        
+
         static async Task Main(string[] args)
         {
             Console.WriteLine("user token: " + token);
@@ -117,21 +118,21 @@ namespace arrma.lms_canvas.api_test
             //}
             //Console.WriteLine();
 
-            Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
-            List<GroupedSubmissions> studentSubmissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmParams()
-            {
-                student_ids = new[] { student_id },
-                grouped = true,
-                workflow_state = SubmissionWorkflowState.GRADED,
-                include = new List<SubmissionInclude>() { SubmissionInclude.ASSIGNMENT, SubmissionInclude.USER }
-            });
-            foreach (var item in studentSubmissions)
-            {
-                Console.WriteLine($"Студент Id: {item.user_id}\nФИО: {item.submissions[0].user.short_name}\nSis: {item.sis_user_id}");
-                foreach (var submissions in item.submissions)
-                    Console.WriteLine($"\t\tId задания: {submissions?.assignment_id}\tНазвание: {submissions.assignment?.name}\tСтатус: {submissions?.workflow_state}\tОценка: {(submissions?.grade == null ? "не известно" : submissions?.grade)}\tВовремя: {!submissions?.late}\tПроверил: {submissions?.grader_id}");
-            }
-            Console.WriteLine();
+            //Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
+            //List<GroupedSubmissions> studentSubmissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmParams()
+            //{
+            //    student_ids = new[] { student_id },
+            //    grouped = true,
+            //    workflow_state = SubmissionWorkflowState.GRADED,
+            //    include = new List<SubmissionInclude>() { SubmissionInclude.ASSIGNMENT, SubmissionInclude.USER }
+            //});
+            //foreach (var item in studentSubmissions)
+            //{
+            //    Console.WriteLine($"Студент Id: {item.user_id}\nФИО: {item.submissions[0].user.short_name}\nSis: {item.sis_user_id}");
+            //    foreach (var submissions in item.submissions)
+            //        Console.WriteLine($"\t\tId задания: {submissions?.assignment_id}\tНазвание: {submissions.assignment?.name}\tСтатус: {submissions?.workflow_state}\tОценка: {(submissions?.grade == null ? "не известно" : submissions?.grade)}\tВовремя: {!submissions?.late}\tПроверил: {submissions?.grader_id}");
+            //}
+            //Console.WriteLine();
 
             //Console.WriteLine("Запрашиваем представление задания для конкретного пользователя");
             //Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
@@ -146,14 +147,8 @@ namespace arrma.lms_canvas.api_test
             //Console.WriteLine();
             #endregion
 
-            //var data = await CanvasApiCore.Queries.UsersQueries.GetUserProfileAsync("3");
-            //Console.WriteLine($"{data.short_name}");
-            //Console.ReadKey();
-
             #region List assignments for all students at course and show who graded submission
-
             await ListAllMyCoursesAndSubmissions("23392");
-
             #endregion
 
             Console.WriteLine("\n");
@@ -162,21 +157,19 @@ namespace arrma.lms_canvas.api_test
         }
 
         #region Some scripts
-
         static async Task ListAllMyCoursesAndSubmissions(string userId)
         {
-            List<Course> course = await CoursesQueries.ListYourCoursesAsync(CourseEnrollmentType.TEACHER, CourseState.AVAILABLE,
-                CourseEnrollmentState.ACTIVE, new List<CourseInclude>
-                {
-                    CourseInclude.TOTAL_STUDENTS,
-                    CourseInclude.NEEDS_GRADING_COUNT,
-                    CourseInclude.TEACHERS,
-
-                });
+            List<Course> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
+            {
+                include = new List<CourseInclude>() { CourseInclude.TOTAL_STUDENTS, CourseInclude.NEEDS_GRADING_COUNT, CourseInclude.TEACHERS },
+                enrollment_type = CourseEnrollmentType.TEACHER,
+                state = new List<CourseState>() { CourseState.AVAILABLE }
+            });
             course.Remove(course.Find(x => x.id == 7540));
 
             foreach (var item in course.OrderBy(x => x.total_students))
             {
+                course.Remove(course.Find(x => x.start_at < new DateTime(2021, 1, 1)));
                 if (item.id == 7540) continue;
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
@@ -247,15 +240,18 @@ namespace arrma.lms_canvas.api_test
             }
             Console.WriteLine($"Запросили задания для курса...\n\n");
 
-            List<User> courseSrudens = new List<User>();
+            Dictionary<string, List<User>> courseStudens = new Dictionary<string, List<User>>();
 
             for (int i = 0; i < course.Count; i++)
             {
-                var data = await CoursesQueries.ListUsersInCourseAsync(course[i].id.ToString(),
-                    course[i].total_students?.ToString(),
-                    new List<UserEnrollmentType> { UserEnrollmentType.STUDENT },
-                    new List<UserEnrollmentState> { UserEnrollmentState.ACTIVE, UserEnrollmentState.INVITED },
-                    new List<UserInclude> { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL });
+                var data = await CoursesQueries.ListUsersInCourseAsync(course[i].id.ToString(), new ListUsersInCourseParams()
+                {
+                    include = new List<UserInclude>() { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL },
+                    enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.ACTIVE, UserEnrollmentState.INVITED },
+                    enrollment_type = UserEnrollmentType.STUDENT,
+                    number_students = course[i].total_students
+                });
+                List<User> temp = new List<User>();
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{course[i].course_code} {course[i].name}");
@@ -272,6 +268,7 @@ namespace arrma.lms_canvas.api_test
                 Console.WriteLine($":");
                 foreach (var user in data.OrderBy(x => x.id))
                 {
+                    temp.Add(user);
                     Console.Write($"\tID: ");
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write($"{user.id}\t");
@@ -286,15 +283,58 @@ namespace arrma.lms_canvas.api_test
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine();
                 }
+                courseStudens.Add(course[i].id.ToString(), temp);
                 Console.WriteLine();
             }
             Console.WriteLine($"Запросили студентов на курсе...\n\n");
 
-            ////////////////////////////////////////////////////////////
+            foreach (var item in courseStudens)
+            {
+                for (int i = 0; i < item.Value.Count; i++)
+                {
+                    var submissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(item.Key,
+                        new ListMultiSubmParams()
+                        {
+                            include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY },
+                            grouped = true,
+                            workflow_state = SubmissionWorkflowState.GRADED,
+                            student_ids = new[] { item.Value[i].id.ToString() }
+                        });
+                    try
+                    {
+                        foreach (var groupedSubmission in submissions)
+                        {
+                            Console.WriteLine($"ID студента: {groupedSubmission.user_id}");
+                            if (groupedSubmission?.submissions.Length > 0)
+                            {
+                                Console.WriteLine($"ФИО: {groupedSubmission.submissions[0].user.short_name}");
+                                Console.WriteLine($"Email: {groupedSubmission.submissions[0].user.sis_user_id}");
+                            }
+
+                            foreach (var subm in groupedSubmission.submissions)
+                            {
+                                Console.WriteLine($"\tID {subm?.assignment?.id}: {subm?.assignment?.name}\n\tДоступно с { subm?.assignment?.unlock_at?.ToString("d")} до {subm?.assignment?.lock_at?.ToString("d")}\n\tСрок сдачи{subm?.assignment?.due_at?.ToString("d")}");
+                                Console.WriteLine($"\t\t");
+                                foreach (var submHist in subm.submission_history)
+                                {
+                                    if (submHist.attachments != null)
+                                        foreach (var attach in submHist.attachments)
+                                            Console.WriteLine($"\t\t\tФайл: {attach?.display_name}\tФормат: {attach?.mime_class}\tЗагружен: {attach?.created_at?.ToString("G")}");
+                                }
+                                Console.WriteLine();
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                }
+            }
 
             Console.WriteLine($"Запросили представления заданий...\n\n");
         }
-
         #endregion
     }
 }

@@ -41,7 +41,7 @@ namespace CanvasApiCore.Models.Query_objects
         /// </summary>
         public SubmissionWorkflowState workflow_state;
         /// <summary>
-        /// Статус регистрации (если не казан, то вернутся все кроме удаленных)
+        /// Статус регистрации (если не указан, то вернутся все кроме удаленных)
         /// </summary>
         public SubmissionEnrollmentState enrollment_state;
         /// <summary>

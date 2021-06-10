@@ -18,6 +18,7 @@ namespace CanvasApiCore.Queries
         /// Запросить список представлений для заданий и для n-го числа студентов
         /// </summary>
         /// <remarks>Есть различия в возвращаемом объекте запросом</remarks>
+        /// <remarks>Если параметр student_ids опущен, то вернутся представления для текущего пользователя</remarks>
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
         /// <returns>Если grouped=true, то список "StudentSubmissions". А если grouped=false, то список "Submission"</returns>
@@ -52,8 +53,16 @@ namespace CanvasApiCore.Queries
                     _queryParams += "include[]=" + item.ToString().ToLower() + "&";
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/students/submissions", _queryParams);
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
+            try
+            {
+                using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(url);
+                throw;
+            }
         }
         /// <summary>
         /// Запросить представление одного задания для конкретного пользователя
