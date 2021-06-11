@@ -110,7 +110,11 @@
         /// <summary>
         /// Ожидает оценки
         /// </summary>
-        PENDING_REVIEW
+        PENDING_REVIEW,
+        /// <summary>
+        /// Завершено
+        /// </summary>
+        COMPLETE
     }
 
     /// <summary>

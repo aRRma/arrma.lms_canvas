@@ -11,7 +11,7 @@ namespace CanvasApiCore.Queries
     /// <summary>
     /// Запросы к API users
     /// </summary>
-    public class UsersQueries
+    public static class UsersQueries
     {
         /// <summary>
         /// Запросить описание пользователя (если не админ, то только самого себя).

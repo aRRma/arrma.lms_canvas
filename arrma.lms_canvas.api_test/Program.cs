@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,137 +19,28 @@ namespace arrma.lms_canvas.api_test
 {
     class Program
     {
-        static readonly HttpClient httpClient = new HttpClient();
         static readonly string server_url = "https://lms.misis.ru:443/api/";
         static readonly string token = "ViNkcfTAwujXMDGHKu3N6Ag0TxYgdi6tQBdezEVBM6WReA7HECDP9h04IIjmGc9o";
-        private static readonly string user_id = "23392";           //Данильченко
-        private static readonly string course_id = "11527";         //ООП Бивт-20
-        private static readonly string assignment_id = "115645";    //ЛР№1_Отч
-        private static readonly string student_id = "31411";        //Дмитрий Генкель
+        //тестовые данные 
+        private static readonly string test_user_id = "23392";           //Данильченко
+        private static readonly string test_course_id = "11527";         //ООП Бивт-20
+        private static readonly string test_assignment_id = "115645";    //ЛР№1_Отч
+        private static readonly string test_student_id = "31411";        //Дмитрий Генкель
+        //кэш данных
+        private static readonly Dictionary<string, Course> cashe_courses = new Dictionary<string, Course>();
+        private static readonly Dictionary<string, UserDisplay> cashe_teachers = new Dictionary<string, UserDisplay>();
+        private static readonly Dictionary<string, AssignmentGroup> cashe_assignmentGroups = new Dictionary<string, AssignmentGroup>();
+        private static readonly Dictionary<string, Assignment> cashe_assignments = new Dictionary<string, Assignment>();
+        private static readonly Dictionary<string, User> cashe_users = new Dictionary<string, User>();
 
         static async Task Main(string[] args)
         {
             Console.WriteLine("user token: " + token);
-            Console.WriteLine("user_id: " + user_id);
+            Console.WriteLine("user_id: " + test_user_id);
             Console.WriteLine("\n");
 
-            #region test_methods
-            //Console.WriteLine("Запрашиваем информацию об конкретном пользователе");
-            //User user = await ShowUserDetails();
-            //Console.WriteLine($"user_id: {user.id}\nuser_name: {user.name}");
-            //Console.WriteLine("\n");
-
-            //Console.WriteLine("Запрашиваем список курсов для конкретного пользователя");
-            //List<Course> courses_0 = await ListCoursesForAUser(include: new List<CourseInclude>()
-            //    {
-            //        CourseInclude.TEACHERS,
-            //        CourseInclude.TOTAL_STUDENTS
-            //    });
-            //foreach (var item in courses_0)
-            //{
-            //    Console.WriteLine($"{item.id}\t{item.name}");
-            //    Console.WriteLine($"\tВсего студентов: {item.total_students}");
-            //    Console.WriteLine($"\tПреподаватели на курсе:");
-            //    foreach (var teacher in item.teachers) Console.WriteLine($"\tid: {teacher.id}\tФИО: {teacher.display_name}");
-            //    Console.WriteLine();
-            //}
-            //Console.WriteLine("\n");
-
-            //Console.WriteLine("Запрашиваем список курсов для текущего пользователя");
-            //List<Course> courses_1 = await ListYourCourses(state: CourseState.AVAILABLE, enrollment: CourseEnrollmentState.NONE, include: new List<CourseInclude>()
-            //{
-            //    CourseInclude.TEACHERS,
-            //    CourseInclude.TOTAL_STUDENTS
-            //});
-            //foreach (var item in courses_1)
-            //{
-            //    Console.WriteLine($"{item.id}\t{item.name}");
-            //    Console.WriteLine($"\tВсего студентов: {item.total_students}");
-            //    Console.WriteLine($"\tПреподаватели на курсе:");
-            //    if (item.teachers != null) foreach (var teacher in item.teachers) Console.WriteLine($"\tid: {teacher.id}\tФИО: {teacher.display_name}");
-            //    Console.WriteLine();
-            //}
-            //Console.WriteLine("\n");
-
-            //Console.WriteLine("Запрашиваем список пользователей на конкретном курсе");
-            //List<User> courseUsers = await ListUsersInCourse("5031",
-            //    new List<UserEnrollmentType>()
-            //{
-            //    UserEnrollmentType.STUDENT
-            //},
-            //    new List<UserEnrollmentState>()
-            //{
-            //    UserEnrollmentState.ACTIVE
-            //},
-            //    new List<UserInclude>()
-            //{
-            //    UserInclude.EMAIL,
-            //    UserInclude.BIO,
-            //    UserInclude.AVATAR_URL,
-            //    UserInclude.ENROLLMENTS
-            //});
-            //foreach (var item in courseUsers)
-            //{
-            //    Console.WriteLine($"id: {item.id}\tФИО: {item.sortable_name}\t Email: {item.email}\t Подразделение: {item.enrollments[0].sis_account_id}");
-            //}
-            //Console.WriteLine();
-
-            //Console.WriteLine("Запрашиваем задания для курса");
-            //List<Assignment> assignments = await ListAssignments(courseId: "11527",
-            //    bucket: AssignmentBucket.PAST,
-            //    orderBy: AssignmentOrderBy.NAME,
-            //    include: new List<AssignmentInclude>()
-            //    {
-            //        AssignmentInclude.ALL_DATES
-            //    });
-            //foreach (var item in assignments)
-            //{
-            //    Console.WriteLine($"{item.id}\t{item.name}\t");
-            //}
-            //Console.WriteLine();
-
-            //Console.WriteLine("Запрашиваем группы заданий с массивом самих заданий");
-            //List<AssignmentGroup> listGroup = await ListAssignmentGroups("11527", AssignmentGroupInclude.ASSIGNMENTS);
-            //foreach (var item in listGroup)
-            //{
-            //    Console.WriteLine($"Id группы: {item.id}\tНазвание группы: {item.name}");
-            //    if (item.assignments != null)
-            //        foreach (var assignment in item.assignments)
-            //            Console.WriteLine($"\t\tId задания: {assignment.id}\tНазвание задания: {assignment.name}");
-            //}
-            //Console.WriteLine();
-
-            //Console.WriteLine("Запрашиваем массив представлений заданий для n-го количества студентов");
-            //List<GroupedSubmissions> studentSubmissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(course_id, new ListMultiSubmParams()
-            //{
-            //    student_ids = new[] { student_id },
-            //    grouped = true,
-            //    workflow_state = SubmissionWorkflowState.GRADED,
-            //    include = new List<SubmissionInclude>() { SubmissionInclude.ASSIGNMENT, SubmissionInclude.USER }
-            //});
-            //foreach (var item in studentSubmissions)
-            //{
-            //    Console.WriteLine($"Студент Id: {item.user_id}\nФИО: {item.submissions[0].user.short_name}\nSis: {item.sis_user_id}");
-            //    foreach (var submissions in item.submissions)
-            //        Console.WriteLine($"\t\tId задания: {submissions?.assignment_id}\tНазвание: {submissions.assignment?.name}\tСтатус: {submissions?.workflow_state}\tОценка: {(submissions?.grade == null ? "не известно" : submissions?.grade)}\tВовремя: {!submissions?.late}\tПроверил: {submissions?.grader_id}");
-            //}
-            //Console.WriteLine();
-
-            //Console.WriteLine("Запрашиваем представление задания для конкретного пользователя");
-            //Submission submission = await GetSingleSubmission("11527", "115637", "32081", new List<SubmissionInclude>
-            //{
-            //    SubmissionInclude.SUBMISSION_HISTORY,
-            //    SubmissionInclude.SUBMISSION_COMMENTS,
-            //    SubmissionInclude.USER
-
-            //});
-            //Console.WriteLine($"User Id: {(await GetUserProfile(submission.user_id.ToString())).sortable_name}\tAssignment Id: {submission.assignment_id}\tGrader Id: {(await ShowUserDetails(submission.grader_id.ToString())).short_name}");
-            //Console.WriteLine($"\tWorkflow: {submission.workflow_state}\tGrade: {submission.grade}\tGrade at: {submission.graded_at.Value.ToString("F")}\tAttempt: {submission.attempt}");
-            //Console.WriteLine();
-            #endregion
-
             #region List assignments for all students at course and show who graded submission
-            await ListAllMyCoursesAndSubmissions("23392");
+            await ListAllMyCoursesAndSubmissions();
             #endregion
 
             Console.WriteLine("\n");
@@ -157,7 +49,12 @@ namespace arrma.lms_canvas.api_test
         }
 
         #region Some scripts
-        static async Task ListAllMyCoursesAndSubmissions(string userId)
+        /// <summary>
+        /// Метод запрашивает и отображает все актуальные курсы для текущего пользователя. Все группы и сами задания. Список всех активных студентов на курсах. Представления заданий для каждого студента.
+        /// </summary>
+        /// <remarks>Сейчас представления заданий выводится только для 2 студентов с каждого курса</remarks>
+        /// <returns></returns>
+        static async Task ListAllMyCoursesAndSubmissions()
         {
             List<Course> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
             {
@@ -171,6 +68,8 @@ namespace arrma.lms_canvas.api_test
             {
                 course.Remove(course.Find(x => x.start_at < new DateTime(2021, 1, 1)));
                 if (item.id == 7540) continue;
+                if (!cashe_courses.ContainsKey(item.id?.ToString()))
+                    cashe_courses.Add(item.id?.ToString(), item);
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{item.course_code} {item.name}");
@@ -187,6 +86,8 @@ namespace arrma.lms_canvas.api_test
                 Console.WriteLine($"Преподаватели на курсе:");
                 foreach (var teacher in item.teachers.OrderBy(x => x.id))
                 {
+                    if (!cashe_teachers.ContainsKey(teacher?.id.ToString()))
+                        cashe_teachers.Add(teacher?.id.ToString(), teacher);
                     Console.Write($"\tID: ");
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.Write($"{teacher.id}\t");
@@ -201,8 +102,6 @@ namespace arrma.lms_canvas.api_test
             }
             Console.WriteLine($"Запросили курсы...\n\n");
 
-            List<AssignmentGroup> assignmentsGroup = new List<AssignmentGroup>();
-
             for (int i = 0; i < course.Count; i++)
             {
                 var data = await AssignmentGroupsQueries.ListAssignmentGroupsAsync(course[i].id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
@@ -213,7 +112,8 @@ namespace arrma.lms_canvas.api_test
 
                 foreach (var item in data.OrderBy(x => x.position))
                 {
-                    assignmentsGroup.Add(item);
+                    if (!cashe_assignmentGroups.ContainsKey(item.id.ToString()))
+                        cashe_assignmentGroups.Add(item.id.ToString(), item);
                     Console.Write($"ID группы зад.: ");
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write($"{item.id}\t");
@@ -225,6 +125,8 @@ namespace arrma.lms_canvas.api_test
                     Console.WriteLine($"Задания:");
                     foreach (var assignment in item.assignments.OrderBy(x => x.position))
                     {
+                        if (!cashe_assignments.ContainsKey(assignment.id.ToString()))
+                            cashe_assignments.Add(assignment.id.ToString(), assignment);
                         Console.Write($"\tID: {assignment.id}\tНазвание: ");
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.Write($"{assignment.name}\t\t");
@@ -251,7 +153,7 @@ namespace arrma.lms_canvas.api_test
                     enrollment_type = UserEnrollmentType.STUDENT,
                     number_students = course[i].total_students
                 });
-                List<User> temp = new List<User>();
+                List<User> tempUsers = new List<User>();
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{course[i].course_code} {course[i].name}");
@@ -268,7 +170,9 @@ namespace arrma.lms_canvas.api_test
                 Console.WriteLine($":");
                 foreach (var user in data.OrderBy(x => x.id))
                 {
-                    temp.Add(user);
+                    tempUsers.Add(user);
+                    if (!cashe_users.ContainsKey(user.id.ToString()))
+                        cashe_users.Add(user.id.ToString(), user);
                     Console.Write($"\tID: ");
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write($"{user.id}\t");
@@ -283,43 +187,237 @@ namespace arrma.lms_canvas.api_test
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine();
                 }
-                courseStudens.Add(course[i].id.ToString(), temp);
+                courseStudens.Add(course[i].id.ToString(), tempUsers);
                 Console.WriteLine();
             }
             Console.WriteLine($"Запросили студентов на курсе...\n\n");
 
             foreach (var item in courseStudens)
             {
-                for (int i = 0; i < item.Value.Count; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     var submissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(item.Key,
                         new ListMultiSubmParams()
                         {
-                            include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY },
+                            include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY, SubmissionInclude.COURSE },
                             grouped = true,
                             workflow_state = SubmissionWorkflowState.GRADED,
                             student_ids = new[] { item.Value[i].id.ToString() }
                         });
                     try
                     {
-                        foreach (var groupedSubmission in submissions)
+                        foreach (var grSubm in submissions)
                         {
-                            Console.WriteLine($"ID студента: {groupedSubmission.user_id}");
-                            if (groupedSubmission?.submissions.Length > 0)
+                            Console.Write($"ID студента: ");
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"{grSubm.user_id}");
+                            Console.ForegroundColor = ConsoleColor.White;
+                            if (grSubm?.submissions.Length > 0)
                             {
-                                Console.WriteLine($"ФИО: {groupedSubmission.submissions[0].user.short_name}");
-                                Console.WriteLine($"Email: {groupedSubmission.submissions[0].user.sis_user_id}");
+                                Console.Write($"ФИО: ");
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine($"{grSubm.submissions[0].user.short_name}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($"Email: ");
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine($"{grSubm.submissions[0].user.sis_user_id}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($"Курс: ");
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                Console.WriteLine($"{grSubm.submissions[0].course.name}");
+                                Console.ForegroundColor = ConsoleColor.White;
                             }
 
-                            foreach (var subm in groupedSubmission.submissions)
+                            foreach (var subm in grSubm.submissions)
                             {
-                                Console.WriteLine($"\tID {subm?.assignment?.id}: {subm?.assignment?.name}\n\tДоступно с { subm?.assignment?.unlock_at?.ToString("d")} до {subm?.assignment?.lock_at?.ToString("d")}\n\tСрок сдачи{subm?.assignment?.due_at?.ToString("d")}");
+                                Console.Write($"\tID ");
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.Write($"{subm?.assignment?.id}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write(" : ");
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine($"{subm?.assignment?.name}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($"\tДоступно с ");
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.Write($"{subm?.assignment?.unlock_at?.ToString("d")}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($" до ");
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine($"{subm?.assignment?.lock_at?.ToString("d")}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($"\tСрок сдачи ");
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.WriteLine($"{subm?.assignment?.due_at?.ToString("d")}");
+                                Console.ForegroundColor = ConsoleColor.White;
                                 Console.WriteLine($"\t\t");
                                 foreach (var submHist in subm.submission_history)
                                 {
                                     if (submHist.attachments != null)
+                                    {
                                         foreach (var attach in submHist.attachments)
-                                            Console.WriteLine($"\t\t\tФайл: {attach?.display_name}\tФормат: {attach?.mime_class}\tЗагружен: {attach?.created_at?.ToString("G")}");
+                                        {
+                                            Console.Write($"\t\t\tФайл: ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+                                            Console.Write($"{attach?.display_name}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+
+                                            Console.Write($"\tФормат: ");
+                                            Console.ForegroundColor = ConsoleColor.Red;
+                                            Console.Write($"{attach?.mime_class}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+
+                                            Console.Write($"\tЗагружен: ");
+                                            if (attach?.created_at > subm?.assignment?.due_at)
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                            else
+                                                Console.ForegroundColor = ConsoleColor.Green;
+                                            Console.Write($"{attach?.created_at?.ToString("G")}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+
+                                            Console.Write($"\tСост.: ");
+                                            if (submHist?.workflow_state != null)
+                                            {
+                                                SubmissionWorkflowState workflow;
+
+                                                if (Enum.TryParse<SubmissionWorkflowState>(submHist?.workflow_state,
+                                                    true, out workflow))
+                                                {
+                                                    switch (workflow)
+                                                    {
+                                                        case SubmissionWorkflowState.GRADED:
+                                                        case SubmissionWorkflowState.COMPLETE:
+                                                            Console.ForegroundColor = ConsoleColor.Green;
+                                                            break;
+                                                        case SubmissionWorkflowState.SUBMITTED:
+                                                            Console.ForegroundColor = ConsoleColor.Yellow;
+                                                            break;
+                                                        default:
+                                                            Console.ForegroundColor = ConsoleColor.Gray;
+                                                            break;
+                                                    }
+                                                }
+                                            }
+                                            Console.Write($"{submHist?.workflow_state}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+
+                                            Console.Write($"\tОценка: ");
+                                            if (submHist?.grade != null)
+                                            {
+                                                SubmissionGrade grade;
+
+                                                if (Enum.TryParse<SubmissionGrade>(submHist?.grade, true, out grade))
+                                                    switch (grade)
+                                                    {
+                                                        case SubmissionGrade.COMPLETE:
+                                                            Console.ForegroundColor = ConsoleColor.Green;
+                                                            break;
+                                                        case SubmissionGrade.INCOMPLETE:
+                                                            Console.ForegroundColor = ConsoleColor.Red;
+                                                            break;
+                                                        default:
+                                                            Console.ForegroundColor = ConsoleColor.Gray;
+                                                            break;
+                                                    }
+                                                else
+                                                {
+                                                    Console.ForegroundColor = ConsoleColor.Green;
+                                                }
+                                            }
+                                            Console.Write($"{submHist?.grade}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+
+                                            Console.Write($"\tБаллы: ");
+                                            Console.ForegroundColor = ConsoleColor.Blue;
+                                            Console.Write($"{submHist?.score}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+
+                                            Console.Write($"\tПопыток: ");
+                                            Console.ForegroundColor = ConsoleColor.Red;
+                                            Console.Write($"{submHist?.attempt}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+
+                                            Console.Write($"\tПроверил: ");
+                                            Console.ForegroundColor = ConsoleColor.Green;
+                                            Console.Write($"{(submHist.grader_id != null ? cashe_teachers[submHist.grader_id.ToString()].display_name : "-")} {submHist.graded_at?.ToString("g")}");
+                                            Console.ForegroundColor = ConsoleColor.White;
+                                            Console.WriteLine();
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        Console.Write($"\tСост.: ");
+                                        if (submHist?.workflow_state != null)
+                                        {
+                                            SubmissionWorkflowState workflow;
+
+                                            if (Enum.TryParse<SubmissionWorkflowState>(submHist?.workflow_state,
+                                                true, out workflow))
+                                            {
+                                                switch (workflow)
+                                                {
+                                                    case SubmissionWorkflowState.GRADED:
+                                                    case SubmissionWorkflowState.COMPLETE:
+                                                        Console.ForegroundColor = ConsoleColor.Green;
+                                                        break;
+                                                    case SubmissionWorkflowState.SUBMITTED:
+                                                        Console.ForegroundColor = ConsoleColor.Yellow;
+                                                        break;
+                                                    default:
+                                                        Console.ForegroundColor = ConsoleColor.Gray;
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                        Console.Write($"{submHist?.workflow_state}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.Write($"\tОценка: ");
+                                        if (submHist?.grade != null)
+                                        {
+                                            SubmissionGrade grade;
+
+                                            if (Enum.TryParse<SubmissionGrade>(submHist?.grade, true, out grade))
+                                                switch (grade)
+                                                {
+                                                    case SubmissionGrade.COMPLETE:
+                                                        Console.ForegroundColor = ConsoleColor.Green;
+                                                        break;
+                                                    case SubmissionGrade.INCOMPLETE:
+                                                        Console.ForegroundColor = ConsoleColor.Red;
+                                                        break;
+                                                    default:
+                                                        Console.ForegroundColor = ConsoleColor.Gray;
+                                                        break;
+                                                }
+                                            else
+                                            {
+                                                Console.ForegroundColor = ConsoleColor.Green;
+                                            }
+                                        }
+                                        Console.Write($"{submHist?.grade}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.Write($"\tБаллы: ");
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        Console.Write($"{submHist?.score}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.Write($"\tПопыток: ");
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.Write($"{submHist?.attempt}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+
+                                        Console.Write($"\tПроверил: ");
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        if (submHist.grader_id != null && cashe_teachers.ContainsKey(submHist.grader_id.ToString()))
+                                            Console.Write($"{cashe_teachers[submHist.grader_id.ToString()].display_name} {submHist.graded_at?.ToString("g")}");
+                                        else
+                                            Console.Write($"- {submHist.graded_at?.ToString("g")}");
+                                        Console.ForegroundColor = ConsoleColor.White;
+                                        Console.WriteLine();
+                                    }
                                 }
                                 Console.WriteLine();
                             }

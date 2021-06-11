@@ -12,7 +12,7 @@ namespace CanvasApiCore.Queries
     /// <summary>
     /// Запросы к API Submissions
     /// </summary>
-    public class SubmissionsQueries
+    public static class SubmissionsQueries
     {
         /// <summary>
         /// Запросить список представлений для заданий и для n-го числа студентов

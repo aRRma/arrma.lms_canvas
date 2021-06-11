@@ -12,7 +12,7 @@ namespace CanvasApiCore.Queries
     /// <summary>
     /// Запросы к API Assignments
     /// </summary>
-    public class AssignmentsQueries
+    public static class AssignmentsQueries
     {
         /// <summary>
         /// Запросить список заданий на курсе.

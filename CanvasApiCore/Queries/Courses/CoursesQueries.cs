@@ -13,7 +13,7 @@ namespace CanvasApiCore.Queries
     /// <summary>
     /// Запросы к API courses
     /// </summary>
-    public class CoursesQueries
+    public static class CoursesQueries
     {
         /// <summary>
         /// Запросить список курсов текущего пользователя.
