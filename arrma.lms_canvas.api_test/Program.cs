@@ -40,7 +40,7 @@ namespace arrma.lms_canvas.api_test
             Console.WriteLine("\n");
 
             #region List assignments for all students at course and show who graded submission
-            await ListAllMyCoursesAndSubmissions();
+            await ListAllCourseData();
             #endregion
 
             Console.WriteLine("\n");
@@ -54,7 +54,7 @@ namespace arrma.lms_canvas.api_test
         /// </summary>
         /// <remarks>Сейчас представления заданий выводится только для 2 студентов с каждого курса</remarks>
         /// <returns></returns>
-        static async Task ListAllMyCoursesAndSubmissions()
+        static async Task ListAllCourseData()
         {
             List<Course> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
             {
