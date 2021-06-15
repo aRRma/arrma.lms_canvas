@@ -14,7 +14,7 @@ namespace CanvasEFCoreDb
     {
         public async Task UpdDbDataAsync()
         {
-            using ApplicationContext db = new ApplicationContext();
+            using ApplicationDbContext db = new ApplicationDbContext();
 
             db.Courses.Add(new LmsCourse() { Name = "Курс 1" });
             db.Courses.Add(new LmsCourse() { Name = "Курс 2" });
@@ -24,7 +24,8 @@ namespace CanvasEFCoreDb
             db.Students.Add(new LmsStudent() { Name = "Вася", Email = "vasa@edu.misis.ru", Courses = new List<LmsCourse>() { new LmsCourse() { Name = "Курс 3" } } });
             db.Students.Add(new LmsStudent() { Name = "Петя", Email = "peta@edu.misis.ru", Courses = new List<LmsCourse>() { new LmsCourse() { Name = "Курс 4" } } });
 
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync().ConfigureAwait(false);
+
         }
     }
 }

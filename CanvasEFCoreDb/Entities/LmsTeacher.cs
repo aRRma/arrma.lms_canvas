@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CanvasEFCoreDb.Entities
 {
-    class LmsTeacher : LmsBaseUser
+    public class LmsTeacher : LmsBaseUser
     {
     }
 }

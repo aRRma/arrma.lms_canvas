@@ -8,13 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CanvasEFCoreDb
 {
-    class ApplicationContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
         public DbSet<LmsCourse> Courses { get; set; }
-        public DbSet<LmsTeacher> Teachers { get; set; }
         public DbSet<LmsStudent> Students { get; set; }
+        public DbSet<LmsTeacher> Teachers { get; set; }
+        public DbSet<LmsAssignmentGroup> AssignmentGroups { get; set; }
+        public DbSet<LmsAssignment> Assignments { get; set; }
+        public DbSet<LmsSubmission> Submissions { get; set; }
+        public DbSet<LmsAttachment> Attachments { get; set; }
 
-        public ApplicationContext()
+        public ApplicationDbContext()
         {
             Database.EnsureCreated();
         }

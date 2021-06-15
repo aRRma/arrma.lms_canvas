@@ -13,7 +13,7 @@ namespace CanvasApiCore.Models.Users
     public class User : CanvasEntity
     {
         /// <summary>
-        /// Отсортированное имя
+        /// Отсортированное имя (Ф, И, О)
         /// </summary>
         public string sortable_name;
         /// <summary>

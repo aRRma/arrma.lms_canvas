@@ -9,9 +9,12 @@ namespace CanvasEFCoreDb.Entities
     /// <summary>
     /// Базовый класс пользователя LMS Canvas
     /// </summary>
-    class LmsBaseUser : LmsBaseEntity
+    public class LmsBaseUser : LmsBaseEntity
     {
+        public string Login_id { get; set; }
+        public string Surname { get; set; }
         public string Email { get; set; }
+        public string Role { get; set; }
         public List<LmsCourse> Courses { get; set; } = new List<LmsCourse>();
     }
 }

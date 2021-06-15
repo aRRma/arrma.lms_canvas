@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CanvasApiCore\CanvasApiCore.csproj" />
+    <ProjectReference Include="..\CanvasEFCoreDb\CanvasEFCoreDb.csproj" />
   </ItemGroup>
 
 </Project>

@@ -70,7 +70,7 @@ namespace CanvasApiCore.Models.Attachment
         /// </summary>
         public string preview_url;
         /// <summary>
-        /// Размер файла
+        /// Размер файла в байтах
         /// </summary>
         public long? size;
         /// <summary>

@@ -14,6 +14,8 @@ using CanvasApiCore.Models.Query_objects;
 using CanvasApiCore.Models.Submissions;
 using CanvasApiCore.Models.Users;
 using CanvasApiCore.Queries;
+using CanvasEFCoreDb;
+using CanvasEFCoreDb.Entities;
 
 namespace arrma.lms_canvas.api_test
 {
@@ -31,7 +33,9 @@ namespace arrma.lms_canvas.api_test
         private static readonly Dictionary<string, UserDisplay> cashe_teachers = new Dictionary<string, UserDisplay>();
         private static readonly Dictionary<string, AssignmentGroup> cashe_assignmentGroups = new Dictionary<string, AssignmentGroup>();
         private static readonly Dictionary<string, Assignment> cashe_assignments = new Dictionary<string, Assignment>();
-        private static readonly Dictionary<string, User> cashe_users = new Dictionary<string, User>();
+        private static readonly Dictionary<string, User> cashe_students = new Dictionary<string, User>();
+        //контекст базы
+        private static readonly ApplicationDbContext db = new ApplicationDbContext();
 
         static async Task Main(string[] args)
         {
@@ -69,7 +73,18 @@ namespace arrma.lms_canvas.api_test
                 course.Remove(course.Find(x => x.start_at < new DateTime(2021, 1, 1)));
                 if (item.id == 7540) continue;
                 if (!cashe_courses.ContainsKey(item.id?.ToString()))
+                {
                     cashe_courses.Add(item.id?.ToString(), item);
+                    db.Courses.Add(new LmsCourse()
+                    {
+                        LmsId = (int)item.id,
+                        Name = item.name,
+                        Course_code = item.course_code,
+                        Workflow_state = item.workflow_state,
+                        Start_at = item.start_at,
+                        End_at = item.end_at
+                    });
+                }
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{item.course_code} {item.name}");
@@ -87,7 +102,20 @@ namespace arrma.lms_canvas.api_test
                 foreach (var teacher in item.teachers.OrderBy(x => x.id))
                 {
                     if (!cashe_teachers.ContainsKey(teacher?.id.ToString()))
+                    {
                         cashe_teachers.Add(teacher?.id.ToString(), teacher);
+                        UserProfile teacherUser = await UsersQueries.GetUserProfileAsync(teacher.id.ToString());
+                        foreach (var dbCourse in db.Courses.Where(x => x.LmsId == item.id))
+                            if (!dbCourse.Teachers.Contains(dbCourse.Teachers.FirstOrDefault(x => x.LmsId == (int)teacherUser.id)))
+                                dbCourse.Teachers.Add(new LmsTeacher()
+                                {
+                                    LmsId = (int)teacherUser.id,
+                                    Email = teacherUser.primary_email,
+                                    Login_id = teacherUser.login_id,
+                                    Name = teacherUser.sortable_name,
+                                    Surname = teacherUser.sortable_name
+                                });
+                    }
                     Console.Write($"\tID: ");
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.Write($"{teacher.id}\t");
@@ -100,6 +128,8 @@ namespace arrma.lms_canvas.api_test
                 }
                 Console.WriteLine();
             }
+
+            await db.SaveChangesAsync();
             Console.WriteLine($"Запросили курсы...\n\n");
 
             for (int i = 0; i < course.Count; i++)
@@ -171,8 +201,8 @@ namespace arrma.lms_canvas.api_test
                 foreach (var user in data.OrderBy(x => x.id))
                 {
                     tempUsers.Add(user);
-                    if (!cashe_users.ContainsKey(user.id.ToString()))
-                        cashe_users.Add(user.id.ToString(), user);
+                    if (!cashe_students.ContainsKey(user.id.ToString()))
+                        cashe_students.Add(user.id.ToString(), user);
                     Console.Write($"\tID: ");
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write($"{user.id}\t");

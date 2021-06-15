@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 
 namespace CanvasEFCoreDb.Entities
 {
-    class LmsBaseEntity
+    public class LmsBaseEntity
     {
         public int Id { get; set; }
         [Required]
         public int LmsId { get; set; }
         [Required]
-        [MaxLength(100)]
         public string Name { get; set; }
     }
 }
