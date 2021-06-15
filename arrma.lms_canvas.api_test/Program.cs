@@ -67,24 +67,13 @@ namespace arrma.lms_canvas.api_test
                 state = new List<CourseState>() { CourseState.AVAILABLE }
             });
             course.Remove(course.Find(x => x.id == 7540));
+            course.RemoveAll(x => x.start_at < new DateTime(2021, 1, 1));
 
-            foreach (var item in course.OrderBy(x => x.total_students))
+            foreach (var item in course.OrderBy(x => x.id))
             {
-                course.Remove(course.Find(x => x.start_at < new DateTime(2021, 1, 1)));
-                if (item.id == 7540) continue;
                 if (!cashe_courses.ContainsKey(item.id?.ToString()))
-                {
                     cashe_courses.Add(item.id?.ToString(), item);
-                    db.Courses.Add(new LmsCourse()
-                    {
-                        LmsId = (int)item.id,
-                        Name = item.name,
-                        Course_code = item.course_code,
-                        Workflow_state = item.workflow_state,
-                        Start_at = item.start_at,
-                        End_at = item.end_at
-                    });
-                }
+
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{item.course_code} {item.name}");
@@ -102,20 +91,8 @@ namespace arrma.lms_canvas.api_test
                 foreach (var teacher in item.teachers.OrderBy(x => x.id))
                 {
                     if (!cashe_teachers.ContainsKey(teacher?.id.ToString()))
-                    {
                         cashe_teachers.Add(teacher?.id.ToString(), teacher);
-                        UserProfile teacherUser = await UsersQueries.GetUserProfileAsync(teacher.id.ToString());
-                        foreach (var dbCourse in db.Courses.Where(x => x.LmsId == item.id))
-                            if (!dbCourse.Teachers.Contains(dbCourse.Teachers.FirstOrDefault(x => x.LmsId == (int)teacherUser.id)))
-                                dbCourse.Teachers.Add(new LmsTeacher()
-                                {
-                                    LmsId = (int)teacherUser.id,
-                                    Email = teacherUser.primary_email,
-                                    Login_id = teacherUser.login_id,
-                                    Name = teacherUser.sortable_name,
-                                    Surname = teacherUser.sortable_name
-                                });
-                    }
+
                     Console.Write($"\tID: ");
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.Write($"{teacher.id}\t");
@@ -129,6 +106,43 @@ namespace arrma.lms_canvas.api_test
                 Console.WriteLine();
             }
 
+            foreach (var c in cashe_courses)
+            {
+                if (db.Courses.Count(x => x.LmsId.Equals(c.Value.id)) <= 0)
+                    db.Courses.Add(new LmsCourse()
+                    {
+                        LmsId = (int)c.Value.id,
+                        Name = c.Value.name,
+                        Course_code = c.Value.course_code,
+                        Total_students = c.Value.total_students,
+                        Total_teachers = c.Value.teachers?.Length,
+                        Workflow_state = c.Value.workflow_state,
+                        Start_at = c.Value.start_at,
+                        End_at = c.Value.end_at
+                    });
+
+                foreach (var t in cashe_teachers.OrderBy(x => x.Value.id))
+                {
+                    if (db.Teachers.Count(x => x.LmsId.Equals(t.Value.id)) <= 0)
+                    {
+                        var tp = await UsersQueries.GetUserProfileAsync(t.Value.id.ToString());
+                        db.Teachers.Add(new LmsTeacher()
+                        {
+                            LmsId = (int)tp.id,
+                            Email = tp.primary_email,
+                            Login_id = tp.login_id,
+                            Name = tp.sortable_name.Split(',')[1],
+                            Surname = tp.sortable_name.Split(',')[0],
+                            Role = "Teacher"
+                        });
+                        await db.SaveChangesAsync();
+                    }
+                    foreach (var dbCourse in db.Courses.Where(x => x.LmsId.Equals(c.Value.id)))
+                        if (dbCourse.Teachers.Count(x => x.LmsId.Equals(t.Value.id)) <= 0)
+                            dbCourse.Teachers.Add(db.Teachers.FirstOrDefault(x => x.LmsId.Equals(t.Value.id)));
+                }
+            }
+            
             await db.SaveChangesAsync();
             Console.WriteLine($"Запросили курсы...\n\n");
 

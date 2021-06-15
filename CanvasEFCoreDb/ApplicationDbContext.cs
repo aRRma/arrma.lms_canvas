@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CanvasEFCoreDb
 {
-    public class ApplicationDbContext : DbContext
+    public sealed class ApplicationDbContext : DbContext
     {
         public DbSet<LmsCourse> Courses { get; set; }
         public DbSet<LmsStudent> Students { get; set; }
@@ -20,6 +20,7 @@ namespace CanvasEFCoreDb
 
         public ApplicationDbContext()
         {
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 

@@ -10,6 +10,8 @@ namespace CanvasEFCoreDb.Entities
     public class LmsCourse : LmsBaseEntity
     {
         public string Course_code { get; set; }
+        public int? Total_students { get; set; }
+        public int? Total_teachers { get; set; }
         public string Workflow_state { get; set; }
         public DateTime? Start_at { get; set; }
         public DateTime? End_at { get; set; }
