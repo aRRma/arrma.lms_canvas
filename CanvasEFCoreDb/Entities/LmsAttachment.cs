@@ -10,8 +10,6 @@ namespace CanvasEFCoreDb.Entities
     public class LmsAttachment : LmsBaseEntity
     {
         // внешние ключи и навигационные свойства
-        public int? StudentId { get; set; }
-        public LmsStudent Student { get; set; }
         public int? SubmissionId { get; set; }
         public LmsSubmission Submission { get; set; }
  

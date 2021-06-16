@@ -10,7 +10,7 @@ namespace CanvasApiCore.Models.Attachment
     /// <summary>
     /// 
     /// </summary>
-    public class Attachment : CanvasEntity
+    public class AttachmentJson : BaseEntityJson
     {
         /// <summary>
         /// Тип файла (хэдер html)

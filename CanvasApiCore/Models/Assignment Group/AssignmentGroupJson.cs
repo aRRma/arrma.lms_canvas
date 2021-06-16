@@ -11,7 +11,7 @@ namespace CanvasApiCore.Models.Assignment_Group
     /// <summary>
     /// Группа заданий
     /// </summary>
-    public class AssignmentGroup : CanvasEntity
+    public class AssignmentGroupJson : BaseEntityJson
     {
         /// <summary>
         /// Позиция группы заданий
@@ -32,7 +32,7 @@ namespace CanvasApiCore.Models.Assignment_Group
         /// <summary>
         /// Массив заданий
         /// </summary>
-        public Assignment[] assignments;
+        public AssignmentJson[] assignments;
         /// <summary>
         /// Правила оценки
         /// </summary>

@@ -9,7 +9,7 @@ namespace CanvasApiCore.Models.Courses
     /// <summary>
     /// Список зачислений, связывающих текущего пользователя с курсом
     /// </summary>
-    public class CourseEnrollment
+    public class CourseEnrollmentJson
     {
         /// <summary>
         /// Тип регистрации пользователя на курс

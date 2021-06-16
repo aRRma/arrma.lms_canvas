@@ -30,7 +30,7 @@ namespace CanvasApiCore.Models.Submissions
         /// <summary>
         /// Массив сгруппированных представлений заданий
         /// </summary>
-        public Submission[] submissions;
+        public SubmissionJson[] submissions;
         /// <summary>
         /// ID пользователя 
         /// </summary>
@@ -40,7 +40,7 @@ namespace CanvasApiCore.Models.Submissions
     /// <summary>
     /// Представление задания
     /// </summary>
-    public class Submission : CanvasEntity
+    public class SubmissionJson : BaseEntityJson
     {
         /// <summary>
         /// ID задания
@@ -49,11 +49,11 @@ namespace CanvasApiCore.Models.Submissions
         /// <summary>
         /// Задание
         /// </summary>
-        public Assignment assignment;
+        public AssignmentJson assignment;
         /// <summary>
         /// Прикрепленные файлы
         /// </summary>
-        public Attachment.Attachment[] attachments;
+        public Attachment.AttachmentJson[] attachments;
         /// <summary>
         /// Дата кеширования
         /// </summary>
@@ -61,7 +61,7 @@ namespace CanvasApiCore.Models.Submissions
         /// <summary>
         /// Курс
         /// </summary>
-        public Course course;
+        public CourseJson course;
         /// <summary>
         /// Количество попыток
         /// </summary>
@@ -121,7 +121,7 @@ namespace CanvasApiCore.Models.Submissions
         /// <summary>
         /// Пользователь (студент)
         /// </summary>
-        public User user;
+        public UserJson user;
         /// <summary>
         /// Отправили представление поздно
         /// </summary>
@@ -163,7 +163,7 @@ namespace CanvasApiCore.Models.Submissions
     /// <summary>
     /// Представление из истории
     /// </summary>
-    public class SubmissionHistory : CanvasEntity
+    public class SubmissionHistory : BaseEntityJson
     {
         /// <summary>
         /// Тело представления (было только в задании типа "тест" "user: 32081, quiz: 33811, score: 5.0, time: 2021-03-23 16:58:06 +0300")
@@ -252,18 +252,18 @@ namespace CanvasApiCore.Models.Submissions
         /// <summary>
         /// Прикрепленные файлы
         /// </summary>
-        public Attachment.Attachment[] attachments;
+        public Attachment.AttachmentJson[] attachments;
     }
 
     /// <summary>
     /// Комментарий представления
     /// </summary>
-    public class SubmissionComment : CanvasEntity
+    public class SubmissionComment : BaseEntityJson
     {
         /// <summary>
         /// Автор комментария
         /// </summary>
-        public UserDisplay author;
+        public UserDisplayJson author;
         /// <summary>
         /// ID автора комментария
         /// </summary>

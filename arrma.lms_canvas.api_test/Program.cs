@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,6 +17,7 @@ using CanvasApiCore.Models.Users;
 using CanvasApiCore.Queries;
 using CanvasEFCoreDb;
 using CanvasEFCoreDb.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace arrma.lms_canvas.api_test
 {
@@ -29,13 +31,15 @@ namespace arrma.lms_canvas.api_test
         private static readonly string test_assignment_id = "115645";    //ЛР№1_Отч
         private static readonly string test_student_id = "31411";        //Дмитрий Генкель
         //кэш данных
-        private static readonly Dictionary<string, Course> cashe_courses = new Dictionary<string, Course>();
-        private static readonly Dictionary<string, UserDisplay> cashe_teachers = new Dictionary<string, UserDisplay>();
-        private static readonly Dictionary<string, AssignmentGroup> cashe_assignmentGroups = new Dictionary<string, AssignmentGroup>();
-        private static readonly Dictionary<string, Assignment> cashe_assignments = new Dictionary<string, Assignment>();
-        private static readonly Dictionary<string, User> cashe_students = new Dictionary<string, User>();
+        private static readonly Dictionary<string, CourseJson> cashe_courses = new Dictionary<string, CourseJson>();
+        private static readonly Dictionary<string, UserDisplayJson> cashe_teachers = new Dictionary<string, UserDisplayJson>();
+        private static readonly Dictionary<string, AssignmentGroupJson> cashe_assignmentGroups = new Dictionary<string, AssignmentGroupJson>();
+        private static readonly Dictionary<string, AssignmentJson> cashe_assignments = new Dictionary<string, AssignmentJson>();
+        private static readonly Dictionary<string, UserJson> cashe_students = new Dictionary<string, UserJson>();
         //контекст базы
         private static readonly ApplicationDbContext db = new ApplicationDbContext();
+        //форматтер текста
+        private static TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
 
         static async Task Main(string[] args)
         {
@@ -60,7 +64,7 @@ namespace arrma.lms_canvas.api_test
         /// <returns></returns>
         static async Task ListAllCourseData()
         {
-            List<Course> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
+            List<CourseJson> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
             {
                 include = new List<CourseInclude>() { CourseInclude.TOTAL_STUDENTS, CourseInclude.NEEDS_GRADING_COUNT, CourseInclude.TEACHERS },
                 enrollment_type = CourseEnrollmentType.TEACHER,
@@ -105,45 +109,6 @@ namespace arrma.lms_canvas.api_test
                 }
                 Console.WriteLine();
             }
-
-            foreach (var c in cashe_courses)
-            {
-                if (db.Courses.Count(x => x.LmsId.Equals(c.Value.id)) <= 0)
-                    db.Courses.Add(new LmsCourse()
-                    {
-                        LmsId = (int)c.Value.id,
-                        Name = c.Value.name,
-                        Course_code = c.Value.course_code,
-                        Total_students = c.Value.total_students,
-                        Total_teachers = c.Value.teachers?.Length,
-                        Workflow_state = c.Value.workflow_state,
-                        Start_at = c.Value.start_at,
-                        End_at = c.Value.end_at
-                    });
-
-                foreach (var t in cashe_teachers.OrderBy(x => x.Value.id))
-                {
-                    if (db.Teachers.Count(x => x.LmsId.Equals(t.Value.id)) <= 0)
-                    {
-                        var tp = await UsersQueries.GetUserProfileAsync(t.Value.id.ToString());
-                        db.Teachers.Add(new LmsTeacher()
-                        {
-                            LmsId = (int)tp.id,
-                            Email = tp.primary_email,
-                            Login_id = tp.login_id,
-                            Name = tp.sortable_name.Split(',')[1],
-                            Surname = tp.sortable_name.Split(',')[0],
-                            Role = "Teacher"
-                        });
-                        await db.SaveChangesAsync();
-                    }
-                    foreach (var dbCourse in db.Courses.Where(x => x.LmsId.Equals(c.Value.id)))
-                        if (dbCourse.Teachers.Count(x => x.LmsId.Equals(t.Value.id)) <= 0)
-                            dbCourse.Teachers.Add(db.Teachers.FirstOrDefault(x => x.LmsId.Equals(t.Value.id)));
-                }
-            }
-            
-            await db.SaveChangesAsync();
             Console.WriteLine($"Запросили курсы...\n\n");
 
             for (int i = 0; i < course.Count; i++)
@@ -186,7 +151,7 @@ namespace arrma.lms_canvas.api_test
             }
             Console.WriteLine($"Запросили задания для курса...\n\n");
 
-            Dictionary<string, List<User>> courseStudens = new Dictionary<string, List<User>>();
+            Dictionary<string, List<UserJson>> courseStudens = new Dictionary<string, List<UserJson>>();
 
             for (int i = 0; i < course.Count; i++)
             {
@@ -197,7 +162,7 @@ namespace arrma.lms_canvas.api_test
                     enrollment_type = UserEnrollmentType.STUDENT,
                     number_students = course[i].total_students
                 });
-                List<User> tempUsers = new List<User>();
+                List<UserJson> tempUsers = new List<UserJson>();
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine($"{course[i].course_code} {course[i].name}");
@@ -476,6 +441,151 @@ namespace arrma.lms_canvas.api_test
             }
 
             Console.WriteLine($"Запросили представления заданий...\n\n");
+
+            // пишем в бд
+            // заполняем таблицу Преподавателей из кэша
+            foreach (var c_t in cashe_teachers.OrderBy(x => x.Value.id))
+            {
+                if (db.Teachers.Count(x => x.Lms_id.Equals(c_t.Value.id)) <= 0)
+                {
+                    var tp = await UsersQueries.GetUserProfileAsync(c_t.Value.id.ToString());
+                    db.Teachers.Add(new LmsTeacher()
+                    {
+                        Lms_id = (int)tp.id,
+                        Email = tp.primary_email,
+                        Login_id = tp.login_id,
+                        Name = textInfo.ToTitleCase(tp.sortable_name.Split(',')[1].ToLower()),
+                        Surname = textInfo.ToTitleCase(tp.sortable_name.Split(',')[0].ToLower()),
+                        Role = textInfo.ToTitleCase(CourseEnrollmentType.TEACHER.ToString().ToLower())
+                    });
+                }
+            }
+            await db.SaveChangesAsync();
+            // заполняем таблицу Студентов из кэша
+            foreach (var c_s in cashe_students.OrderBy(x => x.Value.id))
+            {
+                if (db.Students.Count(x => x.Lms_id.Equals(c_s.Value.id)) <= 0)
+                {
+                    db.Students.Add(new LmsStudent()
+                    {
+                        Lms_id = (int)c_s.Value.id,
+                        Email = c_s.Value.email,
+                        Login_id = c_s.Value.login_id,
+                        Name = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[1].ToLower()),
+                        Surname = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[0].ToLower()),
+                        Role = textInfo.ToTitleCase(CourseEnrollmentType.STUDENT.ToString().ToLower())
+                    });
+                }
+            }
+            await db.SaveChangesAsync();
+
+            foreach (var c_с in cashe_courses)
+            {
+                // заполняем таблицу Курсов из кэша
+                if (db.Courses.Count(x => x.Lms_id.Equals(c_с.Value.id)) <= 0)
+                    db.Courses.Add(new LmsCourse()
+                    {
+                        Lms_id = (int)c_с.Value.id,
+                        Name = c_с.Value.name,
+                        Course_code = c_с.Value.course_code,
+                        Total_students = c_с.Value.total_students,
+                        Total_teachers = c_с.Value.teachers?.Length,
+                        Workflow_state = c_с.Value.workflow_state,
+                        Start_at = c_с.Value.start_at,
+                        End_at = c_с.Value.end_at
+                    });
+
+                foreach (var db_c in db.Courses
+                    .Include(x => x.Teachers)
+                    .Include(x => x.Students)
+                    .Include(x => x.AssignmentGroups)
+                    .Where(x => x.Lms_id.Equals(c_с.Value.id)))
+                {
+                    // добавляем преподавателей к курсам
+                    foreach (var c_ct in c_с.Value.teachers)
+                        if (db_c.Teachers.Count(x => x.Lms_id.Equals(c_ct.id)) <= 0)
+                        {
+                            db_c.Teachers.Add(db.Teachers.FirstOrDefault(x => x.Lms_id.Equals(c_ct.id)));
+                            await db.SaveChangesAsync();
+                        }
+
+                    // добавляем студентов к курсам
+                    var data = await CoursesQueries.ListUsersInCourseAsync(db_c.Lms_id.ToString(), new ListUsersInCourseParams()
+                    {
+                        include = new List<UserInclude>() { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL },
+                        enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.ACTIVE, UserEnrollmentState.INVITED },
+                        enrollment_type = UserEnrollmentType.STUDENT,
+                        number_students = db_c.Total_students
+                    });
+                    foreach (var u in data)
+                    {
+                        if (db_c.Students.Count(x => x.Lms_id.Equals(u.id)) <= 0)
+                        {
+                            db_c.Students.Add(db.Students.FirstOrDefault(x => x.Lms_id.Equals(u.id)));
+                            await db.SaveChangesAsync();
+                        }
+                    }
+
+                    // заполняем группы заданий и сами задания
+                    var asGr = await AssignmentGroupsQueries.ListAssignmentGroupsAsync(db_c.Lms_id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
+                    foreach (var asGrItem in asGr)
+                    {
+                        var gr = new LmsAssignmentGroup()
+                        {
+                            Lms_id = (int)asGrItem.id,
+                            Name = asGrItem.name,
+                            Group_weight = asGrItem.group_weight,
+                            Position = asGrItem.position
+                        };
+                        // добавляем группу заданий в таблицу
+                        if (db.AssignmentGroups.Count(x => x.Lms_id.Equals(asGrItem.id)) <= 0)
+                            db.AssignmentGroups.Add(gr);
+
+                        // добавляем группу заданий к курсу
+                        if (db_c.AssignmentGroups.Count(x => x.Lms_id.Equals(asGrItem.id)) <= 0)
+                        {
+                            db_c.AssignmentGroups.Add(gr);
+                            foreach (var asItem in asGrItem.assignments)
+                            {
+                                var assignment = new LmsAssignment()
+                                {
+                                    Lms_id = (int)asItem.id,
+                                    Name = asItem.name,
+                                    Created_at = asItem.created_at,
+                                    Description = asItem.description,
+                                    Due_at = asItem.due_at,
+                                    Lock_at = asItem.lock_at,
+                                    Needs_grading_count = asItem.needs_grading_count,
+                                    Position = asItem.position,
+                                    Unlock_at = asItem.unlock_at,
+                                    Updated_at = asItem.updated_at
+
+                                };
+                                // добавляем задание в таблицу
+                                if (db.Assignments.Count(x => x.Lms_id.Equals(asItem.id)) <= 0)
+                                    db.Assignments.Add(assignment);
+
+                                // добавляем задание в группу заданий
+                                if (db_c.AssignmentGroups.FirstOrDefault(x => x.Lms_id.Equals(asGrItem.id)).Assignments.Count(x => x.Lms_id.Equals(asItem.id)) <= 0)
+                                    db_c.AssignmentGroups.FirstOrDefault(x => x.Lms_id.Equals(asGrItem.id)).Assignments.Add(assignment);
+
+                                await db.SaveChangesAsync();
+                            }
+                        }
+                    }
+
+                    var submissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(db_c.Lms_id.ToString(),
+                        new ListMultiSubmParams()
+                        {
+                            include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY, SubmissionInclude.COURSE },
+                            grouped = true,
+                            workflow_state = SubmissionWorkflowState.GRADED,
+                            student_ids = db_c.Students.Select(x => x.Lms_id.ToString()).ToArray()
+                        });
+                }
+            }
+
+            await db.SaveChangesAsync();
         }
         #endregion
     }

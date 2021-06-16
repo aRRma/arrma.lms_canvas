@@ -20,7 +20,7 @@ namespace CanvasApiCore.Queries
         /// <param name="courseId">ID курса</param>
         /// <param name="include">Дополнительные параметры запроса</param>
         /// <returns>Объект группы заданий "AssignmentGroup".</returns>
-        public static async Task<List<AssignmentGroup>> ListAssignmentGroupsAsync(string courseId, AssignmentGroupInclude include = AssignmentGroupInclude.NONE)
+        public static async Task<List<AssignmentGroupJson>> ListAssignmentGroupsAsync(string courseId, AssignmentGroupInclude include = AssignmentGroupInclude.NONE)
         {
             // see https://canvas.instructure.com/doc/api/assignment_groups.html#method.assignment_groups.index
             
@@ -31,7 +31,7 @@ namespace CanvasApiCore.Queries
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignment_groups", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<AssignmentGroup>>(data.Result);
+            return JsonConvert.DeserializeObject<List<AssignmentGroupJson>>(data.Result);
         }
     }
 }

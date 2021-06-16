@@ -11,7 +11,7 @@ namespace CanvasEFCoreDb.Entities
     {
         public int Id { get; set; }
         [Required]
-        public int LmsId { get; set; }
+        public int Lms_id { get; set; }
         [Required]
         public string Name { get; set; }
     }

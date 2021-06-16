@@ -9,7 +9,7 @@ namespace CanvasApiCore.Models.Enrollments
     /// <summary>
     /// Регистрация
     /// </summary>
-    public class Enrollment : CanvasEntity
+    public class EnrollmentJson : BaseEntityJson
     {
         /// <summary>
         /// ID пользователя

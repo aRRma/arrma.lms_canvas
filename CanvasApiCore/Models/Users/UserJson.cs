@@ -10,7 +10,7 @@ namespace CanvasApiCore.Models.Users
     /// <summary>
     /// Пользователя LMS Canvas
     /// </summary>
-    public class User : CanvasEntity
+    public class UserJson : BaseEntityJson
     {
         /// <summary>
         /// Отсортированное имя (Ф, И, О)
@@ -43,7 +43,7 @@ namespace CanvasApiCore.Models.Users
         /// <summary>
         /// Регистрации
         /// </summary>
-        public Enrollment[] enrollments;
+        public EnrollmentJson[] enrollments;
         /// <summary>
         /// Электронная почта
         /// </summary>

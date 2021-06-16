@@ -20,7 +20,7 @@ namespace CanvasApiCore.Queries
         /// </summary>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
         /// <returns>Список объектов курс "Course".</returns>
-        public static async Task<List<Course>> ListYourCoursesAsync(ListYourCoursesParams addParams)
+        public static async Task<List<CourseJson>> ListYourCoursesAsync(ListYourCoursesParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 
@@ -44,7 +44,7 @@ namespace CanvasApiCore.Queries
 
             string url = ApiController.GetV1Url("v1/courses/", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Course>>(data.Result);
+            return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
         }
         /// <summary>
         /// Запросить список курсов для конкретного пользователя.
@@ -52,7 +52,7 @@ namespace CanvasApiCore.Queries
         /// <param name="userId">ID пользователя на курсе</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
         /// <returns>Список объектов курс "Course".</returns>
-        public static async Task<List<Course>> ListCoursesForUserAsync(string userId, ListCoursesForUserParams addParams)
+        public static async Task<List<CourseJson>> ListCoursesForUserAsync(string userId, ListCoursesForUserParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.user_index
 
@@ -69,7 +69,7 @@ namespace CanvasApiCore.Queries
 
             string url = ApiController.GetV1Url("v1/users/" + userId + "/courses", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Course>>(data.Result);
+            return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
         }
         /// <summary>
         /// Запросить список пользователей на курсе.
@@ -77,7 +77,7 @@ namespace CanvasApiCore.Queries
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса.</param>
         /// <returns>Список объектов пользователь "User".</returns>
-        public static async Task<List<User>> ListUsersInCourseAsync(string courseId, ListUsersInCourseParams addParams)
+        public static async Task<List<UserJson>> ListUsersInCourseAsync(string courseId, ListUsersInCourseParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.users
 
@@ -109,13 +109,13 @@ namespace CanvasApiCore.Queries
                 pages = (int)addParams.number_students / 50 + 1;
             }
 
-            List<User> users = new List<User>();
+            List<UserJson> users = new List<UserJson>();
 
             for (int i = 1; i <= pages; i++)
             {
                 string url = ApiController.GetV1Url("v1/courses/" + courseId + "/users", _queryParams + $"page={i}&");
                 using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-                var json = JsonConvert.DeserializeObject<List<User>>(data.Result);
+                var json = JsonConvert.DeserializeObject<List<UserJson>>(data.Result);
                 if (json == null) continue;
                 foreach (var item in json)
                     users.Add(item);

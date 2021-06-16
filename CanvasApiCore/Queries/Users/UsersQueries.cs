@@ -18,26 +18,26 @@ namespace CanvasApiCore.Queries
         /// </summary>
         /// <param name="userId">ID пользователя</param>
         /// <returns>Объект пользователя "User".</returns>
-        public static async Task<User> ShowUserDetailsAsync(string userId)
+        public static async Task<UserJson> ShowUserDetailsAsync(string userId)
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
 
             string url = ApiController.GetV1Url("v1/users/" + userId);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<User>(data.Result);
+            return JsonConvert.DeserializeObject<UserJson>(data.Result);
         }
         /// <summary>
         /// Запросить профиль пользователя
         /// </summary>
         /// <param name="userId">ID пользователя</param>
         /// <returns>Объект профиля пользователя "UserProfile".</returns>
-        public static async Task<UserProfile> GetUserProfileAsync(string userId)
+        public static async Task<UserProfileJson> GetUserProfileAsync(string userId)
         {
             // see https://canvas.instructure.com/doc/api/users.html#method.profile.settings
 
             string url = ApiController.GetV1Url("v1/users/" + userId + "/profile");
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<UserProfile>(data.Result);
+            return JsonConvert.DeserializeObject<UserProfileJson>(data.Result);
         }
     }
 }

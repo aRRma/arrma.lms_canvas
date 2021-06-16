@@ -9,7 +9,7 @@ namespace CanvasApiCore.Models.Users
     /// <summary>
     /// Отображения пользователя LMS Canvas
     /// </summary>
-    public class UserDisplay : CanvasEntity
+    public class UserDisplayJson : BaseEntityJson
     {
         /// <summary>
         /// отображаемое имя пользователя

@@ -10,7 +10,7 @@ namespace CanvasApiCore.Models.Users
     /// <summary>
     /// Профиля пользователя
     /// </summary>
-    public class UserProfile : CanvasEntity
+    public class UserProfileJson : BaseEntityJson
     {
         /// <summary>
         /// Короткое имя пользователя

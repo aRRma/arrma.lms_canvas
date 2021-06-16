@@ -3,7 +3,7 @@
     /// <summary>
     /// Сущность LMS Canvas
     /// </summary>
-    public class CanvasEntity
+    public class BaseEntityJson
     {
         /// <summary>
         /// ID идентификатор

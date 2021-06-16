@@ -28,9 +28,9 @@ namespace CanvasApiCore.Queries
 
             string _queryParams = null;
 
-            if (addParams.student_ids != null)
-                for (int i = 0; i < addParams.student_ids.Length; i++)
-                    _queryParams += "student_ids[]=" + addParams.student_ids[i] + "&";
+            //if (addParams.student_ids != null)
+            //    for (int i = 0; i < addParams.student_ids.Length; i++)
+            //        _queryParams += "student_ids[]=" + addParams.student_ids[i] + "&";
             if (addParams.assignment_ids != null)
                 for (int i = 0; i < addParams.assignment_ids.Length; i++)
                     _queryParams += "assignment_ids[]=" + addParams.assignment_ids[i] + "&";
@@ -52,17 +52,27 @@ namespace CanvasApiCore.Queries
                 foreach (var item in addParams.include)
                     _queryParams += "include[]=" + item.ToString().ToLower() + "&";
 
-            string url = ApiController.GetV1Url("v1/courses/" + courseId + "/students/submissions", _queryParams);
-            try
+            int pages = 1;
+
+            if (addParams.student_ids.Length > 0)
             {
+                _queryParams += "per_page=" + addParams.student_ids.Length + "&";
+                pages = addParams.student_ids.Length / 50 + 1;
+            }
+
+            List<GroupedSubmissions> submissions = new List<GroupedSubmissions>();
+
+            for (int i = 1; i <= pages; i++)
+            {
+                string studentsIds = string.Join("", addParams.student_ids.Skip(50 * (i - 1)).Take(50).Select(x => "student_ids[]=" + x + "&").ToArray());
+                string url = ApiController.GetV1Url("v1/courses/" + courseId + "/students/submissions", _queryParams + studentsIds + $"page={i}&");
                 using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
+                var json = JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
+                if (json == null) continue;
+                foreach (var item in json)
+                    submissions.Add(item);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(url);
-                throw;
-            }
+            return submissions;
         }
         /// <summary>
         /// Запросить представление одного задания для конкретного пользователя
@@ -72,7 +82,7 @@ namespace CanvasApiCore.Queries
         /// <param name="userId">ID пользователя на курсе</param>
         /// <param name="include">Дополнительные параметры запроса</param>
         /// <returns>Объект представления "Submission"</returns>
-        public static async Task<Submission> GetSingleSubmissionAsync(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null)
+        public static async Task<SubmissionJson> GetSingleSubmissionAsync(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null)
         {
             // see https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.show
 
@@ -84,7 +94,7 @@ namespace CanvasApiCore.Queries
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/" + userId, _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<Submission>(data.Result);
+            return JsonConvert.DeserializeObject<SubmissionJson>(data.Result);
         }
     }
 }

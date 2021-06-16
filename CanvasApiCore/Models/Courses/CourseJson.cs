@@ -7,7 +7,7 @@ namespace CanvasApiCore.Models.Courses
     /// <summary>
     /// Курс LMS Canvas
     /// </summary>
-    public class Course : CanvasEntity
+    public class CourseJson : BaseEntityJson
     {
         /// <summary>
         /// SIS ID курса
@@ -64,7 +64,7 @@ namespace CanvasApiCore.Models.Courses
         /// <summary>
         /// Список зачислений, связывающих текущего пользователя с курсом
         /// </summary>
-        public CourseEnrollment[] enrollments;
+        public CourseEnrollmentJson[] enrollments;
         /// <summary>
         /// Общее число активных и приглашенных студентов на курс
         /// </summary>
@@ -98,9 +98,9 @@ namespace CanvasApiCore.Models.Courses
         /// </summary>
         public bool? apply_assignment_group_weights;
         /// <summary>
-        /// Преподаватели на курск
+        /// Преподаватели на курсе
         /// </summary>
-        public UserDisplay[] teachers;
+        public UserDisplayJson[] teachers;
         /// <summary>
         /// Список разрешений пользователя на данный курс
         /// </summary>
@@ -205,7 +205,7 @@ namespace CanvasApiCore.Models.Courses
     /// <summary>
     /// Срока обучения
     /// </summary>
-    public class CourseTerm : CanvasEntity
+    public class CourseTerm : BaseEntityJson
     {
         /// <summary>
         /// Дата начала курса

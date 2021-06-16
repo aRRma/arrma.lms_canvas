@@ -20,7 +20,7 @@ namespace CanvasApiCore.Queries
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
         /// <returns>Список объектов заданий "Assignment".</returns>
-        public static async Task<List<Assignment>> ListAssignmentsAsync(string courseId, ListAssignmentsParams addParams)
+        public static async Task<List<AssignmentJson>> ListAssignmentsAsync(string courseId, ListAssignmentsParams addParams)
         {
             // see https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.index
 
@@ -45,7 +45,7 @@ namespace CanvasApiCore.Queries
             
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments", _queryParams);
             using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Assignment>>(data.Result);
+            return JsonConvert.DeserializeObject<List<AssignmentJson>>(data.Result);
         }
     }
 }

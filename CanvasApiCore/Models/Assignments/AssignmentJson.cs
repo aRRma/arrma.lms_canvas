@@ -10,7 +10,7 @@ namespace CanvasApiCore.Models.Assignments
     /// <summary>
     /// Задание
     /// </summary>
-    public class Assignment : CanvasEntity
+    public class AssignmentJson : BaseEntityJson
     {
         /// <summary>
         /// Описание задания в виде HTML страницы
@@ -155,7 +155,7 @@ namespace CanvasApiCore.Models.Assignments
         /// <summary>
         /// Представление задания для пользователя
         /// </summary>
-        public Submission submission;
+        public SubmissionJson submission;
         /// <summary>
         /// Массив id пользователей которые видят задание
         /// </summary>
