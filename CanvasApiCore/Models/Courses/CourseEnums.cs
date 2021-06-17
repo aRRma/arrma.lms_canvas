@@ -46,7 +46,7 @@
         /// </summary>
         STORAGE_QUOTA_USED_MD,
         /// <summary>
-        /// Общее количество студентов
+        /// Общее количество студентов (активных и приглашенных)
         /// </summary>
         TOTAL_STUDENTS,
         /// <summary>

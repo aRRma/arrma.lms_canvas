@@ -42,15 +42,14 @@ namespace CanvasTestConsole
             Console.WriteLine("user_id: " + test_user_id);
             Console.WriteLine("\n");
 
-            #region List assignments for all students at course and show who graded submission
-            await ListAllCourseData();
-            #endregion
+            //await ListAllCourseData();
+            await FillCanvasDbForUser();
 
             Console.WriteLine("\n");
             Console.WriteLine("End");
             Console.ReadKey();
         }
-        
+
         /// <summary>
         /// Метод запрашивает и отображает все актуальные курсы для текущего пользователя. Все группы и сами задания. Список всех активных студентов на курсах. Представления заданий для каждого студента.
         /// </summary>
@@ -69,8 +68,8 @@ namespace CanvasTestConsole
 
             foreach (var item in course.OrderBy(x => x.id))
             {
-                if (!cashe_courses.ContainsKey(item.id?.ToString()))
-                    cashe_courses.Add(item.id?.ToString(), item);
+                if (!cashe_courses.ContainsKey(item.id.ToString()))
+                    cashe_courses.Add(item.id.ToString(), item);
 
                 Console.Write($"Название курса: ");
                 Console.ForegroundColor = ConsoleColor.Blue;
@@ -440,7 +439,7 @@ namespace CanvasTestConsole
         /// Метод заполняет базу данных canvas.db
         /// </summary>
         /// <returns></returns>
-        static async Task FillCanvasDb()
+        static async Task FillCanvasDbOld()
         {
             // пишем в бд
             // заполняем таблицу Преподавателей из кэша
@@ -586,6 +585,129 @@ namespace CanvasTestConsole
             }
 
             await db.SaveChangesAsync();
+        }
+        static async Task FillCanvasDbForUser()
+        {
+            var listCourses = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
+            {
+                enrollment_state = CourseEnrollmentState.ACTIVE,
+                enrollment_type = CourseEnrollmentType.TEACHER,
+                include = new List<CourseInclude>()
+                {
+                    CourseInclude.TEACHERS,
+                    CourseInclude.NEEDS_GRADING_COUNT,
+                    CourseInclude.TOTAL_STUDENTS
+                }
+            });
+            //заполнили таблицу курсов и преподавателей. добавили преподавателей к курсу
+            foreach (var listCoursesItem in listCourses.OrderBy(x => x.id))
+            {
+                var lmsCourse = new LmsCourse()
+                {
+                    Lms_id = listCoursesItem.id,
+                    Name = listCoursesItem.name,
+                    Course_code = listCoursesItem.course_code,
+                    Total_students = listCoursesItem.total_students,
+                    Total_teachers = listCoursesItem.teachers?.Length,
+                    Needs_grading_count = listCoursesItem.needs_grading_count,
+                    Workflow_state = listCoursesItem.workflow_state,
+                    Start_at = listCoursesItem.start_at,
+                    End_at = listCoursesItem.end_at
+                };
+
+                if (db.Courses.Count(x => x.Lms_id.Equals(lmsCourse.Lms_id)) <= 0)
+                {
+                    db.Courses.Add(lmsCourse);
+                    await db.SaveChangesAsync();
+                }
+
+                if (listCoursesItem.teachers != null)
+                    foreach (var teachersItem in listCoursesItem.teachers)
+                    {
+                        var test = teachersItem.display_name.Split(' ');
+                        var lmsTeacher = new LmsTeacher()
+                        {
+                            Lms_id = teachersItem.id,
+                            Name = textInfo.ToTitleCase(teachersItem.display_name.Split(' ')[0].ToLower()),
+                            Surname = textInfo.ToTitleCase(teachersItem.display_name.Split(' ').Length > 2
+                                ? teachersItem.display_name.Split(' ')[2].ToLower()
+                                : string.Empty),
+                            Patronymic = textInfo.ToTitleCase(teachersItem.display_name.Split(' ').Length > 1
+                                ? teachersItem.display_name.Split(' ')[1].ToLower()
+                                : string.Empty),
+                            Role = textInfo.ToTitleCase(CourseEnrollmentType.TEACHER.ToString().ToLower())
+                        };
+
+                        if (db.Teachers.Count(x => x.Lms_id.Equals(lmsTeacher.Lms_id)) <= 0)
+                        {
+                            db.Teachers.Add(lmsTeacher);
+                            await db.SaveChangesAsync();
+                        }
+
+                        if (db.Courses
+                            .Include(x => x.Teachers)
+                            .FirstOrDefault(x => x.Lms_id.Equals(listCoursesItem.id)).Teachers
+                            .Count(x => x.Lms_id.Equals(lmsTeacher.Lms_id)) <= 0)
+                        {
+                            db.Courses
+                                .Include(x => x.Teachers)
+                                .FirstOrDefault(x => x.Lms_id.Equals(listCoursesItem.id))
+                                ?.Teachers.Add(db.Teachers.FirstOrDefault(x => x.Lms_id.Equals(lmsTeacher.Lms_id)));
+                            await db.SaveChangesAsync();
+                        }
+                    }
+            }
+
+            foreach (var courseItem in db.Courses.Include(x => x.Students))
+            {
+                var studentsOnCourse = await CoursesQueries.ListUsersInCourseAsync(courseItem.Lms_id.ToString(),
+                    new ListUsersInCourseParams()
+                    {
+                        include = new List<UserInclude>() { UserInclude.EMAIL },
+                        enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.ACTIVE },
+                        enrollment_type = UserEnrollmentType.STUDENT,
+                        number_students = courseItem.Total_students
+                    });
+                foreach (var studentItem in studentsOnCourse)
+                {
+                    var lmsStudent = new LmsStudent()
+                    {
+                        Lms_id = studentItem.id,
+                        Name = textInfo.ToTitleCase(studentItem.short_name.Split(' ')[0].ToLower()),
+                        Surname = textInfo.ToTitleCase(studentItem.short_name.Split(' ').Length > 1
+                            ? studentItem.short_name.Split(' ')[1].ToLower()
+                            : string.Empty),
+                        Patronymic = null,
+                        Login_id = studentItem.login_id,
+                        Email = studentItem.email,
+                        Role = textInfo.ToTitleCase(CourseEnrollmentType.STUDENT.ToString().ToLower())
+                    };
+
+                    if (db.Students.Count(x => x.Lms_id.Equals(lmsStudent.Lms_id)) <= 0)
+                    {
+                        db.Students.Add(lmsStudent);
+                        await db.SaveChangesAsync();
+                    }
+
+                    if (courseItem.Students.Count(x => x.Lms_id.Equals(lmsStudent.Lms_id)) <= 0)
+                    {
+                        courseItem.Students.Add(db.Students.FirstOrDefault(x => x.Lms_id.Equals(lmsStudent.Lms_id)));
+                        await db.SaveChangesAsync();
+                    }
+                }
+            }
+
+            foreach (var lmsCourse in db.Courses.Include(x => x.Teachers).Include(x => x.Students))
+            {
+                Console.WriteLine($"{lmsCourse.Name} {lmsCourse.Course_code}");
+                foreach (var lmsTeacher in lmsCourse.Teachers)
+                    Console.WriteLine($"\t{lmsTeacher.Name}\t{lmsTeacher.Surname}\t{lmsTeacher.Patronymic}");
+                foreach (var lmsStudent in lmsCourse.Students)
+                    Console.WriteLine($"\t\t{lmsStudent.Name}\t{lmsStudent.Surname}\t{lmsStudent.Email}");
+            }
+
+            Console.WriteLine("Done");
+            Console.ReadKey();
         }
     }
 }

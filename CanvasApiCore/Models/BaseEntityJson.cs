@@ -8,7 +8,7 @@
         /// <summary>
         /// ID идентификатор
         /// </summary>
-        public int? id;
+        public int id;
         /// <summary>
         /// Название (имя)
         /// </summary>

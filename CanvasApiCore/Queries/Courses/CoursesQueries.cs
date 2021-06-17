@@ -39,7 +39,7 @@ namespace CanvasApiCore.Queries
                 foreach (var item in addParams.state)
                     _queryParams += "state[]=" + item.ToString().ToLower() + "&";
             _queryParams += "per_page=" + 50 + "&";
-
+            //TODO добавить запрос страниц
             string url = ApiController.GetV1Url("v1/courses/", _queryParams);
             var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);

@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 
 namespace CanvasEFCore.Entities
 {
-    public class LmsAttachment : LmsBaseEntity
+    public class LmsAttachment
     {
+        public int Id { get; set; }
+        [Required]
+        public int Lms_id { get; set; }
+        [Required]
+        public string Name { get; set; }
+
         // внешние ключи и навигационные свойства
         public int? SubmissionId { get; set; }
         public LmsSubmission Submission { get; set; }
- 
+        
         public string Display_name { get; set; }
         public string File_name { get; set; }
         public string File_format { get; set; }

@@ -13,7 +13,7 @@ namespace CanvasApiCore.Models
     public class ListYourCoursesParams
     {
         /// <summary>
-        /// Тип регистрации пользователя на курс (игнорируется если задан enrollment_role)
+        /// Роль пользователя на курсе (игнорируется если задан enrollment_role)
         /// </summary>
         public CourseEnrollmentType enrollment_type;
         /// <summary>
@@ -37,7 +37,7 @@ namespace CanvasApiCore.Models
         /// </summary>
         public List<CourseInclude> include;
         /// <summary>
-        /// Состояние курса
+        /// Состояние курса (если не указать, то для студентов возвращаются "доступные", а для всех остальных все кроме удаленных)
         /// </summary>
         public List<CourseState> state;
 

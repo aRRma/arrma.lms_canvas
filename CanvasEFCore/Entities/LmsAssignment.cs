@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace CanvasEFCore.Entities
 {
-    public class LmsAssignment : LmsBaseEntity
+    public class LmsAssignment
     {
+        public int Id { get; set; }
+        [Required]
+        public int Lms_id { get; set; }
+        [Required]
+        public string Name { get; set; }
+
         // внешние ключи и навигационные свойства
         public int? AssignmentGroupId { get; set; }
         public LmsAssignmentGroup AssignmentGroup { get; set; }
@@ -22,6 +28,5 @@ namespace CanvasEFCore.Entities
         public DateTime? Due_at { get; set; }
         public DateTime? Lock_at { get; set; }
         public DateTime? Unlock_at { get; set; }
-
     }
 }

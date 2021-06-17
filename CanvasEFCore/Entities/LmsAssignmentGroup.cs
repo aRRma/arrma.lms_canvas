@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace CanvasEFCore.Entities
 {
-    public class LmsAssignmentGroup : LmsBaseEntity
+    public class LmsAssignmentGroup
     {
+        public int Id { get; set; }
+        [Required]
+        public int Lms_id { get; set; }
+        [Required]
+        public string Name { get; set; }
+
         // внешние ключи и навигационные свойства
         public int? CourseId { get; set; }
         public LmsCourse Course { get; set; }
