@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CanvasApiCore.Models;
 using Newtonsoft.Json;
@@ -65,8 +66,25 @@ namespace CanvasApiCore.Queries
             {
                 string studentsIds = string.Join("", addParams.student_ids.Skip(50 * (i - 1)).Take(50).Select(x => "student_ids[]=" + x + "&").ToArray());
                 string url = ApiController.GetV1Url("v1/courses/" + courseId + "/students/submissions", _queryParams + studentsIds + $"page={i}&");
+
                 var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
+
+                //вариант запроса страниц через хэдер Link. Но что-то бывает не очень удобно так делать
+                //var answer = await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false);
+                //if (addParams.student_ids.Length > 50)
+                //{
+                //    var links = answer.Headers.FirstOrDefault(x => x.Key == "Link").Value.FirstOrDefault().Split(',');
+                //    foreach (var linksItem in links)
+                //    {
+                //        var relMatch = Regex.Match(linksItem, "(?<=rel=\").+?(?=\")", RegexOptions.IgnoreCase);
+                //        if (relMatch.Value == "last")
+                //            pages = int.Parse(Regex.Match(linksItem, "(?<=page=).+?(?=&)", RegexOptions.IgnoreCase).Value);
+                //    }
+                //}
+                //var json = JsonConvert.DeserializeObject<List<GroupedSubmissions>>(answer.Content.ReadAsStringAsync().Result);
+
+
                 if (json == null) continue;
                 foreach (var item in json)
                     submissions.Add(item);

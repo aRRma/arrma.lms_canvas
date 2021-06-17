@@ -51,7 +51,6 @@ namespace CanvasTestConsole
             Console.ReadKey();
         }
         
-        #region Some scripts
         /// <summary>
         /// Метод запрашивает и отображает все актуальные курсы для текущего пользователя. Все группы и сами задания. Список всех активных студентов на курсах. Представления заданий для каждого студента.
         /// </summary>
@@ -436,7 +435,13 @@ namespace CanvasTestConsole
             }
 
             Console.WriteLine($"Запросили представления заданий...\n\n");
-
+        }
+        /// <summary>
+        /// Метод заполняет базу данных canvas.db
+        /// </summary>
+        /// <returns></returns>
+        static async Task FillCanvasDb()
+        {
             // пишем в бд
             // заполняем таблицу Преподавателей из кэша
             foreach (var c_t in cashe_teachers.OrderBy(x => x.Value.id))
@@ -582,6 +587,5 @@ namespace CanvasTestConsole
 
             await db.SaveChangesAsync();
         }
-        #endregion
     }
 }
