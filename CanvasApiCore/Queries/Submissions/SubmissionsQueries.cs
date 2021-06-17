@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Submissions;
-using CanvasApiCore.Models.Query_objects;
+using CanvasApiCore.Models;
 using Newtonsoft.Json;
 
 namespace CanvasApiCore.Queries
@@ -66,7 +65,7 @@ namespace CanvasApiCore.Queries
             {
                 string studentsIds = string.Join("", addParams.student_ids.Skip(50 * (i - 1)).Take(50).Select(x => "student_ids[]=" + x + "&").ToArray());
                 string url = ApiController.GetV1Url("v1/courses/" + courseId + "/students/submissions", _queryParams + studentsIds + $"page={i}&");
-                using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+                var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
                 if (json == null) continue;
                 foreach (var item in json)
@@ -93,7 +92,7 @@ namespace CanvasApiCore.Queries
                     _queryParams += "include[]=" + item.ToString().ToLower() + "&";
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/" + userId, _queryParams);
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<SubmissionJson>(data.Result);
         }
     }

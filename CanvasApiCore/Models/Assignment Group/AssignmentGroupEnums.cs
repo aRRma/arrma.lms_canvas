@@ -1,4 +1,4 @@
-﻿namespace CanvasApiCore.Models.Assignment_Group
+﻿namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Доп. параметры для включения в запрос AssignmentGroup 

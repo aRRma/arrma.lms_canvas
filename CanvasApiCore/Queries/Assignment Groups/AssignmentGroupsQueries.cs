@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using CanvasApiCore;
-using CanvasApiCore.Models.Assignment_Group;
+using CanvasApiCore.Models;
 
 namespace CanvasApiCore.Queries
 {
@@ -30,7 +30,7 @@ namespace CanvasApiCore.Queries
                 _queryParams += "include=" + include.ToString().ToLower() + "&";
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignment_groups", _queryParams);
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<AssignmentGroupJson>>(data.Result);
         }
     }

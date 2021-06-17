@@ -1,4 +1,4 @@
-﻿namespace CanvasApiCore.Models.Users
+﻿namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Доп. параметры для включения в запрос User

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Users;
+using CanvasApiCore.Models;
 using Newtonsoft.Json;
 
 namespace CanvasApiCore.Queries
@@ -23,7 +23,7 @@ namespace CanvasApiCore.Queries
             // see https://canvas.instructure.com/doc/api/users.html#method.users.api_show
 
             string url = ApiController.GetV1Url("v1/users/" + userId);
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<UserJson>(data.Result);
         }
         /// <summary>
@@ -36,7 +36,7 @@ namespace CanvasApiCore.Queries
             // see https://canvas.instructure.com/doc/api/users.html#method.profile.settings
 
             string url = ApiController.GetV1Url("v1/users/" + userId + "/profile");
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<UserProfileJson>(data.Result);
         }
     }

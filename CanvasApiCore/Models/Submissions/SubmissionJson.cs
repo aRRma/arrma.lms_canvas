@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Assignments;
-using CanvasApiCore.Models.Courses;
-using CanvasApiCore.Models.Users;
 using Newtonsoft.Json;
+using CanvasApiCore.Models;
 
-namespace CanvasApiCore.Models.Submissions
+namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Представление задания студента (для запроса с группировкой)
@@ -53,7 +51,7 @@ namespace CanvasApiCore.Models.Submissions
         /// <summary>
         /// Прикрепленные файлы
         /// </summary>
-        public Attachment.AttachmentJson[] attachments;
+        public AttachmentJson[] attachments;
         /// <summary>
         /// Дата кеширования
         /// </summary>
@@ -252,7 +250,7 @@ namespace CanvasApiCore.Models.Submissions
         /// <summary>
         /// Прикрепленные файлы
         /// </summary>
-        public Attachment.AttachmentJson[] attachments;
+        public AttachmentJson[] attachments;
     }
 
     /// <summary>

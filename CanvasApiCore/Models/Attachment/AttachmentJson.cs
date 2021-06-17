@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using CanvasApiCore.Models;
 
-namespace CanvasApiCore.Models.Attachment
+namespace CanvasApiCore.Models
 {
     /// <summary>
     /// 

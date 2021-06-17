@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Assignments;
 using Newtonsoft.Json;
+using CanvasApiCore.Models;
 
-namespace CanvasApiCore.Models.Assignment_Group
+namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Группа заданий

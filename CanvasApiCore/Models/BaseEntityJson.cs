@@ -1,4 +1,4 @@
-﻿namespace CanvasApiCore.Models
+﻿namespace CanvasApiCore
 {
     /// <summary>
     /// Сущность LMS Canvas

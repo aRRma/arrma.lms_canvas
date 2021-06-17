@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -8,18 +8,13 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using CanvasApiCore.Models.Assignment_Group;
-using CanvasApiCore.Models.Assignments;
-using CanvasApiCore.Models.Courses;
-using CanvasApiCore.Models.Query_objects;
-using CanvasApiCore.Models.Submissions;
-using CanvasApiCore.Models.Users;
+using CanvasApiCore.Models;
 using CanvasApiCore.Queries;
-using CanvasEFCoreDb;
-using CanvasEFCoreDb.Entities;
+using CanvasEFCore;
+using CanvasEFCore.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace arrma.lms_canvas.api_test
+namespace CanvasTestConsole
 {
     class Program
     {
@@ -55,7 +50,7 @@ namespace arrma.lms_canvas.api_test
             Console.WriteLine("End");
             Console.ReadKey();
         }
-
+        
         #region Some scripts
         /// <summary>
         /// Метод запрашивает и отображает все актуальные курсы для текущего пользователя. Все группы и сами задания. Список всех активных студентов на курсах. Представления заданий для каждого студента.

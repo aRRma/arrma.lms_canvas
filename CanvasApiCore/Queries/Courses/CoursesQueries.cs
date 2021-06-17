@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Courses;
-using CanvasApiCore.Models.Users;
-using CanvasApiCore.Models.Query_objects;
+using CanvasApiCore.Models;
 using Newtonsoft.Json;
 
 namespace CanvasApiCore.Queries
@@ -43,7 +41,7 @@ namespace CanvasApiCore.Queries
             _queryParams += "per_page=" + 50 + "&";
 
             string url = ApiController.GetV1Url("v1/courses/", _queryParams);
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
         }
         /// <summary>
@@ -68,7 +66,7 @@ namespace CanvasApiCore.Queries
                 _queryParams += "enrollment_state=" + addParams.enrollment_state + "&";
 
             string url = ApiController.GetV1Url("v1/users/" + userId + "/courses", _queryParams);
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
         }
         /// <summary>
@@ -103,7 +101,7 @@ namespace CanvasApiCore.Queries
 
             int pages = 1;
 
-            if (addParams.number_students is > 0)
+            if (addParams.number_students != null && addParams.number_students > 0)
             {
                 _queryParams += "per_page=" + addParams.number_students + "&";
                 pages = (int)addParams.number_students / 50 + 1;
@@ -114,7 +112,7 @@ namespace CanvasApiCore.Queries
             for (int i = 1; i <= pages; i++)
             {
                 string url = ApiController.GetV1Url("v1/courses/" + courseId + "/users", _queryParams + $"page={i}&");
-                using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+                var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<List<UserJson>>(data.Result);
                 if (json == null) continue;
                 foreach (var item in json)

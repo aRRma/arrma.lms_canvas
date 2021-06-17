@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Submissions;
+using CanvasApiCore.Models;
 
-namespace CanvasApiCore.Models.Query_objects
+namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Дополнительные параметры для запроса "ListSubmissionsForMultiAssignmentsAsync"

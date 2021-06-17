@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CanvasApiCore.Models;
 
-namespace CanvasApiCore.Models.Users
+namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Отображения пользователя LMS Canvas

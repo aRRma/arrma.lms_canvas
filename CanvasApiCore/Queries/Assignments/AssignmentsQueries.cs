@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Assignments;
-using CanvasApiCore.Models.Query_objects;
+using CanvasApiCore.Models;
 using Newtonsoft.Json;
 
 namespace CanvasApiCore.Queries
@@ -44,7 +43,7 @@ namespace CanvasApiCore.Queries
                 _queryParams += "order_by=" + addParams.order_by.ToString().ToLower() + "&";
             
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments", _queryParams);
-            using var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<AssignmentJson>>(data.Result);
         }
     }

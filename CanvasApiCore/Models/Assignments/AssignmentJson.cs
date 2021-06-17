@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasApiCore.Models.Submissions;
+using CanvasApiCore.Models;
 
-namespace CanvasApiCore.Models.Assignments
+namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Задание

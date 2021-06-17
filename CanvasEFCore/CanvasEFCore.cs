@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasEFCoreDb.Entities;
+using CanvasEFCore.Entities;
 
-namespace CanvasEFCoreDb
+namespace CanvasEFCore
 {
     /// <summary>
     /// Класс для работы с базой SQLite через ORM EF Core
@@ -14,7 +14,7 @@ namespace CanvasEFCoreDb
     {
         public async Task UpdDbDataAsync()
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
+            ApplicationDbContext db = new ApplicationDbContext();
 
             db.Courses.Add(new LmsCourse() { Name = "Курс 1" });
             db.Courses.Add(new LmsCourse() { Name = "Курс 2" });

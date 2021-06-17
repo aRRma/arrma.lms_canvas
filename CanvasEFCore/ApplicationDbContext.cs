@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CanvasEFCoreDb.Entities;
+using CanvasEFCore.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CanvasEFCoreDb
+namespace CanvasEFCore
 {
     public sealed class ApplicationDbContext : DbContext
     {

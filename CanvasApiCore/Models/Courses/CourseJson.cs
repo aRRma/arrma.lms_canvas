@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using CanvasApiCore.Models.Users;
+using CanvasApiCore.Models;
 
-namespace CanvasApiCore.Models.Courses
+namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Курс LMS Canvas
@@ -241,7 +241,7 @@ namespace CanvasApiCore.Models.Courses
         /// <summary>
         /// URL след. требования
         /// </summary>
-        public string? next_requirement_url;
+        public string next_requirement_url;
         /// <summary>
         /// Дата завершения курса
         /// </summary>

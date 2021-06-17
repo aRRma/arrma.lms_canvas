@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31321.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "arrma.lms_canvas.api_test", "arrma.lms_canvas.api_test\arrma.lms_canvas.api_test.csproj", "{914E40FD-D151-4A1E-AB67-636AD5AAC09F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test_app", "test_app\test_app.csproj", "{535CFCC0-284C-42DA-ABC0-E4854639BCE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CanvasTestConsole", "Tests\CanvasTestConsole\CanvasTestConsole.csproj", "{914E40FD-D151-4A1E-AB67-636AD5AAC09F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CanvasApiCore", "CanvasApiCore\CanvasApiCore.csproj", "{5B224F9D-E9FA-4505-81D3-318FA36D402E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanvasEFCoreDb", "CanvasEFCoreDb\CanvasEFCoreDb.csproj", "{30D313FA-9D9A-47FD-A66E-6156A7E86965}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CanvasEFCore", "CanvasEFCore\CanvasEFCore.csproj", "{30D313FA-9D9A-47FD-A66E-6156A7E86965}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{123854A0-87DA-493F-8C81-921D7D5CF96E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "Tests\TestConsole\TestConsole.csproj", "{8644ABC6-E20C-4E1A-81CA-1B4BA2B140A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +23,6 @@ Global
 		{914E40FD-D151-4A1E-AB67-636AD5AAC09F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{914E40FD-D151-4A1E-AB67-636AD5AAC09F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{914E40FD-D151-4A1E-AB67-636AD5AAC09F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{535CFCC0-284C-42DA-ABC0-E4854639BCE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{535CFCC0-284C-42DA-ABC0-E4854639BCE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{535CFCC0-284C-42DA-ABC0-E4854639BCE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{535CFCC0-284C-42DA-ABC0-E4854639BCE7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5B224F9D-E9FA-4505-81D3-318FA36D402E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5B224F9D-E9FA-4505-81D3-318FA36D402E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B224F9D-E9FA-4505-81D3-318FA36D402E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,9 +31,17 @@ Global
 		{30D313FA-9D9A-47FD-A66E-6156A7E86965}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30D313FA-9D9A-47FD-A66E-6156A7E86965}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30D313FA-9D9A-47FD-A66E-6156A7E86965}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8644ABC6-E20C-4E1A-81CA-1B4BA2B140A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8644ABC6-E20C-4E1A-81CA-1B4BA2B140A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8644ABC6-E20C-4E1A-81CA-1B4BA2B140A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8644ABC6-E20C-4E1A-81CA-1B4BA2B140A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{914E40FD-D151-4A1E-AB67-636AD5AAC09F} = {123854A0-87DA-493F-8C81-921D7D5CF96E}
+		{8644ABC6-E20C-4E1A-81CA-1B4BA2B140A0} = {123854A0-87DA-493F-8C81-921D7D5CF96E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFC0F398-D64B-456F-9A34-2AC566E5D851}

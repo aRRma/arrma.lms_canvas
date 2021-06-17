@@ -1,4 +1,4 @@
-﻿namespace CanvasApiCore.Models.Courses
+﻿namespace CanvasApiCore.Models
 {
     /// <summary>
     /// Доп. параметры для включения в запрос Course

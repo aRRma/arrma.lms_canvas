@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CanvasApiCore\CanvasApiCore.csproj" />
-    <ProjectReference Include="..\CanvasEFCoreDb\CanvasEFCoreDb.csproj" />
+    <ProjectReference Include="..\..\CanvasApiCore\CanvasApiCore.csproj" />
+    <ProjectReference Include="..\..\CanvasEFCore\CanvasEFCore.csproj" />
   </ItemGroup>
 
 </Project>
