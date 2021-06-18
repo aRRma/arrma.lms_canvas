@@ -13,8 +13,6 @@ namespace CanvasEFCore.Entities
         public int Id { get; set; }
         [Required]
         public int Lms_id { get; set; }
-        [Required]
-        public string Name { get; set; }
 
         // внешние ключи и навигационные свойства
         public int? AssignmentId { get; set; }
@@ -26,6 +24,12 @@ namespace CanvasEFCore.Entities
         public LmsTeacher Teacher { get; set; }
         public List<LmsAttachment> Attachments { get; set; }
 
+        public string Grade { get; set; }
+        public double? Score { get; set; }
+        public string Submission_type { get; set; }
+        public string Workflow_state { get; set; }
+        public int Attempt { get; set; }
+        public bool? Late { get; set; }
         public DateTime? Submitted_at { get; set; }
         public DateTime? Graded_at { get; set; }
     }

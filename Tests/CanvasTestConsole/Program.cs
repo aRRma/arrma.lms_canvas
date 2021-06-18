@@ -50,541 +50,542 @@ namespace CanvasTestConsole
             Console.ReadKey();
         }
 
-        /// <summary>
-        /// Метод запрашивает и отображает все актуальные курсы для текущего пользователя. Все группы и сами задания. Список всех активных студентов на курсах. Представления заданий для каждого студента.
-        /// </summary>
-        /// <remarks>Сейчас представления заданий выводится только для 2 студентов с каждого курса</remarks>
-        /// <returns></returns>
-        static async Task ListAllCourseData()
-        {
-            List<CourseJson> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
-            {
-                include = new List<CourseInclude>() { CourseInclude.TOTAL_STUDENTS, CourseInclude.NEEDS_GRADING_COUNT, CourseInclude.TEACHERS },
-                enrollment_type = CourseUserEnrollmentType.TEACHER,
-                state = new List<CourseState>() { CourseState.AVAILABLE }
-            });
-            course.Remove(course.Find(x => x.id == 7540));
-            course.RemoveAll(x => x.start_at < new DateTime(2021, 1, 1));
+        ///// <summary>
+        ///// Метод запрашивает и отображает все актуальные курсы для текущего пользователя. Все группы и сами задания. Список всех активных студентов на курсах. Представления заданий для каждого студента.
+        ///// </summary>
+        ///// <remarks>Сейчас представления заданий выводится только для 2 студентов с каждого курса</remarks>
+        ///// <returns></returns>
+        //static async Task ListAllCourseData()
+        //{
+        //    List<CourseJson> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
+        //    {
+        //        include = new List<CourseInclude>() { CourseInclude.TOTAL_STUDENTS, CourseInclude.NEEDS_GRADING_COUNT, CourseInclude.TEACHERS },
+        //        enrollment_type = CourseUserEnrollmentType.TEACHER,
+        //        state = new List<CourseState>() { CourseState.AVAILABLE }
+        //    });
+        //    course.Remove(course.Find(x => x.id == 7540));
+        //    course.RemoveAll(x => x.start_at < new DateTime(2021, 1, 1));
 
-            foreach (var item in course.OrderBy(x => x.id))
-            {
-                if (!cashe_courses.ContainsKey(item.id.ToString()))
-                    cashe_courses.Add(item.id.ToString(), item);
+        //    foreach (var item in course.OrderBy(x => x.id))
+        //    {
+        //        if (!cashe_courses.ContainsKey(item.id.ToString()))
+        //            cashe_courses.Add(item.id.ToString(), item);
 
-                Console.Write($"Название курса: ");
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"{item.course_code} {item.name}");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"ID курса: {item.id}\tКурс публичный: {(item.is_public == true ? "да" : "нет")}");
-                Console.Write($"Всего студентов на курсе: ");
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine($"{item.total_students}");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write($"Нужно проверить заданий: ");
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{item.needs_grading_count}\n");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"Преподаватели на курсе:");
-                foreach (var teacher in item.teachers.OrderBy(x => x.id))
-                {
-                    if (!cashe_teachers.ContainsKey(teacher?.id.ToString()))
-                        cashe_teachers.Add(teacher?.id.ToString(), teacher);
+        //        Console.Write($"Название курса: ");
+        //        Console.ForegroundColor = ConsoleColor.Blue;
+        //        Console.WriteLine($"{item.course_code} {item.name}");
+        //        Console.ForegroundColor = ConsoleColor.White;
+        //        Console.WriteLine($"ID курса: {item.id}\tКурс публичный: {(item.is_public == true ? "да" : "нет")}");
+        //        Console.Write($"Всего студентов на курсе: ");
+        //        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        //        Console.WriteLine($"{item.total_students}");
+        //        Console.ForegroundColor = ConsoleColor.White;
+        //        Console.Write($"Нужно проверить заданий: ");
+        //        Console.ForegroundColor = ConsoleColor.Red;
+        //        Console.WriteLine($"{item.needs_grading_count}\n");
+        //        Console.ForegroundColor = ConsoleColor.White;
+        //        Console.WriteLine($"Преподаватели на курсе:");
+        //        foreach (var teacher in item.teachers.OrderBy(x => x.id))
+        //        {
+        //            if (!cashe_teachers.ContainsKey(teacher?.id.ToString()))
+        //                cashe_teachers.Add(teacher?.id.ToString(), teacher);
 
-                    Console.Write($"\tID: ");
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.Write($"{teacher.id}\t");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write($"ФИО: ");
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write($"{teacher.display_name.ToUpper()}");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine();
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine($"Запросили курсы...\n\n");
+        //            Console.Write($"\tID: ");
+        //            Console.ForegroundColor = ConsoleColor.DarkGreen;
+        //            Console.Write($"{teacher.id}\t");
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //            Console.Write($"ФИО: ");
+        //            Console.ForegroundColor = ConsoleColor.Red;
+        //            Console.Write($"{teacher.display_name.ToUpper()}");
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //            Console.WriteLine();
+        //        }
+        //        Console.WriteLine();
+        //    }
+        //    Console.WriteLine($"Запросили курсы...\n\n");
 
-            for (int i = 0; i < course.Count; i++)
-            {
-                var data = await AssignmentGroupsQueries.ListAssignmentGroupsAsync(course[i].id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
-                Console.Write($"Название курса: ");
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"{course[i].course_code} {course[i].name}");
-                Console.ForegroundColor = ConsoleColor.White;
+        //    for (int i = 0; i < course.Count; i++)
+        //    {
+        //        var data = await AssignmentGroupsQueries.ListAssignmentGroupsAsync(course[i].id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
+        //        Console.Write($"Название курса: ");
+        //        Console.ForegroundColor = ConsoleColor.Blue;
+        //        Console.WriteLine($"{course[i].course_code} {course[i].name}");
+        //        Console.ForegroundColor = ConsoleColor.White;
 
-                foreach (var item in data.OrderBy(x => x.position))
-                {
-                    if (!cashe_assignmentGroups.ContainsKey(item.id.ToString()))
-                        cashe_assignmentGroups.Add(item.id.ToString(), item);
-                    Console.Write($"ID группы зад.: ");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write($"{item.id}\t");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write($"Название группы зад.: ");
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"{item.name}");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine($"Задания:");
-                    foreach (var assignment in item.assignments.OrderBy(x => x.position))
-                    {
-                        if (!cashe_assignments.ContainsKey(assignment.id.ToString()))
-                            cashe_assignments.Add(assignment.id.ToString(), assignment);
-                        Console.Write($"\tID: {assignment.id}\tНазвание: ");
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write($"{assignment.name}\t\t");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.Write($"Нужно оценить: ");
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write($"{assignment.needs_grading_count}\t\t");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine($"Опубликовано: {(assignment.published == true ? "Да" : "Нет")}\tДата создания: {assignment.created_at.Value.ToString("g")}");
-                    }
-                    Console.WriteLine();
-                }
-            }
-            Console.WriteLine($"Запросили задания для курса...\n\n");
+        //        foreach (var item in data.OrderBy(x => x.position))
+        //        {
+        //            if (!cashe_assignmentGroups.ContainsKey(item.id.ToString()))
+        //                cashe_assignmentGroups.Add(item.id.ToString(), item);
+        //            Console.Write($"ID группы зад.: ");
+        //            Console.ForegroundColor = ConsoleColor.Green;
+        //            Console.Write($"{item.id}\t");
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //            Console.Write($"Название группы зад.: ");
+        //            Console.ForegroundColor = ConsoleColor.Red;
+        //            Console.WriteLine($"{item.name}");
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //            Console.WriteLine($"Задания:");
+        //            foreach (var assignment in item.assignments.OrderBy(x => x.position))
+        //            {
+        //                if (!cashe_assignments.ContainsKey(assignment.id.ToString()))
+        //                    cashe_assignments.Add(assignment.id.ToString(), assignment);
+        //                Console.Write($"\tID: {assignment.id}\tНазвание: ");
+        //                Console.ForegroundColor = ConsoleColor.Green;
+        //                Console.Write($"{assignment.name}\t\t");
+        //                Console.ForegroundColor = ConsoleColor.White;
+        //                Console.Write($"Нужно оценить: ");
+        //                Console.ForegroundColor = ConsoleColor.Red;
+        //                Console.Write($"{assignment.needs_grading_count}\t\t");
+        //                Console.ForegroundColor = ConsoleColor.White;
+        //                Console.WriteLine($"Опубликовано: {(assignment.published == true ? "Да" : "Нет")}\tДата создания: {assignment.created_at.Value.ToString("g")}");
+        //            }
+        //            Console.WriteLine();
+        //        }
+        //    }
+        //    Console.WriteLine($"Запросили задания для курса...\n\n");
 
-            Dictionary<string, List<UserJson>> courseStudens = new Dictionary<string, List<UserJson>>();
+        //    Dictionary<string, List<UserJson>> courseStudens = new Dictionary<string, List<UserJson>>();
 
-            for (int i = 0; i < course.Count; i++)
-            {
-                var data = await CoursesQueries.ListUsersInCourseAsync(course[i].id.ToString(), new ListUsersInCourseParams()
-                {
-                    include = new List<UserInclude>() { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL },
-                    enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.ACTIVE, UserEnrollmentState.INVITED },
-                    enrollment_type = UserEnrollmentType.STUDENT,
-                    number_students = course[i].total_students
-                });
-                List<UserJson> tempUsers = new List<UserJson>();
-                Console.Write($"Название курса: ");
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($"{course[i].course_code} {course[i].name}");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write($"Студентов на курсе ");
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($"{course[i].total_students}");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($":");
-                Console.Write($"Активных студентов на курсе ");
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write($"{data.Count}");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($":");
-                foreach (var user in data.OrderBy(x => x.id))
-                {
-                    tempUsers.Add(user);
-                    if (!cashe_students.ContainsKey(user.id.ToString()))
-                        cashe_students.Add(user.id.ToString(), user);
-                    Console.Write($"\tID: ");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write($"{user.id}\t");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write($"ФИО: ");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write($"{user.short_name.ToUpper()}\t\t");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write($"Email: ");
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write($"{user.email}");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine();
-                }
-                courseStudens.Add(course[i].id.ToString(), tempUsers);
-                Console.WriteLine();
-            }
-            Console.WriteLine($"Запросили студентов на курсе...\n\n");
+        //    for (int i = 0; i < course.Count; i++)
+        //    {
+        //        var data = await CoursesQueries.ListUsersInCourseAsync(course[i].id.ToString(), new ListUsersInCourseParams()
+        //        {
+        //            include = new List<UserInclude>() { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL },
+        //            enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.ACTIVE, UserEnrollmentState.INVITED },
+        //            enrollment_type = UserEnrollmentType.STUDENT,
+        //            number_students = course[i].total_students
+        //        });
+        //        List<UserJson> tempUsers = new List<UserJson>();
+        //        Console.Write($"Название курса: ");
+        //        Console.ForegroundColor = ConsoleColor.Blue;
+        //        Console.WriteLine($"{course[i].course_code} {course[i].name}");
+        //        Console.ForegroundColor = ConsoleColor.White;
+        //        Console.Write($"Студентов на курсе ");
+        //        Console.ForegroundColor = ConsoleColor.Red;
+        //        Console.Write($"{course[i].total_students}");
+        //        Console.ForegroundColor = ConsoleColor.White;
+        //        Console.WriteLine($":");
+        //        Console.Write($"Активных студентов на курсе ");
+        //        Console.ForegroundColor = ConsoleColor.Green;
+        //        Console.Write($"{data.Count}");
+        //        Console.ForegroundColor = ConsoleColor.White;
+        //        Console.WriteLine($":");
+        //        foreach (var user in data.OrderBy(x => x.id))
+        //        {
+        //            tempUsers.Add(user);
+        //            if (!cashe_students.ContainsKey(user.id.ToString()))
+        //                cashe_students.Add(user.id.ToString(), user);
+        //            Console.Write($"\tID: ");
+        //            Console.ForegroundColor = ConsoleColor.Green;
+        //            Console.Write($"{user.id}\t");
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //            Console.Write($"ФИО: ");
+        //            Console.ForegroundColor = ConsoleColor.Green;
+        //            Console.Write($"{user.short_name.ToUpper()}\t\t");
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //            Console.Write($"Email: ");
+        //            Console.ForegroundColor = ConsoleColor.Blue;
+        //            Console.Write($"{user.email}");
+        //            Console.ForegroundColor = ConsoleColor.White;
+        //            Console.WriteLine();
+        //        }
+        //        courseStudens.Add(course[i].id.ToString(), tempUsers);
+        //        Console.WriteLine();
+        //    }
+        //    Console.WriteLine($"Запросили студентов на курсе...\n\n");
 
-            foreach (var item in courseStudens)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    var submissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(item.Key,
-                        new ListMultiSubmParams()
-                        {
-                            include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY, SubmissionInclude.COURSE },
-                            grouped = true,
-                            workflow_state = SubmissionWorkflowState.GRADED,
-                            student_ids = new[] { item.Value[i].id.ToString() }
-                        });
-                    try
-                    {
-                        foreach (var grSubm in submissions)
-                        {
-                            Console.Write($"ID студента: ");
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine($"{grSubm.user_id}");
-                            Console.ForegroundColor = ConsoleColor.White;
-                            if (grSubm?.submissions.Length > 0)
-                            {
-                                Console.Write($"ФИО: ");
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine($"{grSubm.submissions[0].user.short_name}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write($"Email: ");
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine($"{grSubm.submissions[0].user.sis_user_id}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write($"Курс: ");
-                                Console.ForegroundColor = ConsoleColor.Blue;
-                                Console.WriteLine($"{grSubm.submissions[0].course.name}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                            }
+        //    foreach (var item in courseStudens)
+        //    {
+        //        for (int i = 0; i < 2; i++)
+        //        {
+        //            var submissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(item.Key,
+        //                new ListMultiSubmParams()
+        //                {
+        //                    include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY, SubmissionInclude.COURSE },
+        //                    grouped = true,
+        //                    workflow_state = SubmissionWorkflowState.GRADED,
+        //                    student_ids = new[] { item.Value[i].id.ToString() }
+        //                });
+        //            try
+        //            {
+        //                foreach (var grSubm in submissions)
+        //                {
+        //                    Console.Write($"ID студента: ");
+        //                    Console.ForegroundColor = ConsoleColor.Green;
+        //                    Console.WriteLine($"{grSubm.user_id}");
+        //                    Console.ForegroundColor = ConsoleColor.White;
+        //                    if (grSubm?.submissions.Length > 0)
+        //                    {
+        //                        Console.Write($"ФИО: ");
+        //                        Console.ForegroundColor = ConsoleColor.Green;
+        //                        Console.WriteLine($"{grSubm.submissions[0].user.short_name}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                        Console.Write($"Email: ");
+        //                        Console.ForegroundColor = ConsoleColor.Green;
+        //                        Console.WriteLine($"{grSubm.submissions[0].user.sis_user_id}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                        Console.Write($"Курс: ");
+        //                        Console.ForegroundColor = ConsoleColor.Blue;
+        //                        Console.WriteLine($"{grSubm.submissions[0].course.name}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                    }
 
-                            foreach (var subm in grSubm.submissions)
-                            {
-                                Console.Write($"\tID ");
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.Write($"{subm?.assignment?.id}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write(" : ");
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine($"{subm?.assignment?.name}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write($"\tДоступно с ");
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.Write($"{subm?.assignment?.unlock_at?.ToString("d")}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write($" до ");
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine($"{subm?.assignment?.lock_at?.ToString("d")}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write($"\tСрок сдачи ");
-                                Console.ForegroundColor = ConsoleColor.Yellow;
-                                Console.WriteLine($"{subm?.assignment?.due_at?.ToString("d")}");
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.WriteLine($"\t\t");
-                                foreach (var submHist in subm.submission_history)
-                                {
-                                    if (submHist.attachments != null)
-                                    {
-                                        foreach (var attach in submHist.attachments)
-                                        {
-                                            Console.Write($"\t\t\tФайл: ");
-                                            Console.ForegroundColor = ConsoleColor.Green;
-                                            Console.Write($"{attach?.display_name}");
-                                            Console.ForegroundColor = ConsoleColor.White;
+        //                    foreach (var subm in grSubm.submissions)
+        //                    {
+        //                        Console.Write($"\tID ");
+        //                        Console.ForegroundColor = ConsoleColor.Green;
+        //                        Console.Write($"{subm?.assignment?.id}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                        Console.Write(" : ");
+        //                        Console.ForegroundColor = ConsoleColor.Green;
+        //                        Console.WriteLine($"{subm?.assignment?.name}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                        Console.Write($"\tДоступно с ");
+        //                        Console.ForegroundColor = ConsoleColor.Green;
+        //                        Console.Write($"{subm?.assignment?.unlock_at?.ToString("d")}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                        Console.Write($" до ");
+        //                        Console.ForegroundColor = ConsoleColor.Red;
+        //                        Console.WriteLine($"{subm?.assignment?.lock_at?.ToString("d")}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                        Console.Write($"\tСрок сдачи ");
+        //                        Console.ForegroundColor = ConsoleColor.Yellow;
+        //                        Console.WriteLine($"{subm?.assignment?.due_at?.ToString("d")}");
+        //                        Console.ForegroundColor = ConsoleColor.White;
+        //                        Console.WriteLine($"\t\t");
+        //                        foreach (var submHist in subm.submission_history)
+        //                        {
+        //                            if (submHist.attachments != null)
+        //                            {
+        //                                foreach (var attach in submHist.attachments)
+        //                                {
+        //                                    Console.Write($"\t\t\tФайл: ");
+        //                                    Console.ForegroundColor = ConsoleColor.Green;
+        //                                    Console.Write($"{attach?.display_name}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
 
-                                            Console.Write($"\tФормат: ");
-                                            Console.ForegroundColor = ConsoleColor.Red;
-                                            Console.Write($"{attach?.mime_class}");
-                                            Console.ForegroundColor = ConsoleColor.White;
+        //                                    Console.Write($"\tФормат: ");
+        //                                    Console.ForegroundColor = ConsoleColor.Red;
+        //                                    Console.Write($"{attach?.mime_class}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
 
-                                            Console.Write($"\tЗагружен: ");
-                                            if (attach?.created_at > subm?.assignment?.due_at)
-                                                Console.ForegroundColor = ConsoleColor.Red;
-                                            else
-                                                Console.ForegroundColor = ConsoleColor.Green;
-                                            Console.Write($"{attach?.created_at?.ToString("G")}");
-                                            Console.ForegroundColor = ConsoleColor.White;
+        //                                    Console.Write($"\tЗагружен: ");
+        //                                    if (attach?.created_at > subm?.assignment?.due_at)
+        //                                        Console.ForegroundColor = ConsoleColor.Red;
+        //                                    else
+        //                                        Console.ForegroundColor = ConsoleColor.Green;
+        //                                    Console.Write($"{attach?.created_at?.ToString("G")}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
 
-                                            Console.Write($"\tСост.: ");
-                                            if (submHist?.workflow_state != null)
-                                            {
-                                                SubmissionWorkflowState workflow;
+        //                                    Console.Write($"\tСост.: ");
+        //                                    if (submHist?.workflow_state != null)
+        //                                    {
+        //                                        SubmissionWorkflowState workflow;
 
-                                                if (Enum.TryParse<SubmissionWorkflowState>(submHist?.workflow_state,
-                                                    true, out workflow))
-                                                {
-                                                    switch (workflow)
-                                                    {
-                                                        case SubmissionWorkflowState.GRADED:
-                                                        case SubmissionWorkflowState.COMPLETE:
-                                                            Console.ForegroundColor = ConsoleColor.Green;
-                                                            break;
-                                                        case SubmissionWorkflowState.SUBMITTED:
-                                                            Console.ForegroundColor = ConsoleColor.Yellow;
-                                                            break;
-                                                        default:
-                                                            Console.ForegroundColor = ConsoleColor.Gray;
-                                                            break;
-                                                    }
-                                                }
-                                            }
-                                            Console.Write($"{submHist?.workflow_state}");
-                                            Console.ForegroundColor = ConsoleColor.White;
+        //                                        if (Enum.TryParse<SubmissionWorkflowState>(submHist?.workflow_state,
+        //                                            true, out workflow))
+        //                                        {
+        //                                            switch (workflow)
+        //                                            {
+        //                                                case SubmissionWorkflowState.GRADED:
+        //                                                case SubmissionWorkflowState.COMPLETE:
+        //                                                    Console.ForegroundColor = ConsoleColor.Green;
+        //                                                    break;
+        //                                                case SubmissionWorkflowState.SUBMITTED:
+        //                                                    Console.ForegroundColor = ConsoleColor.Yellow;
+        //                                                    break;
+        //                                                default:
+        //                                                    Console.ForegroundColor = ConsoleColor.Gray;
+        //                                                    break;
+        //                                            }
+        //                                        }
+        //                                    }
+        //                                    Console.Write($"{submHist?.workflow_state}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
 
-                                            Console.Write($"\tОценка: ");
-                                            if (submHist?.grade != null)
-                                            {
-                                                SubmissionGrade grade;
+        //                                    Console.Write($"\tОценка: ");
+        //                                    if (submHist?.grade != null)
+        //                                    {
+        //                                        SubmissionGrade grade;
 
-                                                if (Enum.TryParse<SubmissionGrade>(submHist?.grade, true, out grade))
-                                                    switch (grade)
-                                                    {
-                                                        case SubmissionGrade.COMPLETE:
-                                                            Console.ForegroundColor = ConsoleColor.Green;
-                                                            break;
-                                                        case SubmissionGrade.INCOMPLETE:
-                                                            Console.ForegroundColor = ConsoleColor.Red;
-                                                            break;
-                                                        default:
-                                                            Console.ForegroundColor = ConsoleColor.Gray;
-                                                            break;
-                                                    }
-                                                else
-                                                {
-                                                    Console.ForegroundColor = ConsoleColor.Green;
-                                                }
-                                            }
-                                            Console.Write($"{submHist?.grade}");
-                                            Console.ForegroundColor = ConsoleColor.White;
+        //                                        if (Enum.TryParse<SubmissionGrade>(submHist?.grade, true, out grade))
+        //                                            switch (grade)
+        //                                            {
+        //                                                case SubmissionGrade.COMPLETE:
+        //                                                    Console.ForegroundColor = ConsoleColor.Green;
+        //                                                    break;
+        //                                                case SubmissionGrade.INCOMPLETE:
+        //                                                    Console.ForegroundColor = ConsoleColor.Red;
+        //                                                    break;
+        //                                                default:
+        //                                                    Console.ForegroundColor = ConsoleColor.Gray;
+        //                                                    break;
+        //                                            }
+        //                                        else
+        //                                        {
+        //                                            Console.ForegroundColor = ConsoleColor.Green;
+        //                                        }
+        //                                    }
+        //                                    Console.Write($"{submHist?.grade}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
 
-                                            Console.Write($"\tБаллы: ");
-                                            Console.ForegroundColor = ConsoleColor.Blue;
-                                            Console.Write($"{submHist?.score}");
-                                            Console.ForegroundColor = ConsoleColor.White;
+        //                                    Console.Write($"\tБаллы: ");
+        //                                    Console.ForegroundColor = ConsoleColor.Blue;
+        //                                    Console.Write($"{submHist?.score}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
 
-                                            Console.Write($"\tПопыток: ");
-                                            Console.ForegroundColor = ConsoleColor.Red;
-                                            Console.Write($"{submHist?.attempt}");
-                                            Console.ForegroundColor = ConsoleColor.White;
+        //                                    Console.Write($"\tПопыток: ");
+        //                                    Console.ForegroundColor = ConsoleColor.Red;
+        //                                    Console.Write($"{submHist?.attempt}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
 
-                                            Console.Write($"\tПроверил: ");
-                                            Console.ForegroundColor = ConsoleColor.Green;
-                                            Console.Write($"{(submHist.grader_id != null ? cashe_teachers[submHist.grader_id.ToString()].display_name : "-")} {submHist.graded_at?.ToString("g")}");
-                                            Console.ForegroundColor = ConsoleColor.White;
-                                            Console.WriteLine();
-                                        }
+        //                                    Console.Write($"\tПроверил: ");
+        //                                    Console.ForegroundColor = ConsoleColor.Green;
+        //                                    Console.Write($"{(submHist.grader_id != null ? cashe_teachers[submHist.grader_id.ToString()].display_name : "-")} {submHist.graded_at?.ToString("g")}");
+        //                                    Console.ForegroundColor = ConsoleColor.White;
+        //                                    Console.WriteLine();
+        //                                }
 
-                                    }
-                                    else
-                                    {
-                                        Console.Write($"\tСост.: ");
-                                        if (submHist?.workflow_state != null)
-                                        {
-                                            SubmissionWorkflowState workflow;
+        //                            }
+        //                            else
+        //                            {
+        //                                Console.Write($"\tСост.: ");
+        //                                if (submHist?.workflow_state != null)
+        //                                {
+        //                                    SubmissionWorkflowState workflow;
 
-                                            if (Enum.TryParse<SubmissionWorkflowState>(submHist?.workflow_state,
-                                                true, out workflow))
-                                            {
-                                                switch (workflow)
-                                                {
-                                                    case SubmissionWorkflowState.GRADED:
-                                                    case SubmissionWorkflowState.COMPLETE:
-                                                        Console.ForegroundColor = ConsoleColor.Green;
-                                                        break;
-                                                    case SubmissionWorkflowState.SUBMITTED:
-                                                        Console.ForegroundColor = ConsoleColor.Yellow;
-                                                        break;
-                                                    default:
-                                                        Console.ForegroundColor = ConsoleColor.Gray;
-                                                        break;
-                                                }
-                                            }
-                                        }
-                                        Console.Write($"{submHist?.workflow_state}");
-                                        Console.ForegroundColor = ConsoleColor.White;
+        //                                    if (Enum.TryParse<SubmissionWorkflowState>(submHist?.workflow_state,
+        //                                        true, out workflow))
+        //                                    {
+        //                                        switch (workflow)
+        //                                        {
+        //                                            case SubmissionWorkflowState.GRADED:
+        //                                            case SubmissionWorkflowState.COMPLETE:
+        //                                                Console.ForegroundColor = ConsoleColor.Green;
+        //                                                break;
+        //                                            case SubmissionWorkflowState.SUBMITTED:
+        //                                                Console.ForegroundColor = ConsoleColor.Yellow;
+        //                                                break;
+        //                                            default:
+        //                                                Console.ForegroundColor = ConsoleColor.Gray;
+        //                                                break;
+        //                                        }
+        //                                    }
+        //                                }
+        //                                Console.Write($"{submHist?.workflow_state}");
+        //                                Console.ForegroundColor = ConsoleColor.White;
 
-                                        Console.Write($"\tОценка: ");
-                                        if (submHist?.grade != null)
-                                        {
-                                            SubmissionGrade grade;
+        //                                Console.Write($"\tОценка: ");
+        //                                if (submHist?.grade != null)
+        //                                {
+        //                                    SubmissionGrade grade;
 
-                                            if (Enum.TryParse<SubmissionGrade>(submHist?.grade, true, out grade))
-                                                switch (grade)
-                                                {
-                                                    case SubmissionGrade.COMPLETE:
-                                                        Console.ForegroundColor = ConsoleColor.Green;
-                                                        break;
-                                                    case SubmissionGrade.INCOMPLETE:
-                                                        Console.ForegroundColor = ConsoleColor.Red;
-                                                        break;
-                                                    default:
-                                                        Console.ForegroundColor = ConsoleColor.Gray;
-                                                        break;
-                                                }
-                                            else
-                                            {
-                                                Console.ForegroundColor = ConsoleColor.Green;
-                                            }
-                                        }
-                                        Console.Write($"{submHist?.grade}");
-                                        Console.ForegroundColor = ConsoleColor.White;
+        //                                    if (Enum.TryParse<SubmissionGrade>(submHist?.grade, true, out grade))
+        //                                        switch (grade)
+        //                                        {
+        //                                            case SubmissionGrade.COMPLETE:
+        //                                                Console.ForegroundColor = ConsoleColor.Green;
+        //                                                break;
+        //                                            case SubmissionGrade.INCOMPLETE:
+        //                                                Console.ForegroundColor = ConsoleColor.Red;
+        //                                                break;
+        //                                            default:
+        //                                                Console.ForegroundColor = ConsoleColor.Gray;
+        //                                                break;
+        //                                        }
+        //                                    else
+        //                                    {
+        //                                        Console.ForegroundColor = ConsoleColor.Green;
+        //                                    }
+        //                                }
+        //                                Console.Write($"{submHist?.grade}");
+        //                                Console.ForegroundColor = ConsoleColor.White;
 
-                                        Console.Write($"\tБаллы: ");
-                                        Console.ForegroundColor = ConsoleColor.Blue;
-                                        Console.Write($"{submHist?.score}");
-                                        Console.ForegroundColor = ConsoleColor.White;
+        //                                Console.Write($"\tБаллы: ");
+        //                                Console.ForegroundColor = ConsoleColor.Blue;
+        //                                Console.Write($"{submHist?.score}");
+        //                                Console.ForegroundColor = ConsoleColor.White;
 
-                                        Console.Write($"\tПопыток: ");
-                                        Console.ForegroundColor = ConsoleColor.Red;
-                                        Console.Write($"{submHist?.attempt}");
-                                        Console.ForegroundColor = ConsoleColor.White;
+        //                                Console.Write($"\tПопыток: ");
+        //                                Console.ForegroundColor = ConsoleColor.Red;
+        //                                Console.Write($"{submHist?.attempt}");
+        //                                Console.ForegroundColor = ConsoleColor.White;
 
-                                        Console.Write($"\tПроверил: ");
-                                        Console.ForegroundColor = ConsoleColor.Green;
-                                        if (submHist.grader_id != null && cashe_teachers.ContainsKey(submHist.grader_id.ToString()))
-                                            Console.Write($"{cashe_teachers[submHist.grader_id.ToString()].display_name} {submHist.graded_at?.ToString("g")}");
-                                        else
-                                            Console.Write($"- {submHist.graded_at?.ToString("g")}");
-                                        Console.ForegroundColor = ConsoleColor.White;
-                                        Console.WriteLine();
-                                    }
-                                }
-                                Console.WriteLine();
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
-                }
-            }
+        //                                Console.Write($"\tПроверил: ");
+        //                                Console.ForegroundColor = ConsoleColor.Green;
+        //                                if (submHist.grader_id != null && cashe_teachers.ContainsKey(submHist.grader_id.ToString()))
+        //                                    Console.Write($"{cashe_teachers[submHist.grader_id.ToString()].display_name} {submHist.graded_at?.ToString("g")}");
+        //                                else
+        //                                    Console.Write($"- {submHist.graded_at?.ToString("g")}");
+        //                                Console.ForegroundColor = ConsoleColor.White;
+        //                                Console.WriteLine();
+        //                            }
+        //                        }
+        //                        Console.WriteLine();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                Console.WriteLine(e);
+        //                throw;
+        //            }
+        //        }
+        //    }
 
-            Console.WriteLine($"Запросили представления заданий...\n\n");
-        }
-        /// <summary>
-        /// Метод заполняет базу данных canvas.db
-        /// </summary>
-        /// <returns></returns>
-        static async Task FillCanvasDbOld()
-        {
-            // пишем в бд
-            // заполняем таблицу Преподавателей из кэша
-            foreach (var c_t in cashe_teachers.OrderBy(x => x.Value.id))
-            {
-                if (db.Teachers.Count(x => x.Lms_id.Equals(c_t.Value.id)) <= 0)
-                {
-                    var tp = await UsersQueries.GetUserProfileAsync(c_t.Value.id.ToString());
-                    db.Teachers.Add(new LmsTeacher()
-                    {
-                        Lms_id = (int)tp.id,
-                        Email = tp.primary_email,
-                        Login_id = tp.login_id,
-                        Name = textInfo.ToTitleCase(tp.sortable_name.Split(',')[1].ToLower()),
-                        Surname = textInfo.ToTitleCase(tp.sortable_name.Split(',')[0].ToLower()),
-                        Role = textInfo.ToTitleCase(CourseUserEnrollmentType.TEACHER.ToString().ToLower())
-                    });
-                }
-            }
-            await db.SaveChangesAsync();
-            // заполняем таблицу Студентов из кэша
-            foreach (var c_s in cashe_students.OrderBy(x => x.Value.id))
-            {
-                if (db.Students.Count(x => x.Lms_id.Equals(c_s.Value.id)) <= 0)
-                {
-                    db.Students.Add(new LmsStudent()
-                    {
-                        Lms_id = (int)c_s.Value.id,
-                        Email = c_s.Value.email,
-                        Login_id = c_s.Value.login_id,
-                        Name = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[1].ToLower()),
-                        Surname = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[0].ToLower()),
-                        Role = textInfo.ToTitleCase(CourseUserEnrollmentType.STUDENT.ToString().ToLower())
-                    });
-                }
-            }
-            await db.SaveChangesAsync();
+        //    Console.WriteLine($"Запросили представления заданий...\n\n");
+        //}
+        ///// <summary>
+        ///// Метод заполняет базу данных canvas.db
+        ///// </summary>
+        ///// <returns></returns>
+        //static async Task FillCanvasDbOld()
+        //{
+        //    // пишем в бд
+        //    // заполняем таблицу Преподавателей из кэша
+        //    foreach (var c_t in cashe_teachers.OrderBy(x => x.Value.id))
+        //    {
+        //        if (db.Teachers.Count(x => x.Lms_id.Equals(c_t.Value.id)) <= 0)
+        //        {
+        //            var tp = await UsersQueries.GetUserProfileAsync(c_t.Value.id.ToString());
+        //            db.Teachers.Add(new LmsTeacher()
+        //            {
+        //                Lms_id = (int)tp.id,
+        //                Email = tp.primary_email,
+        //                Login_id = tp.login_id,
+        //                Name = textInfo.ToTitleCase(tp.sortable_name.Split(',')[1].ToLower()),
+        //                Surname = textInfo.ToTitleCase(tp.sortable_name.Split(',')[0].ToLower()),
+        //                Role = textInfo.ToTitleCase(CourseUserEnrollmentType.TEACHER.ToString().ToLower())
+        //            });
+        //        }
+        //    }
+        //    await db.SaveChangesAsync();
+        //    // заполняем таблицу Студентов из кэша
+        //    foreach (var c_s in cashe_students.OrderBy(x => x.Value.id))
+        //    {
+        //        if (db.Students.Count(x => x.Lms_id.Equals(c_s.Value.id)) <= 0)
+        //        {
+        //            db.Students.Add(new LmsStudent()
+        //            {
+        //                Lms_id = (int)c_s.Value.id,
+        //                Email = c_s.Value.email,
+        //                Login_id = c_s.Value.login_id,
+        //                Name = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[1].ToLower()),
+        //                Surname = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[0].ToLower()),
+        //                Role = textInfo.ToTitleCase(CourseUserEnrollmentType.STUDENT.ToString().ToLower())
+        //            });
+        //        }
+        //    }
+        //    await db.SaveChangesAsync();
 
-            foreach (var c_с in cashe_courses)
-            {
-                // заполняем таблицу Курсов из кэша
-                if (db.Courses.Count(x => x.Lms_id.Equals(c_с.Value.id)) <= 0)
-                    db.Courses.Add(new LmsCourse()
-                    {
-                        Lms_id = (int)c_с.Value.id,
-                        Name = c_с.Value.name,
-                        Course_code = c_с.Value.course_code,
-                        Total_students = c_с.Value.total_students,
-                        Total_teachers = c_с.Value.teachers?.Length,
-                        Workflow_state = c_с.Value.workflow_state.ToString(),
-                        Start_at = c_с.Value.start_at,
-                        End_at = c_с.Value.end_at
-                    });
+        //    foreach (var c_с in cashe_courses)
+        //    {
+        //        // заполняем таблицу Курсов из кэша
+        //        if (db.Courses.Count(x => x.Lms_id.Equals(c_с.Value.id)) <= 0)
+        //            db.Courses.Add(new LmsCourse()
+        //            {
+        //                Lms_id = (int)c_с.Value.id,
+        //                Name = c_с.Value.name,
+        //                Course_code = c_с.Value.course_code,
+        //                Total_students = c_с.Value.total_students,
+        //                Total_teachers = c_с.Value.teachers?.Length,
+        //                Workflow_state = c_с.Value.workflow_state.ToString(),
+        //                Start_at = c_с.Value.start_at,
+        //                End_at = c_с.Value.end_at
+        //            });
 
-                foreach (var db_c in db.Courses
-                    .Include(x => x.Teachers)
-                    .Include(x => x.Students)
-                    .Include(x => x.AssignmentGroups)
-                    .Where(x => x.Lms_id.Equals(c_с.Value.id)))
-                {
-                    // добавляем преподавателей к курсам
-                    foreach (var c_ct in c_с.Value.teachers)
-                        if (db_c.Teachers.Count(x => x.Lms_id.Equals(c_ct.id)) <= 0)
-                        {
-                            db_c.Teachers.Add(db.Teachers.FirstOrDefault(x => x.Lms_id.Equals(c_ct.id)));
-                            await db.SaveChangesAsync();
-                        }
+        //        foreach (var db_c in db.Courses
+        //            .Include(x => x.Teachers)
+        //            .Include(x => x.Students)
+        //            .Include(x => x.AssignmentGroups)
+        //            .Where(x => x.Lms_id.Equals(c_с.Value.id)))
+        //        {
+        //            // добавляем преподавателей к курсам
+        //            foreach (var c_ct in c_с.Value.teachers)
+        //                if (db_c.Teachers.Count(x => x.Lms_id.Equals(c_ct.id)) <= 0)
+        //                {
+        //                    db_c.Teachers.Add(db.Teachers.FirstOrDefault(x => x.Lms_id.Equals(c_ct.id)));
+        //                    await db.SaveChangesAsync();
+        //                }
 
-                    // добавляем студентов к курсам
-                    var data = await CoursesQueries.ListUsersInCourseAsync(db_c.Lms_id.ToString(), new ListUsersInCourseParams()
-                    {
-                        include = new List<UserInclude>() { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL },
-                        enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.ACTIVE, UserEnrollmentState.INVITED },
-                        enrollment_type = UserEnrollmentType.STUDENT,
-                        number_students = db_c.Total_students
-                    });
-                    foreach (var u in data)
-                    {
-                        if (db_c.Students.Count(x => x.Lms_id.Equals(u.id)) <= 0)
-                        {
-                            db_c.Students.Add(db.Students.FirstOrDefault(x => x.Lms_id.Equals(u.id)));
-                            await db.SaveChangesAsync();
-                        }
-                    }
+        //            // добавляем студентов к курсам
+        //            var data = await CoursesQueries.ListUsersInCourseAsync(db_c.Lms_id.ToString(), new ListUsersInCourseParams()
+        //            {
+        //                include = new List<UserInclude>() { UserInclude.CURRENT_GRADING_PERIOD_SCORES, UserInclude.EMAIL },
+        //                enrollment_state = new List<UserEnrollmentState>() { UserEnrollmentState.ACTIVE, UserEnrollmentState.INVITED },
+        //                enrollment_type = UserEnrollmentType.STUDENT,
+        //                number_students = db_c.Total_students
+        //            });
+        //            foreach (var u in data)
+        //            {
+        //                if (db_c.Students.Count(x => x.Lms_id.Equals(u.id)) <= 0)
+        //                {
+        //                    db_c.Students.Add(db.Students.FirstOrDefault(x => x.Lms_id.Equals(u.id)));
+        //                    await db.SaveChangesAsync();
+        //                }
+        //            }
 
-                    // заполняем группы заданий и сами задания
-                    var asGr = await AssignmentGroupsQueries.ListAssignmentGroupsAsync(db_c.Lms_id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
-                    foreach (var asGrItem in asGr)
-                    {
-                        var gr = new LmsAssignmentGroup()
-                        {
-                            Lms_id = (int)asGrItem.id,
-                            Name = asGrItem.name,
-                            Position = asGrItem.position
-                        };
-                        // добавляем группу заданий в таблицу
-                        if (db.AssignmentGroups.Count(x => x.Lms_id.Equals(asGrItem.id)) <= 0)
-                            db.AssignmentGroups.Add(gr);
+        //            // заполняем группы заданий и сами задания
+        //            var asGr = await AssignmentGroupsQueries.ListAssignmentGroupsAsync(db_c.Lms_id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
+        //            foreach (var asGrItem in asGr)
+        //            {
+        //                var gr = new LmsAssignmentGroup()
+        //                {
+        //                    Lms_id = (int)asGrItem.id,
+        //                    Name = asGrItem.name,
+        //                    Position = asGrItem.position
+        //                };
+        //                // добавляем группу заданий в таблицу
+        //                if (db.AssignmentGroups.Count(x => x.Lms_id.Equals(asGrItem.id)) <= 0)
+        //                    db.AssignmentGroups.Add(gr);
 
-                        // добавляем группу заданий к курсу
-                        if (db_c.AssignmentGroups.Count(x => x.Lms_id.Equals(asGrItem.id)) <= 0)
-                        {
-                            db_c.AssignmentGroups.Add(gr);
-                            foreach (var asItem in asGrItem.assignments)
-                            {
-                                var assignment = new LmsAssignment()
-                                {
-                                    Lms_id = (int)asItem.id,
-                                    Name = asItem.name,
-                                    Created_at = asItem.created_at,
-                                    Description = asItem.description,
-                                    Due_at = asItem.due_at,
-                                    Lock_at = asItem.lock_at,
-                                    Needs_grading_count = asItem.needs_grading_count,
-                                    Position = asItem.position,
-                                    Unlock_at = asItem.unlock_at,
-                                    Updated_at = asItem.updated_at
+        //                // добавляем группу заданий к курсу
+        //                if (db_c.AssignmentGroups.Count(x => x.Lms_id.Equals(asGrItem.id)) <= 0)
+        //                {
+        //                    db_c.AssignmentGroups.Add(gr);
+        //                    foreach (var asItem in asGrItem.assignments)
+        //                    {
+        //                        var assignment = new LmsAssignment()
+        //                        {
+        //                            Lms_id = (int)asItem.id,
+        //                            Name = asItem.name,
+        //                            Created_at = asItem.created_at,
+        //                            Description = asItem.description,
+        //                            Due_at = asItem.due_at,
+        //                            Lock_at = asItem.lock_at,
+        //                            Needs_grading_count = asItem.needs_grading_count,
+        //                            Position = asItem.position,
+        //                            Unlock_at = asItem.unlock_at,
+        //                            Updated_at = asItem.updated_at
 
-                                };
-                                // добавляем задание в таблицу
-                                if (db.Assignments.Count(x => x.Lms_id.Equals(asItem.id)) <= 0)
-                                    db.Assignments.Add(assignment);
+        //                        };
+        //                        // добавляем задание в таблицу
+        //                        if (db.Assignments.Count(x => x.Lms_id.Equals(asItem.id)) <= 0)
+        //                            db.Assignments.Add(assignment);
 
-                                // добавляем задание в группу заданий
-                                if (db_c.AssignmentGroups.FirstOrDefault(x => x.Lms_id.Equals(asGrItem.id)).Assignments.Count(x => x.Lms_id.Equals(asItem.id)) <= 0)
-                                    db_c.AssignmentGroups.FirstOrDefault(x => x.Lms_id.Equals(asGrItem.id)).Assignments.Add(assignment);
+        //                        // добавляем задание в группу заданий
+        //                        if (db_c.AssignmentGroups.FirstOrDefault(x => x.Lms_id.Equals(asGrItem.id)).Assignments.Count(x => x.Lms_id.Equals(asItem.id)) <= 0)
+        //                            db_c.AssignmentGroups.FirstOrDefault(x => x.Lms_id.Equals(asGrItem.id)).Assignments.Add(assignment);
 
-                                await db.SaveChangesAsync();
-                            }
-                        }
-                    }
+        //                        await db.SaveChangesAsync();
+        //                    }
+        //                }
+        //            }
 
-                    var submissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(db_c.Lms_id.ToString(),
-                        new ListMultiSubmParams()
-                        {
-                            include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY, SubmissionInclude.COURSE },
-                            grouped = true,
-                            workflow_state = SubmissionWorkflowState.GRADED,
-                            student_ids = db_c.Students.Select(x => x.Lms_id.ToString()).ToArray()
-                        });
-                }
-            }
+        //            var submissions = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(db_c.Lms_id.ToString(),
+        //                new ListMultiSubmParams()
+        //                {
+        //                    include = new List<SubmissionInclude>() { SubmissionInclude.USER, SubmissionInclude.ASSIGNMENT, SubmissionInclude.SUBMISSION_HISTORY, SubmissionInclude.COURSE },
+        //                    grouped = true,
+        //                    workflow_state = SubmissionWorkflowState.GRADED,
+        //                    student_ids = db_c.Students.Select(x => x.Lms_id.ToString()).ToArray()
+        //                });
+        //        }
+        //    }
 
-            await db.SaveChangesAsync();
-        }
+        //    await db.SaveChangesAsync();
+        //}
+
         static async Task FillCanvasDbForUser()
         {
             var listCourses = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
@@ -780,6 +781,36 @@ namespace CanvasTestConsole
                             grouped = true,
                             student_ids = new[] { studentItem.Lms_id.ToString() }
                         });
+
+                    foreach (var submissionItem in submissionList[0].submissions)
+                    {
+                        foreach (var submission in submissionItem.submission_history)
+                        {
+                            var lmsSubmission = new LmsSubmission()
+                            {
+                                Lms_id = submission.id,
+                                Assignment = db.Assignments.FirstOrDefault(x=>x.Lms_id.Equals(submission.assignment_id)),
+                                Student = db.Students.FirstOrDefault(x=>x.Lms_id.Equals(submission.user_id)),
+                                Teacher = db.Teachers.FirstOrDefault(x=>x.Lms_id.Equals(submission.grader_id)),
+                                Grade = submission.grade,
+                                Score = submission.score,
+                                Submission_type = submission.submission_type.ToString().ToLower(),
+                                Workflow_state = submission.workflow_state.ToString().ToLower(),
+                                Attempt = submission.attempt ?? default,
+                                Late = submission.late,
+                                Submitted_at = submission.submitted_at,
+                                Graded_at = submission.graded_at
+                            };
+
+                            if (db.Submissions.Count(x => x.Lms_id.Equals(lmsSubmission.Lms_id)) <= 0)
+                            {
+                                db.Submissions.Add(lmsSubmission);
+                                await db.SaveChangesAsync();
+                            }
+                        }
+
+
+                    }
                 }
             }
 

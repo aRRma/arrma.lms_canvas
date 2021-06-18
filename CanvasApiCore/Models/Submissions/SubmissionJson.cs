@@ -197,11 +197,13 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Тип представления задания
         /// </summary>
-        public string submission_type;
+        [JsonConverter(typeof(SubmissionTypeConverter))]
+        public SubmissionType submission_type;
         /// <summary>
         /// Состояние оценки представления (оценено или нет)
         /// </summary>
-        public string workflow_state;
+        [JsonConverter(typeof(SubmissionWorkflowStateConverter))]
+        public SubmissionWorkflowState workflow_state;
         /// <summary>
         /// False если студент отправил задание после последне проверки
         /// </summary>
