@@ -49,7 +49,7 @@ namespace CanvasApiCore.Models
         /// </summary>
         public string avatar_url;
         /// <summary>
-        /// календарь пользователя
+        /// Календарь пользователя
         /// </summary>
         public CourseCalendarLinkModel calendar;
         /// <summary>
@@ -57,7 +57,7 @@ namespace CanvasApiCore.Models
         /// </summary>
         public string time_zone;
         /// <summary>
-        /// Локаль
+        /// Локаль пользователя
         /// </summary>
         public string locale;
     }

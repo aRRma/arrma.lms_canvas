@@ -23,13 +23,13 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Статус регистрации пользователя на курс
         /// </summary>
-        public CourseEnrollmentState enrollment_state;
+        public CourseUserEnrollmentState enrollment_state;
 
         public ListCoursesForUserParams()
         {
             include = new List<CourseInclude>() { CourseInclude.NONE };
             state = new List<CourseState>() { CourseState.NONE };
-            enrollment_state = CourseEnrollmentState.NONE;
+            enrollment_state = CourseUserEnrollmentState.NONE;
         }
     }
 }

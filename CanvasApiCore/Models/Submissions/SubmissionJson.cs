@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using CanvasApiCore.Models;
+using Newtonsoft.Json.Converters;
 
 namespace CanvasApiCore.Models
 {
@@ -69,7 +70,7 @@ namespace CanvasApiCore.Models
         /// </summary>
         public string body;
         /// <summary>
-        /// Оценка за отправку представления
+        /// Оценка за отправку представления (может быть выполнено или не выполнено, а может быть и оценка)
         /// </summary>
         public string grade;
         /// <summary>
@@ -85,7 +86,7 @@ namespace CanvasApiCore.Models
         /// </summary>
         public string preview_url;
         /// <summary>
-        /// Предварительная оценка
+        /// Оценка (если бальная система оценки )
         /// </summary>
         public double? score;
         /// <summary>
@@ -95,7 +96,8 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Тип представления задания
         /// </summary>
-        public string submission_type;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SubmissionType submission_type;
         /// <summary>
         /// Дата отправки задания
         /// </summary>
@@ -151,7 +153,8 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Состояние оценки представления (оценено или нет)
         /// </summary>
-        public string workflow_state;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SubmissionWorkflowState workflow_state;
         /// <summary>
         /// Список истории представлений
         /// </summary>
@@ -172,11 +175,11 @@ namespace CanvasApiCore.Models
         /// </summary>
         public string url;
         /// <summary>
-        /// Оценка за отправку представления
+        /// Оценка за отправку представления (может быть выполнено или не выполнено, а может быть и оценка)
         /// </summary>
         public string grade;
         /// <summary>
-        /// Предварительная оценка
+        /// Оценка (если бальная система оценки )
         /// </summary>
         public double? score;
         /// <summary>

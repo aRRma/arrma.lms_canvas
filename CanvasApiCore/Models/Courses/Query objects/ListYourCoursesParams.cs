@@ -15,7 +15,7 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Роль пользователя на курсе (игнорируется если задан enrollment_role)
         /// </summary>
-        public CourseEnrollmentType enrollment_type;
+        public CourseUserEnrollmentType enrollment_type;
         /// <summary>
         /// УСТАРЕЛО. Роль пользователя на курсе
         /// </summary>
@@ -27,7 +27,7 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Статус регистрации пользователя на курс
         /// </summary>
-        public CourseEnrollmentState enrollment_state;
+        public CourseUserEnrollmentState enrollment_state;
         /// <summary>
         /// Запросить курсы созданные по шаблону
         /// </summary>
@@ -43,10 +43,10 @@ namespace CanvasApiCore.Models
 
         public ListYourCoursesParams()
         {
-            enrollment_type = CourseEnrollmentType.NONE;
+            enrollment_type = CourseUserEnrollmentType.NONE;
             enrollment_role = null;
             enrollment_role_id = null;
-            enrollment_state = CourseEnrollmentState.NONE;
+            enrollment_state = CourseUserEnrollmentState.NONE;
             exclude_blueprint_courses = null;
             include = new List<CourseInclude>() { CourseInclude.NONE };
             state = new List<CourseState>() { CourseState.NONE };

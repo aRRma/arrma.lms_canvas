@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using CanvasApiCore.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CanvasApiCore.Models
 {
@@ -30,9 +32,10 @@ namespace CanvasApiCore.Models
         /// </summary>
         public string course_code;
         /// <summary>
-        /// состояние курса
+        /// Состояние курса
         /// </summary>
-        public string workflow_state;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CourseState workflow_state;
         /// <summary>
         /// ID аккаунта с которым ассоц. курс (ID создателя?)
         /// </summary>
@@ -76,7 +79,8 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Страница по умолчанию для курса
         /// </summary>
-        public string default_view;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CourseDefaultView default_view;
         /// <summary>
         /// Тело учебного плана
         /// </summary>

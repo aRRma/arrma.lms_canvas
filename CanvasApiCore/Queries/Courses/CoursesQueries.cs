@@ -24,11 +24,11 @@ namespace CanvasApiCore.Queries
 
             string _queryParams = null;
 
-            if (addParams.enrollment_type != CourseEnrollmentType.NONE)
+            if (addParams.enrollment_type != CourseUserEnrollmentType.NONE)
                 _queryParams += "enrollment_type=" + addParams.enrollment_type.ToString().ToLower() + "&";
             if (addParams.enrollment_role_id != null)
                 _queryParams += "enrollment_role_id=" + addParams.enrollment_role_id + "&";
-            if (addParams.enrollment_state != CourseEnrollmentState.NONE)
+            if (addParams.enrollment_state != CourseUserEnrollmentState.NONE)
                 _queryParams += "enrollment_state=" + addParams.enrollment_state.ToString().ToLower() + "&";
             if (addParams.exclude_blueprint_courses != null)
                 _queryParams += "exclude_blueprint_courses=" + addParams.exclude_blueprint_courses.ToString().ToLower() + "&";
@@ -62,7 +62,7 @@ namespace CanvasApiCore.Queries
             if (!addParams.state.Contains(CourseState.NONE))
                 foreach (var item in addParams.state)
                     _queryParams += "state[]=" + item.ToString().ToLower() + "&";
-            if (addParams.enrollment_state != CourseEnrollmentState.NONE)
+            if (addParams.enrollment_state != CourseUserEnrollmentState.NONE)
                 _queryParams += "enrollment_state=" + addParams.enrollment_state + "&";
 
             string url = ApiController.GetV1Url("v1/users/" + userId + "/courses", _queryParams);

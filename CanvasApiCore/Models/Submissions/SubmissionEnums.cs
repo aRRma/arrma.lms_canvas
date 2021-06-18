@@ -156,7 +156,7 @@
     }
 
     /// <summary>
-    /// Типы сортировки
+    /// Типы сортировки представлений заданий
     /// </summary>
     public enum SubmissionOrder
     {
@@ -175,7 +175,7 @@
     }
 
     /// <summary>
-    /// Направление сортировки
+    /// Направление сортировки представлений заданий
     /// </summary>
     public enum SubmissionOrderDir
     {

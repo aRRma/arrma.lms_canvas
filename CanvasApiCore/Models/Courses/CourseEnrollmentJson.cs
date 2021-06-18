@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CanvasApiCore.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CanvasApiCore.Models
 {
@@ -15,7 +17,8 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Тип регистрации пользователя на курс
         /// </summary>
-        public string type;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CourseUserEnrollmentType type;
         /// <summary>
         /// Роль пользователя на курсе
         /// </summary>
@@ -31,6 +34,7 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Состояние регистрации на курс пользователя
         /// </summary>
-        public string enrollment_state;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CourseUserEnrollmentState enrollment_state;
     }
 }

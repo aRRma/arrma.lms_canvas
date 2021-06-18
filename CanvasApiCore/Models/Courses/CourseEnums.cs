@@ -107,9 +107,9 @@
     }
 
     /// <summary>
-    /// Тип регистрации (регистрации) на курсе
+    /// Состояние регистрации пользователя на курсе
     /// </summary>
-    public enum CourseEnrollmentState
+    public enum CourseUserEnrollmentState
     {
         /// <summary>
         /// Не известно
@@ -130,9 +130,9 @@
     }
 
     /// <summary>
-    /// Тип ролей регистрации (регистрации) на курсе
+    /// Тип роли регистрации пользователя на курсе
     /// </summary>
-    public enum CourseEnrollmentType
+    public enum CourseUserEnrollmentType
     {
         /// <summary>
         /// Не известно
@@ -165,7 +165,7 @@
     }
 
     /// <summary>
-    /// Страница по умолчанию для курс
+    /// Тип страницы по умолчанию для курса
     /// </summary>
     public enum CourseDefaultView
     {
@@ -174,23 +174,23 @@
         /// </summary>
         NONE,
         /// <summary>
-        /// Панель недавних действий
+        /// Лента активности курса
         /// </summary>
         FEED,
         /// <summary>
-        /// Вики
+        /// Вики (Страницы титульной страницы)
         /// </summary>
         WIKI,
         /// <summary>
-        /// Модули
+        /// Модули курса
         /// </summary>
         MODULES,
         /// <summary>
-        /// Учебный план
+        /// Программа обучения
         /// </summary>
         SYLLABUS,
         /// <summary>
-        /// Задания
+        /// Список заданий
         /// </summary>
         ASSIGNMENTS
     }

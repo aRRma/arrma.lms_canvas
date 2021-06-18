@@ -60,7 +60,7 @@ namespace CanvasTestConsole
             List<CourseJson> course = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
             {
                 include = new List<CourseInclude>() { CourseInclude.TOTAL_STUDENTS, CourseInclude.NEEDS_GRADING_COUNT, CourseInclude.TEACHERS },
-                enrollment_type = CourseEnrollmentType.TEACHER,
+                enrollment_type = CourseUserEnrollmentType.TEACHER,
                 state = new List<CourseState>() { CourseState.AVAILABLE }
             });
             course.Remove(course.Find(x => x.id == 7540));
@@ -455,7 +455,7 @@ namespace CanvasTestConsole
                         Login_id = tp.login_id,
                         Name = textInfo.ToTitleCase(tp.sortable_name.Split(',')[1].ToLower()),
                         Surname = textInfo.ToTitleCase(tp.sortable_name.Split(',')[0].ToLower()),
-                        Role = textInfo.ToTitleCase(CourseEnrollmentType.TEACHER.ToString().ToLower())
+                        Role = textInfo.ToTitleCase(CourseUserEnrollmentType.TEACHER.ToString().ToLower())
                     });
                 }
             }
@@ -472,7 +472,7 @@ namespace CanvasTestConsole
                         Login_id = c_s.Value.login_id,
                         Name = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[1].ToLower()),
                         Surname = textInfo.ToTitleCase(c_s.Value.sortable_name.Split(',')[0].ToLower()),
-                        Role = textInfo.ToTitleCase(CourseEnrollmentType.STUDENT.ToString().ToLower())
+                        Role = textInfo.ToTitleCase(CourseUserEnrollmentType.STUDENT.ToString().ToLower())
                     });
                 }
             }
@@ -489,7 +489,7 @@ namespace CanvasTestConsole
                         Course_code = c_с.Value.course_code,
                         Total_students = c_с.Value.total_students,
                         Total_teachers = c_с.Value.teachers?.Length,
-                        Workflow_state = c_с.Value.workflow_state,
+                        Workflow_state = c_с.Value.workflow_state.ToString(),
                         Start_at = c_с.Value.start_at,
                         End_at = c_с.Value.end_at
                     });
@@ -590,8 +590,8 @@ namespace CanvasTestConsole
         {
             var listCourses = await CoursesQueries.ListYourCoursesAsync(new ListYourCoursesParams()
             {
-                enrollment_state = CourseEnrollmentState.ACTIVE,
-                enrollment_type = CourseEnrollmentType.TEACHER,
+                enrollment_state = CourseUserEnrollmentState.ACTIVE,
+                enrollment_type = CourseUserEnrollmentType.TEACHER,
                 include = new List<CourseInclude>()
                 {
                     CourseInclude.TEACHERS,
@@ -610,7 +610,7 @@ namespace CanvasTestConsole
                     Total_students = listCoursesItem.total_students,
                     Total_teachers = listCoursesItem.teachers?.Length,
                     Needs_grading_count = listCoursesItem.needs_grading_count,
-                    Workflow_state = listCoursesItem.workflow_state,
+                    Workflow_state = listCoursesItem.workflow_state.ToString(),
                     Start_at = listCoursesItem.start_at,
                     End_at = listCoursesItem.end_at
                 };
@@ -635,7 +635,7 @@ namespace CanvasTestConsole
                             Patronymic = textInfo.ToTitleCase(teachersItem.display_name.Split(' ').Length > 1
                                 ? teachersItem.display_name.Split(' ')[1].ToLower()
                                 : string.Empty),
-                            Role = textInfo.ToTitleCase(CourseEnrollmentType.TEACHER.ToString().ToLower())
+                            Role = textInfo.ToTitleCase(CourseUserEnrollmentType.TEACHER.ToString().ToLower())
                         };
 
                         if (db.Teachers.Count(x => x.Lms_id.Equals(lmsTeacher.Lms_id)) <= 0)
@@ -680,7 +680,7 @@ namespace CanvasTestConsole
                         Patronymic = null,
                         Login_id = studentItem.login_id,
                         Email = studentItem.email,
-                        Role = textInfo.ToTitleCase(CourseEnrollmentType.STUDENT.ToString().ToLower())
+                        Role = textInfo.ToTitleCase(CourseUserEnrollmentType.STUDENT.ToString().ToLower())
                     };
 
                     if (db.Students.Count(x => x.Lms_id.Equals(lmsStudent.Lms_id)) <= 0)
