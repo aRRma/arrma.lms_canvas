@@ -96,7 +96,7 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Тип представления задания
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(SubmissionTypeConverter))]
         public SubmissionType submission_type;
         /// <summary>
         /// Дата отправки задания
@@ -153,7 +153,7 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Состояние оценки представления (оценено или нет)
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(SubmissionWorkflowStateConverter))]
         public SubmissionWorkflowState workflow_state;
         /// <summary>
         /// Список истории представлений
@@ -321,5 +321,63 @@ namespace CanvasApiCore.Models
         /// URL ссылка на медиа
         /// </summary>
         public string url;
+    }
+
+    internal class SubmissionTypeConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            bool isNullable = IsNullable(objectType);
+            Type enumType = isNullable ? Nullable.GetUnderlyingType(objectType) : objectType;
+            if (reader.TokenType == JsonToken.String)
+            {
+                string enumText = reader.Value.ToString().ToUpper();
+                return (SubmissionType)Enum.Parse(typeof(SubmissionType), enumText);
+            }
+            return SubmissionType.NONE;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            Type type = IsNullable(objectType) ? Nullable.GetUnderlyingType(objectType) : objectType;
+            return type.IsEnum;
+        }
+
+        private bool IsNullable(Type type) =>
+            type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+    }
+
+    internal class SubmissionWorkflowStateConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            bool isNullable = IsNullable(objectType);
+            Type enumType = isNullable ? Nullable.GetUnderlyingType(objectType) : objectType;
+            if (reader.TokenType == JsonToken.String)
+            {
+                string enumText = reader.Value.ToString().ToUpper();
+                return (SubmissionWorkflowState)Enum.Parse(typeof(SubmissionWorkflowState), enumText);
+            }
+            return SubmissionWorkflowState.NONE;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            Type type = IsNullable(objectType) ? Nullable.GetUnderlyingType(objectType) : objectType;
+            return type.IsEnum;
+        }
+
+        private bool IsNullable(Type type) =>
+            type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
     }
 }

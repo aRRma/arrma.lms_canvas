@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CanvasApiCore.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CanvasApiCore.Models
 {
@@ -123,7 +125,8 @@ namespace CanvasApiCore.Models
         /// <summary>
         /// Массив типов представления заданий
         /// </summary>
-        public string[] submission_types;
+        [JsonProperty("submission_types", ItemConverterType = typeof(StringEnumConverter))]
+        public SubmissionType[] submission_types;
         /// <summary>
         /// Была хоть одна отправка задания
         /// </summary>

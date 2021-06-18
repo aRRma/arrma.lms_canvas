@@ -21,6 +21,5 @@ namespace CanvasEFCore.Entities
         public List<LmsAssignment> Assignments { get; set; } = new List<LmsAssignment>();
 
         public int? Position { get; set; }
-        public double? Group_weight { get; set; }
     }
 }

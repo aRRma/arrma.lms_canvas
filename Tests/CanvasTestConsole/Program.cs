@@ -533,7 +533,6 @@ namespace CanvasTestConsole
                         {
                             Lms_id = (int)asGrItem.id,
                             Name = asGrItem.name,
-                            Group_weight = asGrItem.group_weight,
                             Position = asGrItem.position
                         };
                         // добавляем группу заданий в таблицу
@@ -610,7 +609,7 @@ namespace CanvasTestConsole
                     Total_students = listCoursesItem.total_students,
                     Total_teachers = listCoursesItem.teachers?.Length,
                     Needs_grading_count = listCoursesItem.needs_grading_count,
-                    Workflow_state = listCoursesItem.workflow_state.ToString(),
+                    Workflow_state = listCoursesItem.workflow_state.ToString().ToLower(),
                     Start_at = listCoursesItem.start_at,
                     End_at = listCoursesItem.end_at
                 };
@@ -657,7 +656,7 @@ namespace CanvasTestConsole
                         }
                     }
             }
-
+            // заполнили таблицу студентов, добавили студентов к курсу
             foreach (var courseItem in db.Courses.Include(x => x.Students))
             {
                 var studentsOnCourse = await CoursesQueries.ListUsersInCourseAsync(courseItem.Lms_id.ToString(),
@@ -696,6 +695,100 @@ namespace CanvasTestConsole
                     }
                 }
             }
+            // заполняем таблицу группы заданий, заданий
+            foreach (var courseItem in db.Courses.Include(x => x.AssignmentGroups))
+            {
+                var assignmentGroups = await AssignmentGroupsQueries.ListAssignmentGroupsAsync(courseItem.Lms_id.ToString(), AssignmentGroupInclude.ASSIGNMENTS);
+                //заполняем таблицу группы заданий и добавляем группы в курс
+                foreach (var assignmentGroup in assignmentGroups)
+                {
+                    var lmsAssignmentGroup = new LmsAssignmentGroup()
+                    {
+                        Lms_id = assignmentGroup.id,
+                        Name = assignmentGroup.name,
+                        Position = assignmentGroup.position
+                    };
+
+                    if (db.AssignmentGroups.Count(x => x.Lms_id.Equals(lmsAssignmentGroup.Lms_id)) <= 0)
+                    {
+                        db.AssignmentGroups.Add(lmsAssignmentGroup);
+                        await db.SaveChangesAsync();
+                    }
+
+                    if (courseItem.AssignmentGroups.Count(x => x.Lms_id.Equals(lmsAssignmentGroup.Lms_id)) <= 0)
+                    {
+                        courseItem.AssignmentGroups.Add(db.AssignmentGroups.FirstOrDefault(x => x.Lms_id.Equals(lmsAssignmentGroup.Lms_id)));
+                        await db.SaveChangesAsync();
+                    }
+                    // заполняем таблицу заданий заданий и добавляем задания в группу
+                    foreach (var assignment in assignmentGroup.assignments)
+                    {
+                        var lmsAssignment = new LmsAssignment()
+                        {
+                            Lms_id = assignment.id,
+                            Name = assignment.name,
+                            Position = assignment.position,
+                            Description = assignment.description,
+                            Needs_grading_count = assignment.needs_grading_count,
+                            //Allowed_extensions = assignment.allowed_extensions,
+                            //Submission_types = assignment.submission_types,
+                            Points_possible = assignment.points_possible,
+                            Created_at = assignment.created_at,
+                            Updated_at = assignment.updated_at,
+                            Unlock_at = assignment.unlock_at,
+                            Due_at = assignment.due_at,
+                            Lock_at = assignment.lock_at
+                        };
+
+                        if (assignment.allowed_extensions != null)
+                            for (int i = 0; i < assignment.allowed_extensions.Length; i++)
+                                lmsAssignment.Allowed_extensions += assignment.allowed_extensions[i] + ";";
+                        if (assignment.submission_types != null)
+                            for (int i = 0; i < assignment.submission_types.Length; i++)
+                                lmsAssignment.Submission_types += assignment.submission_types[i].ToString().ToLower() + ";";
+
+                        if (db.Assignments.Count(x => x.Lms_id.Equals(lmsAssignment.Lms_id)) <= 0)
+                        {
+                            db.Assignments.Add(lmsAssignment);
+                            await db.SaveChangesAsync();
+                        }
+
+                        if (db.AssignmentGroups
+                            .Include(x => x.Assignments)
+                            .FirstOrDefault(x => x.Lms_id.Equals(lmsAssignmentGroup.Lms_id))
+                            .Assignments.Count(x => x.Lms_id.Equals(lmsAssignment.Lms_id)) <= 0)
+                        {
+                            db.AssignmentGroups
+                                .Include(x => x.Assignments)
+                                .FirstOrDefault(x => x.Lms_id.Equals(lmsAssignmentGroup.Lms_id))
+                                .Assignments.Add(db.Assignments.FirstOrDefault(x => x.Lms_id.Equals(lmsAssignment.Lms_id)));
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                }
+
+            }
+
+            foreach (var courseItem in db.Courses.Include(x => x.Students))
+            {
+                foreach (var studentItem in courseItem.Students)
+                {
+                    var submissionList = await SubmissionsQueries.ListSubmissionsForMultiAssignmentsAsync(courseItem.Lms_id.ToString(),
+                        new ListMultiSubmParams()
+                        {
+                            include = new List<SubmissionInclude>() { SubmissionInclude.SUBMISSION_HISTORY },
+                            grouped = true,
+                            student_ids = new[] { studentItem.Lms_id.ToString() }
+                        });
+                }
+            }
+
+
+
+
+
+
+
 
             foreach (var lmsCourse in db.Courses.Include(x => x.Teachers).Include(x => x.Students))
             {

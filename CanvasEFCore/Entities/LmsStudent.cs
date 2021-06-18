@@ -8,5 +8,6 @@ namespace CanvasEFCore.Entities
 {
     public class LmsStudent : LmsBaseUser
     {
+        public string Academic_group { get; set; }
     }
 }
