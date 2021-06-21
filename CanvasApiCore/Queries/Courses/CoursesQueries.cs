@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CanvasApiCore.Models;
 using Newtonsoft.Json;
@@ -17,8 +18,11 @@ namespace CanvasApiCore.Queries
         /// Запросить список курсов текущего пользователя.
         /// </summary>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
+        /// <param name ="cancel">Токен завершения асинхронной задачи</param>
         /// <returns>Список объектов курс "Course".</returns>
-        public static async Task<List<CourseJson>> ListYourCoursesAsync(ListYourCoursesParams addParams)
+        /// <exception cref="Newtonsoft.Json.JsonException">Ошибка десериализации</exception>
+        /// <exception cref="Exception">Ошибка HTTP запроса</exception>
+        public static async Task<List<CourseJson>> ListYourCoursesAsync(ListYourCoursesParams addParams, CancellationToken cancel = default)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.index
 
@@ -41,16 +45,28 @@ namespace CanvasApiCore.Queries
             _queryParams += "per_page=" + 50 + "&";
             //TODO добавить запрос страниц
             string url = ApiController.GetV1Url("v1/courses/", _queryParams);
-            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
+            var data = (await ApiController.HttpClient.GetAsync(url, cancel).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            try
+            {
+                return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(JsonException))
+                    throw new JsonException($"URL: {url}\nError JSON: {data.Result}\nMessage: {e.Message}\n", e.InnerException);
+                throw new Exception($"URL: {url}\nMessage: {e.Message}\n", e.InnerException);
+            }
         }
         /// <summary>
         /// Запросить список курсов для конкретного пользователя.
         /// </summary>
         /// <param name="userId">ID пользователя на курсе</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
+        /// <param name ="cancel">Токен завершения асинхронной задачи</param>
         /// <returns>Список объектов курс "Course".</returns>
-        public static async Task<List<CourseJson>> ListCoursesForUserAsync(string userId, ListCoursesForUserParams addParams)
+        /// <exception cref="Newtonsoft.Json.JsonException">Ошибка десериализации</exception>
+        /// <exception cref="Exception">Ошибка HTTP запроса</exception>
+        public static async Task<List<CourseJson>> ListCoursesForUserAsync(string userId, ListCoursesForUserParams addParams, CancellationToken cancel = default)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.user_index
 
@@ -66,16 +82,28 @@ namespace CanvasApiCore.Queries
                 _queryParams += "enrollment_state=" + addParams.enrollment_state + "&";
 
             string url = ApiController.GetV1Url("v1/users/" + userId + "/courses", _queryParams);
-            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
+            var data = (await ApiController.HttpClient.GetAsync(url, cancel).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            try
+            {
+                return JsonConvert.DeserializeObject<List<CourseJson>>(data.Result);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(JsonException))
+                    throw new JsonException($"URL: {url}\nError JSON: {data.Result}\nMessage: {e.Message}\n", e.InnerException);
+                throw new Exception($"URL: {url}\nMessage: {e.Message}\n", e.InnerException);
+            }
         }
         /// <summary>
         /// Запросить список пользователей на курсе.
         /// </summary>
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса.</param>
+        /// <param name ="cancel">Токен завершения асинхронной задачи</param>
         /// <returns>Список объектов пользователь "User".</returns>
-        public static async Task<List<UserJson>> ListUsersInCourseAsync(string courseId, ListUsersInCourseParams addParams)
+        /// <exception cref="Newtonsoft.Json.JsonException">Ошибка десериализации</exception>
+        /// <exception cref="Exception">Ошибка HTTP запроса</exception>
+        public static async Task<List<UserJson>> ListUsersInCourseAsync(string courseId, ListUsersInCourseParams addParams, CancellationToken cancel = default)
         {
             // see https://canvas.instructure.com/doc/api/courses.html#method.courses.users
 
@@ -112,11 +140,20 @@ namespace CanvasApiCore.Queries
             for (int i = 1; i <= pages; i++)
             {
                 string url = ApiController.GetV1Url("v1/courses/" + courseId + "/users", _queryParams + $"page={i}&");
-                var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-                var json = JsonConvert.DeserializeObject<List<UserJson>>(data.Result);
-                if (json == null) continue;
-                foreach (var item in json)
-                    users.Add(item);
+                var data = (await ApiController.HttpClient.GetAsync(url, cancel).ConfigureAwait(false)).Content.ReadAsStringAsync();
+                try
+                {
+                    var json = JsonConvert.DeserializeObject<List<UserJson>>(data.Result);
+                    if (json == null) continue;
+                    foreach (var item in json)
+                        users.Add(item);
+                }
+                catch (Exception e)
+                {
+                    if (e.GetType() == typeof(JsonException))
+                        throw new JsonException($"URL: {url}\nError JSON: {data.Result}\nMessage: {e.Message}\n", e.InnerException);
+                    throw new Exception($"URL: {url}\nMessage: {e.Message}\n", e.InnerException);
+                }
             }
             return users;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using CanvasApiCore.Models;
 using Newtonsoft.Json;
@@ -21,8 +22,11 @@ namespace CanvasApiCore.Queries
         /// <remarks>Если параметр student_ids опущен, то вернутся представления для текущего пользователя</remarks>
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
+        /// <param name ="cancel">Токен завершения асинхронной задачи</param>
         /// <returns>Если grouped=true, то список "StudentSubmissions". А если grouped=false, то список "Submission"</returns>
-        public static async Task<List<GroupedSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmParams addParams)
+        /// <exception cref="Newtonsoft.Json.JsonException">Ошибка десериализации</exception>
+        /// <exception cref="Exception">Ошибка HTTP запроса</exception>
+        public static async Task<List<GroupedSubmissions>> ListSubmissionsForMultiAssignmentsAsync(string courseId, ListMultiSubmParams addParams, CancellationToken cancel = default)
         {
             // see https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.for_students
 
@@ -66,28 +70,20 @@ namespace CanvasApiCore.Queries
             {
                 string studentsIds = string.Join("", addParams.student_ids.Skip(50 * (i - 1)).Take(50).Select(x => "student_ids[]=" + x + "&").ToArray());
                 string url = ApiController.GetV1Url("v1/courses/" + courseId + "/students/submissions", _queryParams + studentsIds + $"page={i}&");
-
-                var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-                var json = JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
-
-                //вариант запроса страниц через хэдер Link. Но что-то бывает не очень удобно так делать
-                //var answer = await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false);
-                //if (addParams.student_ids.Length > 50)
-                //{
-                //    var links = answer.Headers.FirstOrDefault(x => x.Key == "Link").Value.FirstOrDefault().Split(',');
-                //    foreach (var linksItem in links)
-                //    {
-                //        var relMatch = Regex.Match(linksItem, "(?<=rel=\").+?(?=\")", RegexOptions.IgnoreCase);
-                //        if (relMatch.Value == "last")
-                //            pages = int.Parse(Regex.Match(linksItem, "(?<=page=).+?(?=&)", RegexOptions.IgnoreCase).Value);
-                //    }
-                //}
-                //var json = JsonConvert.DeserializeObject<List<GroupedSubmissions>>(answer.Content.ReadAsStringAsync().Result);
-
-
-                if (json == null) continue;
-                foreach (var item in json)
-                    submissions.Add(item);
+                var data = (await ApiController.HttpClient.GetAsync(url, cancel).ConfigureAwait(false)).Content.ReadAsStringAsync();
+                try
+                {
+                    var json = JsonConvert.DeserializeObject<List<GroupedSubmissions>>(data.Result);
+                    if (json == null) continue;
+                    foreach (var item in json)
+                        submissions.Add(item);
+                }
+                catch (Exception e)
+                {
+                    if (e.GetType() == typeof(JsonException))
+                        throw new JsonException($"URL: {url}\nError JSON: {data.Result}\nMessage: {e.Message}\n", e.InnerException);
+                    throw new Exception($"URL: {url}\nMessage: {e.Message}\n", e.InnerException);
+                }
             }
             return submissions;
         }
@@ -98,8 +94,11 @@ namespace CanvasApiCore.Queries
         /// <param name="assignmentId">ID задания из курса</param>
         /// <param name="userId">ID пользователя на курсе</param>
         /// <param name="include">Дополнительные параметры запроса</param>
+        /// <param name ="cancel">Токен завершения асинхронной задачи</param>
         /// <returns>Объект представления "Submission"</returns>
-        public static async Task<SubmissionJson> GetSingleSubmissionAsync(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null)
+        /// <exception cref="Newtonsoft.Json.JsonException">Ошибка десериализации</exception>
+        /// <exception cref="Exception">Ошибка HTTP запроса</exception>
+        public static async Task<SubmissionJson> GetSingleSubmissionAsync(string courseId, string assignmentId, string userId, List<SubmissionInclude> include = null, CancellationToken cancel = default)
         {
             // see https://canvas.instructure.com/doc/api/submissions.html#method.submissions_api.show
 
@@ -110,8 +109,17 @@ namespace CanvasApiCore.Queries
                     _queryParams += "include[]=" + item.ToString().ToLower() + "&";
 
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments/" + assignmentId + "/submissions/" + userId, _queryParams);
-            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<SubmissionJson>(data.Result);
+            var data = (await ApiController.HttpClient.GetAsync(url, cancel).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            try
+            {
+                return JsonConvert.DeserializeObject<SubmissionJson>(data.Result);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(JsonException))
+                    throw new JsonException($"URL: {url}\nError JSON: {data.Result}\nMessage: {e.Message}\n", e.InnerException);
+                throw new Exception($"URL: {url}\nMessage: {e.Message}\n", e.InnerException);
+            }
         }
     }
 }

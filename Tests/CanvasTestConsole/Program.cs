@@ -769,7 +769,7 @@ namespace CanvasTestConsole
                 }
 
             }
-
+            // заполняем таблицу представлений
             foreach (var courseItem in db.Courses.Include(x => x.Students))
             {
                 foreach (var studentItem in courseItem.Students)
@@ -805,7 +805,7 @@ namespace CanvasTestConsole
                             if (db.Submissions.Count(x => x.Lms_id.Equals(lmsSubmission.Lms_id)) <= 0)
                             {
                                 db.Submissions.Add(lmsSubmission);
-                                await db.SaveChangesAsync();
+                                db.SaveChangesAsync();
                             }
                         }
 
@@ -813,14 +813,7 @@ namespace CanvasTestConsole
                     }
                 }
             }
-
-
-
-
-
-
-
-
+            
             foreach (var lmsCourse in db.Courses.Include(x => x.Teachers).Include(x => x.Students))
             {
                 Console.WriteLine($"{lmsCourse.Name} {lmsCourse.Course_code}");

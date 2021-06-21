@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CanvasApiCore.Models;
 using Newtonsoft.Json;
@@ -18,8 +19,11 @@ namespace CanvasApiCore.Queries
         /// </summary>
         /// <param name="courseId">ID курса</param>
         /// <param name="addParams">Объект дополнительных параметров для запроса</param>
+        /// <param name ="cancel">Токен завершения асинхронной задачи</param>
         /// <returns>Список объектов заданий "Assignment".</returns>
-        public static async Task<List<AssignmentJson>> ListAssignmentsAsync(string courseId, ListAssignmentsParams addParams)
+        /// <exception cref="Newtonsoft.Json.JsonException">Ошибка десериализации</exception>
+        /// <exception cref="Exception">Ошибка HTTP запроса</exception>
+        public static async Task<List<AssignmentJson>> ListAssignmentsAsync(string courseId, ListAssignmentsParams addParams, CancellationToken cancel = default)
         {
             // see https://canvas.instructure.com/doc/api/assignments.html#method.assignments_api.index
 
@@ -41,10 +45,19 @@ namespace CanvasApiCore.Queries
                     _queryParams += "assignment_ids[]=" + addParams.assignment_ids[i] + "&";
             if (addParams.order_by != AssignmentOrderBy.NONE)
                 _queryParams += "order_by=" + addParams.order_by.ToString().ToLower() + "&";
-            
+
             string url = ApiController.GetV1Url("v1/courses/" + courseId + "/assignments", _queryParams);
-            var data = (await ApiController.HttpClient.GetAsync(url).ConfigureAwait(false)).Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<AssignmentJson>>(data.Result);
+            var data = (await ApiController.HttpClient.GetAsync(url, cancel).ConfigureAwait(false)).Content.ReadAsStringAsync();
+            try
+            {
+                return JsonConvert.DeserializeObject<List<AssignmentJson>>(data.Result);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(JsonException))
+                    throw new JsonException($"URL: {url}\nError JSON: {data.Result}\nMessage: {e.Message}\n", e.InnerException);
+                throw new Exception($"URL: {url}\nMessage: {e.Message}\n", e.InnerException);
+            }
         }
     }
 }
