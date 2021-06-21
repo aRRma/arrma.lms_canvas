@@ -1,13 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using CanvasApiCore.Models;
 using CanvasApiCore.Queries;
 using CanvasEFCore;
@@ -786,12 +781,13 @@ namespace CanvasTestConsole
                     {
                         foreach (var submission in submissionItem.submission_history)
                         {
+
                             var lmsSubmission = new LmsSubmission()
                             {
                                 Lms_id = submission.id,
-                                Assignment = db.Assignments.FirstOrDefault(x=>x.Lms_id.Equals(submission.assignment_id)),
-                                Student = db.Students.FirstOrDefault(x=>x.Lms_id.Equals(submission.user_id)),
-                                Teacher = db.Teachers.FirstOrDefault(x=>x.Lms_id.Equals(submission.grader_id)),
+                                Assignment = db.Assignments.FirstOrDefault(x => x.Lms_id.Equals(submission.assignment_id)),
+                                Student = db.Students.FirstOrDefault(x => x.Lms_id.Equals(submission.user_id)),
+                                Teacher = db.Teachers.FirstOrDefault(x => x.Lms_id.Equals(submission.grader_id)),
                                 Grade = submission.grade,
                                 Score = submission.score,
                                 Submission_type = submission.submission_type.ToString().ToLower(),
@@ -805,15 +801,49 @@ namespace CanvasTestConsole
                             if (db.Submissions.Count(x => x.Lms_id.Equals(lmsSubmission.Lms_id)) <= 0)
                             {
                                 db.Submissions.Add(lmsSubmission);
-                                db.SaveChangesAsync();
+                                await db.SaveChangesAsync();
                             }
+
+                            if (submission.attachments != null)
+                                foreach (var attachmentItem in submission.attachments)
+                                {
+                                    var lmsAttachment = new LmsAttachment()
+                                    {
+                                        Lms_id = attachmentItem.id,
+                                        Name = attachmentItem.filename,
+                                        Display_name = attachmentItem.display_name,
+                                        File_name = attachmentItem.filename,
+                                        File_format = attachmentItem.mime_class,
+                                        Size = attachmentItem.size,
+                                        Download_url = attachmentItem.url,
+                                        Created_at = attachmentItem.created_at,
+                                        Modified_at = attachmentItem.modified_at,
+                                        Updated_at = attachmentItem.updated_at,
+                                    };
+
+                                    if (db.Attachments.Count(x => x.Lms_id.Equals(lmsAttachment.Lms_id)) <= 0)
+                                    {
+                                        db.Attachments.Add(lmsAttachment);
+                                        await db.SaveChangesAsync();
+                                    }
+
+                                    if (db.Submissions
+                                        .Include(x => x.Attachments)
+                                        .FirstOrDefault(x => x.Lms_id.Equals(lmsSubmission.Lms_id))
+                                        .Attachments.Count(x => x.Lms_id.Equals(lmsAttachment.Lms_id)) <= 0)
+                                    {
+                                        db.Submissions
+                                            .Include(x => x.Attachments)
+                                            .FirstOrDefault(x => x.Lms_id.Equals(lmsSubmission.Lms_id))
+                                            .Attachments.Add(lmsAttachment);
+                                        await db.SaveChangesAsync();
+                                    }
+                                }
                         }
-
-
                     }
                 }
             }
-            
+
             foreach (var lmsCourse in db.Courses.Include(x => x.Teachers).Include(x => x.Students))
             {
                 Console.WriteLine($"{lmsCourse.Name} {lmsCourse.Course_code}");

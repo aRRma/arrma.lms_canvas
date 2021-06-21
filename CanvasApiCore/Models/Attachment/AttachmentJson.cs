@@ -87,7 +87,7 @@ namespace CanvasApiCore.Models
         /// </summary>
         public DateTime? updated_at;
         /// <summary>
-        /// URL
+        /// URL на загрузку файла
         /// </summary>
         public string url;
     }
