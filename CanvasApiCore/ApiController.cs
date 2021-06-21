@@ -14,11 +14,11 @@ namespace CanvasApiCore
     {
         private static readonly HttpClient httpClient = new HttpClient();
         private static readonly string server_url = "https://lms.misis.ru:443/api/";
-        private static readonly string token = "ViNkcfTAwujXMDGHKu3N6Ag0TxYgdi6tQBdezEVBM6WReA7HECDP9h04IIjmGc9o";
-        private static readonly string test_user_id = "23392";           //Данильченко
-        private static readonly string test_course_id = "11527";         //ООП Бивт-20
-        private static readonly string test_assignment_id = "115645";    //ЛР№1_Отч
-        private static readonly string test_student_id = "31411";        //Дмитрий Генкель
+        private static readonly string token;
+        private static readonly string test_user_id;           
+        private static readonly string test_course_id;         
+        private static readonly string test_assignment_id;    
+        private static readonly string test_student_id;        
 
         public static HttpClient HttpClient => httpClient;
         public static string ServerUrl => server_url;
