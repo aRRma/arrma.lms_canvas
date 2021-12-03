@@ -12,6 +12,7 @@
 
 ```
 [Guide]: https://community.canvaslms.com/t5/Admin-Guide/How-do-I-manage-API-access-tokens-as-an-admin/ta-p/89 
+[Swagger]: https://lms.misis.ru//doc/api/live
 ```
 
 
